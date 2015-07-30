@@ -29,7 +29,7 @@ module Homebrew
           <array>
               <string>/bin/sh</string>
               <string>-c</string>
-              <string>/bin/date && #{HOMEBREW_PREFIX}/bin/brew update && #{HOMEBREW_PREFIX}/bin/brew upgrade --all -v</string>
+              <string>/bin/date && #{HOMEBREW_PREFIX}/bin/brew update && #{HOMEBREW_PREFIX}/bin/brew upgrade -v</string>
           </array>
           <key>RunAtLoad</key>
           <true/>
