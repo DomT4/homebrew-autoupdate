@@ -1,7 +1,9 @@
 # Homebrew-autoupdate
 
 An easy, convenient way to automatically update Homebrew.
-This script will run once every 24 hours, doing both brew update & brew upgrade.
+
+This script will run once every 24 hours, doing `brew update`.
+`brew upgrade` can also be handled automatically but is an optional flag.
 
 [![](http://imgs.xkcd.com/comics/update.png)](https://xkcd.com/1328/)
 
@@ -18,6 +20,8 @@ Usage:
 --start = Start autoupdating every 24 hours.
 --stop = Stop autoupdating, but retain plist & logs.
 --delete = Cancel the autoupdate, delete the plist and logs.
+--upgrade = Also automatically upgrade your packages.
+--version = Output this tool's current version.
 ```
 
 ## License
