@@ -5,19 +5,28 @@ require "open-uri"
 
 module Homebrew
   def autoupdate
-
     path = File.expand_path("~/Library/LaunchAgents/homebrew.mxcl.autoupdate.plist")
 
-    if ARGV.empty?
+    if ARGV.empty? || ARGV.include?("--help") || ARGV.include?("-h")
       puts <<-EOS.undent
         Usage:
         --start = Start autoupdating every 24 hours.
         --stop = Stop autoupdating, but retain plist & logs.
         --delete = Cancel the autoupdate, delete the plist and logs.
+        --upgrade = Also automatically upgrade your packages.
+        --version = Output this tool's current version.
       EOS
     end
 
+    if ARGV.include? "--version"
+      puts "Version 1.1.0, July 2015"
+    end
+
     if ARGV.include? "--start"
+      auto_args = "#{HOMEBREW_PREFIX}/bin/brew update"
+      # Spacing at start of line is deliberate. Don't undo.
+      auto_args << " && #{HOMEBREW_PREFIX}/bin/brew upgrade -v" if ARGV.include? "--upgrade"
+
       file = <<-EOS.undent
         <?xml version="1.0" encoding="UTF-8"?>
         <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -29,7 +38,7 @@ module Homebrew
           <array>
               <string>/bin/sh</string>
               <string>-c</string>
-              <string>/bin/date && #{HOMEBREW_PREFIX}/bin/brew update && #{HOMEBREW_PREFIX}/bin/brew upgrade -v</string>
+              <string>/bin/date && #{auto_args}</string>
           </array>
           <key>RunAtLoad</key>
           <true/>
