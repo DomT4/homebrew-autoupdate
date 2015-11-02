@@ -13,7 +13,7 @@ Just `brew tap domt4/autoupdate`.
 
 ## Usage
 
-To run the script, you’d just do `brew autopdate`. The following options are available:
+To run the script, you’d just do `brew autoupdate`. The following options are available:
 
 ```
 Usage:
