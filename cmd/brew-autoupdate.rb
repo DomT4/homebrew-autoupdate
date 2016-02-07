@@ -6,6 +6,7 @@ require "open-uri"
 module Homebrew
   def autoupdate
     path = File.expand_path("~/Library/LaunchAgents/homebrew.mxcl.autoupdate.plist")
+    log_path = File.expand_path("~/Library/Logs/homebrew.mxcl.autoupdate")
 
     if ARGV.empty? || ARGV.include?("--help") || ARGV.include?("-h")
       puts <<-EOS.undent
@@ -29,27 +30,30 @@ module Homebrew
       
       ARGV[1].nil? ? time_interval = 86400 : time_interval = ARGV[1].to_i
 
+      # Create log directory
+      FileUtils::mkdir_p log_path
+      
       file = <<-EOS.undent
         <?xml version="1.0" encoding="UTF-8"?>
         <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
         <plist version="1.0">
         <dict>
-          <key>Label</key>
-          <string>homebrew.mxcl.autoupdate</string>
-          <key>ProgramArguments</key>
-          <array>
-              <string>/bin/sh</string>
-              <string>-c</string>
-              <string>/bin/date && #{auto_args}</string>
-          </array>
-          <key>RunAtLoad</key>
-          <true/>
-          <key>StandardErrorPath</key>
-          <string>#{HOMEBREW_PREFIX}/var/log/homebrew.mxcl.autoupdate.err</string>
-          <key>StandardOutPath</key>
-          <string>#{HOMEBREW_PREFIX}/var/log/homebrew.mxcl.autoupdate.out</string>
-          <key>StartInterval</key>
-          <integer>#{time_interval}</integer>
+            <key>Label</key>
+            <string>homebrew.mxcl.autoupdate</string>
+            <key>ProgramArguments</key>
+            <array>
+                <string>/bin/sh</string>
+                <string>-c</string>
+                <string>/bin/date && #{auto_args}</string>
+            </array>
+            <key>RunAtLoad</key>
+            <true/>
+            <key>StandardErrorPath</key>
+            <string>#{log_path}/homebrew.mxcl.autoupdate.err</string>
+            <key>StandardOutPath</key>
+            <string>#{log_path}/homebrew.mxcl.autoupdate.out</string>
+            <key>StartInterval</key>
+            <integer>#{time_interval}</integer>
         </dict>
         </plist>
       EOS
@@ -67,9 +71,12 @@ module Homebrew
     if ARGV.include? "--delete"
       quiet_system "/bin/launchctl", "unload", path
       rm_f path
-      rm_f "#{HOMEBREW_PREFIX}/var/log/homebrew.mxcl.autoupdate.err"
-      rm_f "#{HOMEBREW_PREFIX}/var/log/homebrew.mxcl.autoupdate.out"
-      puts "Homebrew will no longer autoupdate and the plist has been deleted."
+      rm_f log_path
+      puts "Homebrew will no longer autoupdate and the LaunchAgent + Logs has been deleted."
+    end
+    
+    if ARGV.include? "--logs"
+      puts log_path
     end
   end
 end
