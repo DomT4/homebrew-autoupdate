@@ -17,7 +17,7 @@ To run the script, you’d just do `brew autoupdate`. The following options are 
 
 ```
 Usage:
---start = Start autoupdating every 24 hours.
+--start [seconds] = Start autoupdating every 24 hours or with a specified time interval in seconds.
 --stop = Stop autoupdating, but retain plist & logs.
 --delete = Cancel the autoupdate, delete the plist and logs.
 --upgrade = Also automatically upgrade your packages.
