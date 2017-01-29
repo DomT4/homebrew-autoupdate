@@ -27,8 +27,8 @@ module Autoupdate
     auto_args = "#{brew} update"
     # Spacing at start of lines is deliberate. Don't undo.
     if ARGV.include? "--upgrade"
-      auto_args << " && #{brew} upgrade -v"
-      auto_args << " && #{brew} cleanup" if ARGV.include? "--cleanup"
+      auto_args << " &amp;&amp; #{brew} upgrade -v"
+      auto_args << " &amp;&amp; #{brew} cleanup" if ARGV.include? "--cleanup"
     end
 
     file = <<-EOS.undent
@@ -42,7 +42,7 @@ module Autoupdate
         <array>
             <string>/bin/sh</string>
             <string>-c</string>
-            <string>/bin/date && #{auto_args}</string>
+            <string>/bin/date &amp;&amp; #{auto_args}</string>
         </array>
         <key>RunAtLoad</key>
         <true/>
