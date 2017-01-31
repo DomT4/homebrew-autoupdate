@@ -3,7 +3,8 @@ require "pathname"
 
 module Autoupdate
   brew = HOMEBREW_PREFIX/"bin/brew"
-  plist = File.expand_path("~/Library/LaunchAgents/homebrew.mxcl.autoupdate.plist")
+  plist = File.expand_path("~/Library/LaunchAgents/com.github.domt4.homebrew-autoupdate.plist")
+  logs = File.expand_path("~/Library/Logs/com.github.domt4.homebrew-autoupdate")
   location = Pathname.new(File.expand_path("~/Library/Caches/com.github.domt4.homebrew-autoupdate"))
 
   if ARGV.empty? || ARGV.include?("--help") || ARGV.include?("-h")
@@ -42,6 +43,7 @@ module Autoupdate
       #!/bin/bash
       /bin/date && #{brew} #{auto_args}
     EOS
+    FileUtils.mkpath(logs)
     FileUtils.mkpath(location)
     File.open(location/"updater", "w") { |sc| sc << script_contents }
     FileUtils.chmod 0555, location/"updater"
@@ -52,7 +54,7 @@ module Autoupdate
       <plist version="1.0">
       <dict>
         <key>Label</key>
-        <string>homebrew.mxcl.autoupdate</string>
+        <string>com.github.domt4.homebrew-autoupdate</string>
         <key>Program</key>
         <string>#{location}/updater</string>
         <key>ProgramArguments</key>
@@ -62,9 +64,9 @@ module Autoupdate
         <key>RunAtLoad</key>
         <true/>
         <key>StandardErrorPath</key>
-        <string>#{HOMEBREW_PREFIX}/var/log/homebrew.mxcl.autoupdate.err</string>
+        <string>#{logs}/com.github.domt4.homebrew-autoupdate.err</string>
         <key>StandardOutPath</key>
-        <string>#{HOMEBREW_PREFIX}/var/log/homebrew.mxcl.autoupdate.out</string>
+        <string>#{logs}/com.github.domt4.homebrew-autoupdate.out</string>
         <key>StartInterval</key>
         <integer>86400</integer>
       </dict>
@@ -85,6 +87,8 @@ module Autoupdate
     quiet_system "/bin/launchctl", "unload", plist
     FileUtils.rm_f plist
     FileUtils.rm_rf location
+    FileUtils.rm_rf logs
+    # Old logs location. Keep around for a bit so we're not littering.
     FileUtils.rm_f "#{HOMEBREW_PREFIX}/var/log/homebrew.mxcl.autoupdate.err"
     FileUtils.rm_f "#{HOMEBREW_PREFIX}/var/log/homebrew.mxcl.autoupdate.out"
     puts "Homebrew will no longer autoupdate and the plist has been deleted."
