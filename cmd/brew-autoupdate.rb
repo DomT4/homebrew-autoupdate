@@ -23,6 +23,14 @@ module Autoupdate
   end
 
   if ARGV.include? "--start"
+    if File.exist?(plist)
+      puts <<-EOS.undent
+        The command already appears to have been started.
+        Please run `brew autoupdate --delete` and try again.
+      EOS
+      exit 1
+    end
+
     auto_args = "update"
     # Spacing at start of lines is deliberate. Don't undo.
     if ARGV.include? "--upgrade"
