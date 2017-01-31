@@ -89,6 +89,8 @@ module Autoupdate
     # Old logs location. Keep around for a bit so we're not littering.
     FileUtils.rm_f "#{HOMEBREW_PREFIX}/var/log/homebrew.mxcl.autoupdate.err"
     FileUtils.rm_f "#{HOMEBREW_PREFIX}/var/log/homebrew.mxcl.autoupdate.out"
+    # Old plist name, adjusted for clarity of origin in version 2.0.0.
+    FileUtils.rm_f File.expand_path("~/Library/LaunchAgents/homebrew.mxcl.autoupdate.plist")
     puts "Homebrew will no longer autoupdate and the plist has been deleted."
   end
 end
