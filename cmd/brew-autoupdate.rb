@@ -37,7 +37,7 @@ module Autoupdate
     EOS
   end
 
-  puts "Version 2.0.0. Last Changed: Jan 2017" if ARGV.include? "--version"
+  puts "Version 2.1.0. Last Changed: Jan 2017" if ARGV.include? "--version"
 
   if ARGV.include? "--start"
     if File.exist?(@plist)
