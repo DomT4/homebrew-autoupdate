@@ -1,11 +1,10 @@
-#!/usr/bin/env ruby -w
-
 require "fileutils"
-require "utils"
+require "pathname"
 
 module Autoupdate
-  plist = File.expand_path("~/Library/LaunchAgents/homebrew.mxcl.autoupdate.plist")
   brew = HOMEBREW_PREFIX/"bin/brew"
+  plist = File.expand_path("~/Library/LaunchAgents/homebrew.mxcl.autoupdate.plist")
+  location = Pathname.new(File.expand_path("~/Library/Caches/com.github.domt4.homebrew-autoupdate"))
 
   if ARGV.empty? || ARGV.include?("--help") || ARGV.include?("-h")
     puts <<-EOS.undent
@@ -24,12 +23,20 @@ module Autoupdate
   end
 
   if ARGV.include? "--start"
-    auto_args = "#{brew} update"
+    auto_args = "update"
     # Spacing at start of lines is deliberate. Don't undo.
     if ARGV.include? "--upgrade"
       auto_args << " && #{brew} upgrade -v"
       auto_args << " && #{brew} cleanup" if ARGV.include? "--cleanup"
     end
+
+    script_contents = <<-EOS.undent
+      #!/bin/bash
+      /bin/date && #{brew} #{auto_args}
+    EOS
+    FileUtils.mkpath(location)
+    File.open(location/"updater", "w") { |sc| sc << script_contents }
+    FileUtils.chmod 0555, location/"updater"
 
     file = <<-EOS.undent
       <?xml version="1.0" encoding="UTF-8"?>
@@ -38,11 +45,11 @@ module Autoupdate
       <dict>
         <key>Label</key>
         <string>homebrew.mxcl.autoupdate</string>
+        <key>Program</key>
+        <string>#{location}/updater</string>
         <key>ProgramArguments</key>
         <array>
-            <string>/bin/sh</string>
-            <string>-c</string>
-            <string>/bin/date && #{auto_args}</string>
+            <string>#{location}/updater</string>
         </array>
         <key>RunAtLoad</key>
         <true/>
@@ -69,6 +76,7 @@ module Autoupdate
   if ARGV.include? "--delete"
     quiet_system "/bin/launchctl", "unload", plist
     FileUtils.rm_f plist
+    FileUtils.rm_rf location
     FileUtils.rm_f "#{HOMEBREW_PREFIX}/var/log/homebrew.mxcl.autoupdate.err"
     FileUtils.rm_f "#{HOMEBREW_PREFIX}/var/log/homebrew.mxcl.autoupdate.out"
     puts "Homebrew will no longer autoupdate and the plist has been deleted."
