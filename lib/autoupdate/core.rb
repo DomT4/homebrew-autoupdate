@@ -19,7 +19,7 @@ module Autoupdate
     end
 
     def fallback_logs
-      File.expand_path("..", Autoupdate::Core.logs)
+      File.expand_path("..", logs)
     end
 
     def location
