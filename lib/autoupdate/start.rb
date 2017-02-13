@@ -17,6 +17,24 @@ module Autoupdate
       auto_args << " && #{Autoupdate::Core.brew} cleanup" if ARGV.include? "--cleanup"
     end
 
+    # It's not something I particularly support but if someone manually loads
+    # the plist with launchctl themselves we can end up with a log directory
+    # we can't write to later, so need to ensure a future `start` command
+    # doesn't silently fail.
+    logs_parent = File.expand_path("..", Autoupdate::Core.logs)
+    if File.exist?(Autoupdate::Core.logs) && File.writable?(Autoupdate::Core.logs)
+      log_err = "#{Autoupdate::Core.logs}/#{Autoupdate::Core.name}.err"
+      log_std = "#{Autoupdate::Core.logs}/#{Autoupdate::Core.name}.out"
+    elsif File.writable?(logs_parent)
+      log_err = "#{logs_parent}/#{Autoupdate::Core.name}.err"
+      log_std = "#{logs_parent}/#{Autoupdate::Core.name}.out"
+    else
+      puts <<-EOS.undent
+        #{Autoupdate::Core.logs} does not seem to be writable.
+        You may with to `chown` it back to your user.
+      EOS
+    end
+
     script_contents = <<-EOS.undent
       #!/bin/bash
       /bin/date && #{Autoupdate::Core.brew} #{auto_args}
@@ -42,9 +60,9 @@ module Autoupdate
         <key>RunAtLoad</key>
         <true/>
         <key>StandardErrorPath</key>
-        <string>#{Autoupdate::Core.logs}/#{Autoupdate::Core.name}.err</string>
+        <string>#{log_err}</string>
         <key>StandardOutPath</key>
-        <string>#{Autoupdate::Core.logs}/#{Autoupdate::Core.name}.out</string>
+        <string>#{log_std}</string>
         <key>StartInterval</key>
         <integer>86400</integer>
       </dict>
