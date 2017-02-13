@@ -18,6 +18,10 @@ module Autoupdate
       File.expand_path("~/Library/Logs/#{name}")
     end
 
+    def fallback_logs
+      File.expand_path("..", Autoupdate::Core.logs)
+    end
+
     def location
       Pathname.new(File.expand_path("~/Library/Application Support/#{name}"))
     end
