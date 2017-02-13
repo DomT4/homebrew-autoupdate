@@ -43,8 +43,15 @@ module Autoupdate
     EOS
     FileUtils.mkpath(Autoupdate::Core.logs)
     FileUtils.mkpath(Autoupdate::Core.location)
-    File.open(Autoupdate::Core.location/"updater", "w") { |sc| sc << script_contents }
-    FileUtils.chmod 0555, Autoupdate::Core.location/"updater"
+
+    # If someone has previously stopped the command assume when they start
+    # it again they'd want to keep the same options & don't replace the script.
+    # If you want to tweak prior-provided options the expected way is with the
+    # delete command followed by the start command with new args.
+    unless File.exist?(Autoupdate::Core.location/"updater")
+      File.open(Autoupdate::Core.location/"updater", "w") { |sc| sc << script_contents }
+      FileUtils.chmod 0555, Autoupdate::Core.location/"updater"
+    end
 
     file = <<-EOS.undent
       <?xml version="1.0" encoding="UTF-8"?>
