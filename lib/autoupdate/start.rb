@@ -2,7 +2,9 @@ module Autoupdate
   module_function
 
   def start
-    if File.exist?(Autoupdate::Core.plist)
+    # Method from Homebrew.
+    # https://github.com/Homebrew/brew/blob/c9c7f4/Library/Homebrew/utils/popen.rb
+    if Utils.popen_read("/bin/launchctl list").include?(Autoupdate::Core.name)
       puts <<-EOS.undent
         The command already appears to have been started.
         Please run `brew autoupdate --delete` and try again.
