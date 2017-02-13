@@ -23,13 +23,12 @@ module Autoupdate
     # the plist with launchctl themselves we can end up with a log directory
     # we can't write to later, so need to ensure a future `start` command
     # doesn't silently fail.
-    logs_parent = File.expand_path("..", Autoupdate::Core.logs)
     if File.exist?(Autoupdate::Core.logs) && File.writable?(Autoupdate::Core.logs)
       log_err = "#{Autoupdate::Core.logs}/#{Autoupdate::Core.name}.err"
       log_std = "#{Autoupdate::Core.logs}/#{Autoupdate::Core.name}.out"
-    elsif File.writable?(logs_parent)
-      log_err = "#{logs_parent}/#{Autoupdate::Core.name}.err"
-      log_std = "#{logs_parent}/#{Autoupdate::Core.name}.out"
+    elsif File.writable?(Autoupdate::Core.fallback_logs)
+      log_err = "#{Autoupdate::Core.fallback_logs}/#{Autoupdate::Core.name}.err"
+      log_std = "#{Autoupdate::Core.fallback_logs}/#{Autoupdate::Core.name}.out"
     else
       puts <<-EOS.undent
         #{Autoupdate::Core.logs} does not seem to be writable.
