@@ -19,11 +19,18 @@ module Autoupdate
       auto_args << " && #{Autoupdate::Core.brew} cleanup" if ARGV.include? "--cleanup"
     end
 
+    script_contents = <<-EOS.undent
+      #!/bin/bash
+      /bin/date && #{Autoupdate::Core.brew} #{auto_args}
+    EOS
+    FileUtils.mkpath(Autoupdate::Core.logs)
+    FileUtils.mkpath(Autoupdate::Core.location)
+
     # It's not something I particularly support but if someone manually loads
     # the plist with launchctl themselves we can end up with a log directory
     # we can't write to later, so need to ensure a future `start` command
     # doesn't silently fail.
-    if File.exist?(Autoupdate::Core.logs) && File.writable?(Autoupdate::Core.logs)
+    if File.writable?(Autoupdate::Core.logs)
       log_err = "#{Autoupdate::Core.logs}/#{Autoupdate::Core.name}.err"
       log_std = "#{Autoupdate::Core.logs}/#{Autoupdate::Core.name}.out"
     elsif File.writable?(Autoupdate::Core.fallback_logs)
@@ -35,13 +42,6 @@ module Autoupdate
         You may with to `chown` it back to your user.
       EOS
     end
-
-    script_contents = <<-EOS.undent
-      #!/bin/bash
-      /bin/date && #{Autoupdate::Core.brew} #{auto_args}
-    EOS
-    FileUtils.mkpath(Autoupdate::Core.logs)
-    FileUtils.mkpath(Autoupdate::Core.location)
 
     # If someone has previously stopped the command assume when they start
     # it again they'd want to keep the same options & don't replace the script.
