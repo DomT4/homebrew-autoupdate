@@ -3,9 +3,10 @@
 An easy, convenient way to automatically update Homebrew.
 
 This script will run once every 24 hours, doing `brew update`.
-`brew upgrade` and `brew cleanup` can also be handled automatically but are optional flags.
+`brew upgrade` and `brew cleanup` can also be handled automatically but are
+optional flags.
 
-[![](http://imgs.xkcd.com/comics/update.png)](https://xkcd.com/1328/)
+[![](https://imgs.xkcd.com/comics/update.png)](https://xkcd.com/1328/)
 
 ## How do I tap this repository?
 
@@ -13,16 +14,25 @@ Just `brew tap domt4/autoupdate`.
 
 ## Usage
 
-To run the script, you’d just do `brew autoupdate`. The following options are available:
+To run the script, you’d just do `brew autoupdate`. The following options are
+available:
 
 ```
 Usage:
 --start = Start autoupdating every 24 hours.
---stop = Stop autoupdating, but retain plist & logs.
---delete = Cancel the autoupdate, delete the plist and logs.
 --upgrade = Also automatically upgrade your packages.
 --cleanup = Automatically cleanup old packages after upgrade.
+--stop = Stop autoupdating, but retain plist & logs.
+--delete = Cancel the autoupdate, delete the plist and logs.
 --version = Output this tool's current version.
+```
+
+It's not required but if you use this update script I'd recommend not permitting
+Homebrew to automatically update itself _every time_ `brew install`,
+`brew upgrade` or ` brew tap` are executed by adding this to your shell profile:
+
+```
+export HOMEBREW_NO_AUTO_UPDATE="1"
 ```
 
 ## License
