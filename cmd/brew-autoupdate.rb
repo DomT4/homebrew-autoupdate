@@ -1,9 +1,13 @@
-#:  * `autoupdate --start` [`--upgrade`] [`--cleanup`]:
+#:  * `autoupdate --start` [`--upgrade`] [`--cleanup`] [`--enable-notification`]:
 #:    Start autoupdating every 24 hours.
 #:
 #:    If `--upgrade` is specified, also automatically upgrade your packages.
 #:
 #:    If `--cleanup` is specified, also automatically cleanup old packages after upgrade.
+#:
+#:    If `--enable-notification` is specified, send a notification when the
+#:    autoupdate process has finished successfully, if terminal-notifier
+#:    is installed & found.
 #:
 #:  * `autoupdate --stop`:
 #:    Stop autoupdating, but retain plist & logs.

@@ -18,6 +18,9 @@ module Autoupdate
       auto_args << " && #{Autoupdate::Core.brew} upgrade -v"
       auto_args << " && #{Autoupdate::Core.brew} cleanup" if ARGV.include? "--cleanup"
     end
+    if ARGV.include?("--enable-notification") && Autoupdate::Notify.notifier && MacOS.version >= :snow_leopard
+      auto_args << " && #{Autoupdate::Notify.notify}"
+    end
 
     script_contents = <<-EOS.undent
       #!/bin/bash
