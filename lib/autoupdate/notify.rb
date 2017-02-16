@@ -9,8 +9,14 @@ module Autoupdate
     end
 
     def path_to_notifier
-      if notifier && File.executable?(notifier)
+      if which("terminal-notifier") && File.executable?(notifier)
         File.path(File.expand_path(notifier))
+      elsif File.exist?("/Applications/terminal-notifier.app/Contents/MacOS/terminal-notifier")
+        "/Applications/terminal-notifier.app/Contents/MacOS/terminal-notifier"
+      elsif File.exist?(File.expand_path("~/Applications/terminal-notifier.app/Contents/MacOS/terminal-notifier"))
+        File.expand_path("~/Applications/terminal-notifier.app/Contents/MacOS/terminal-notifier")
+      else
+        false
       end
     end
 
