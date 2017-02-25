@@ -8,23 +8,32 @@ optional flags.
 
 [![](https://imgs.xkcd.com/comics/update.png)](https://xkcd.com/1328/)
 
-## How do I tap this repository?
+## How do I install this command?
 
 Just `brew tap domt4/autoupdate`.
 
 ## Usage
 
-To run the script, you’d just do `brew autoupdate`. The following options are
-available:
-
 ```
-Usage:
---start = Start autoupdating every 24 hours.
---upgrade = Also automatically upgrade your packages.
---cleanup = Automatically cleanup old packages after upgrade.
---stop = Stop autoupdating, but retain plist & logs.
---delete = Cancel the autoupdate, delete the plist and logs.
---version = Output this tool's current version.
+brew autoupdate --start [--upgrade] [--cleanup] [--enable-notification]:
+    Start autoupdating every 24 hours.
+
+    If --upgrade is specified, also automatically upgrade your packages.
+
+    If --cleanup is specified, also automatically cleanup old packages after upgrade.
+
+    If --enable-notification is specified, send a notification when the
+    autoupdate process has finished successfully, if terminal-notifier
+    is installed & found.
+
+brew autoupdate --stop:
+    Stop autoupdating, but retain plist & logs.
+
+brew autoupdate --delete:
+    Cancel the autoupdate, delete the plist and logs.
+
+brew autoupdate --version:
+    Output this tool's current version.
 ```
 
 It's not required but if you use this update script I'd recommend not permitting
