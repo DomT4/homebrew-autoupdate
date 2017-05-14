@@ -18,7 +18,10 @@ module Autoupdate
       auto_args << " && #{Autoupdate::Core.brew} upgrade -v"
       auto_args << " && #{Autoupdate::Core.brew} cleanup" if ARGV.include? "--cleanup"
     end
-    if ARGV.include?("--enable-notification") && Autoupdate::Notify.notifier && MacOS.version >= :mountain_lion
+    if ARGV.include?("--enable-notification") && MacOS.version < :yosemite
+      puts "terminal-notifier has deprecated support for anything below Yosemite"
+      exit 1
+    elsif ARGV.include?("--enable-notification") && Autoupdate::Notify.notifier
       auto_args << " && #{Autoupdate::Notify.notify}"
     end
 
