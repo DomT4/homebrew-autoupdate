@@ -5,7 +5,7 @@ module Autoupdate
     # Method from Homebrew.
     # https://github.com/Homebrew/brew/blob/c9c7f4/Library/Homebrew/utils/popen.rb
     if Utils.popen_read("/bin/launchctl list").include?(Autoupdate::Core.name)
-      puts <<-EOS.undent
+      puts <<~EOS
         The command already appears to have been started.
         Please run `brew autoupdate --delete` and try again.
       EOS
@@ -25,7 +25,7 @@ module Autoupdate
       auto_args << " && #{Autoupdate::Notify.notify}"
     end
 
-    script_contents = <<-EOS.undent
+    script_contents = <<~EOS
       #!#{ENV["SHELL"]}
       /bin/date && #{Autoupdate::Core.brew} #{auto_args}
     EOS
@@ -43,7 +43,7 @@ module Autoupdate
       log_err = "#{Autoupdate::Core.fallback_logs}/#{Autoupdate::Core.name}.err"
       log_std = "#{Autoupdate::Core.fallback_logs}/#{Autoupdate::Core.name}.out"
     else
-      puts <<-EOS.undent
+      puts <<~EOS
         #{Autoupdate::Core.logs} does not seem to be writable.
         You may with to `chown` it back to your user.
       EOS
@@ -58,7 +58,7 @@ module Autoupdate
       FileUtils.chmod 0555, Autoupdate::Core.location/"updater"
     end
 
-    file = <<-EOS.undent
+    file = <<~EOS
       <?xml version="1.0" encoding="UTF-8"?>
       <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
       <plist version="1.0">
