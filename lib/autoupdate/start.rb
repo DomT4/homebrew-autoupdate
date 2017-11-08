@@ -26,7 +26,7 @@ module Autoupdate
     end
 
     script_contents = <<~EOS
-      #!#{ENV["SHELL"]}
+      #!/bin/sh
       /bin/date && #{Autoupdate::Core.brew} #{auto_args}
     EOS
     FileUtils.mkpath(Autoupdate::Core.logs)
