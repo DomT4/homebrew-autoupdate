@@ -3,7 +3,7 @@ module Autoupdate
 
   def version
     puts <<~EOS
-      Version 2.5.1. Last Changed: November 2017
+      Version 2.5.2. Last Changed: November 2017
     EOS
   end
 end
