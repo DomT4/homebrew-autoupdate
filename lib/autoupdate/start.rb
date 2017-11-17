@@ -83,6 +83,10 @@ module Autoupdate
       </plist>
     EOS
 
+    # https://github.com/DomT4/homebrew-autoupdate/issues/10
+    user_la = Pathname.new(Autoupdate::Core.plist).dirname
+    FileUtils.mkpath(user_la) unless File.exist?(user_la)
+
     File.open(Autoupdate::Core.plist, "w") { |f| f << file }
     quiet_system "/bin/launchctl", "load", Autoupdate::Core.plist
     puts "Homebrew will now automatically update every 24 hours, or on system boot."
