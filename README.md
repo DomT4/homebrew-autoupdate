@@ -2,13 +2,15 @@
 
 An easy, convenient way to automatically update Homebrew.
 
-This script will run once every 24 hours, doing `brew update`.
-`brew upgrade` and `brew cleanup` can also be handled automatically but are
-optional flags.
+This script will run once every 24 hours, running `brew update`.
+
+`brew upgrade` and `brew cleanup` can also be handled automatically but
+are optional flags. If you have `terminal-notifier` installed you can
+also request desktop notifications when this command runs.
 
 [![](https://imgs.xkcd.com/comics/update.png)](https://xkcd.com/1328/)
 
-## How do I install this command?
+## Installing this command
 
 Just `brew tap domt4/autoupdate`.
 
@@ -36,13 +38,31 @@ brew autoupdate --version:
     Output this tool's current version.
 ```
 
-It's not required but if you use this update script I'd recommend not permitting
-Homebrew to automatically update itself _every time_ `brew install`,
-`brew upgrade` or ` brew tap` are executed by adding this to your shell profile:
+## This Vs brew's built-in autoupdate mechanism
 
+This command mostly exists to ensure Homebrew is updated regardless of whether
+you invoke `brew` or not, which is the primary difference from the autoupdate
+mechanism built into `brew`, the latter requiring a user to explicitly run
+any of `brew install`, `brew tap` or `brew upgrade`.
+
+If you run `brew` commands regularly yourself, you may wish to consider using
+the built-in autoupdate mechanism, which can be instructed to autoupdate less
+often or disabled entirely. If you wish to update every 24 hours using the
+built-in autoupdate mechanism set this in your environment:
+
+```bash
+export HOMEBREW_AUTO_UPDATE_SECS="86400"
 ```
+
+or if you wish to disable the built-in autoupdate mechanism entirely:
+
+```bash
 export HOMEBREW_NO_AUTO_UPDATE="1"
 ```
 
+Please note that Homebrew themselves slightly frown upon people disabling
+the built-in autoupdate mechanism.
+
 ## License
+
 Code is under the [BSD 2 Clause (NetBSD) license](https://github.com/DomT4/homebrew-autoupdate/blob/master/LICENSE).
