@@ -60,6 +60,15 @@ module Autoupdate
       FileUtils.chmod 0555, Autoupdate::Core.location/"updater"
     end
 
+    # There's no other valid reason for including numbers in the arguments
+    # passed so we can roll with this method for determining interval. At
+    # some point we should consider a less gross way of handling this though.
+    if !ARGV.to_s.gsub(/[^\d]/, "").empty?
+      interval = ARGV.to_s.gsub(/[^\d]/, "")
+    else
+      interval = "86400"
+    end
+
     file = <<~EOS
       <?xml version="1.0" encoding="UTF-8"?>
       <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -80,7 +89,7 @@ module Autoupdate
         <key>StandardOutPath</key>
         <string>#{log_std}</string>
         <key>StartInterval</key>
-        <integer>86400</integer>
+        <integer>#{interval}</integer>
       </dict>
       </plist>
     EOS
@@ -98,6 +107,11 @@ module Autoupdate
 
     File.open(Autoupdate::Core.plist, "w") { |f| f << file }
     quiet_system "/bin/launchctl", "load", Autoupdate::Core.plist
-    puts "Homebrew will now automatically update every 24 hours, or on system boot."
+
+    # This should round to a whole number consistently.
+    # It'll behave strangely if someone wants autoupdate
+    # to run more than once an hour, but... surely not?
+    interval_to_hours = interval.to_i / 60 / 60
+    puts "Homebrew will now automatically update every #{interval_to_hours} hours, or on system boot."
   end
 end
