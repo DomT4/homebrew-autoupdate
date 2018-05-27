@@ -2,7 +2,7 @@
 
 An easy, convenient way to automatically update Homebrew.
 
-This script will run once every 24 hours, running `brew update`.
+This script will run once every 24 hours by default, running `brew update`.
 
 `brew upgrade` and `brew cleanup` can also be handled automatically but
 are optional flags. If you have `terminal-notifier` installed you can
@@ -18,7 +18,7 @@ Just `brew tap domt4/autoupdate`.
 
 ```
 brew autoupdate --start [interval] [--upgrade] [--cleanup] [--enable-notification]:
-    Start autoupdating either once every interval hours or once every 24 hours.
+    Start autoupdating either once every [interval] hours or once every 24 hours.
     Please note the interval has to be passed in seconds, so 12 hours would be:
       brew autoupdate --start 43200.
 
