@@ -1,12 +1,14 @@
 #:  * `autoupdate --start` [`--upgrade`] [`--cleanup`] [`--enable-notification`]:
 #:    Start autoupdating every 24 hours.
 #:
-#:    If `--upgrade` is specified, also automatically upgrade your packages.
+#:    If `--upgrade` is specified, autoupdate will also upgrade your installed
+#:    formulae. If the Caskroom exists locally Casks will be upgraded as well.
 #:
-#:    If `--cleanup` is specified, also automatically cleanup old packages after upgrade.
+#:    If `--cleanup` is specified, autoupdate will also automatically clean
+#:    brew's cache and logs.
 #:
-#:    If `--enable-notification` is specified, send a notification when the
-#:    autoupdate process has finished successfully, if terminal-notifier
+#:    If `--enable-notification` is specified, autoupdate will send a notification
+#:    when the autoupdate process has finished successfully, if `terminal-notifier`
 #:    is installed & found.
 #:
 #:  * `autoupdate --stop`:
