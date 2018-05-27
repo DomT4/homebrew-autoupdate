@@ -87,7 +87,14 @@ module Autoupdate
 
     # https://github.com/DomT4/homebrew-autoupdate/issues/10
     user_la = Pathname.new(Autoupdate::Core.plist).dirname
-    FileUtils.mkpath(user_la) unless File.exist?(user_la)
+    unless user_la.exist?
+      puts <<~EOS
+        #{user_la} does not exist. Please create it first:
+          mkdir -p #{user_la}
+        You may need to use `sudo`.
+      EOS
+      exit 1
+    end
 
     File.open(Autoupdate::Core.plist, "w") { |f| f << file }
     quiet_system "/bin/launchctl", "load", Autoupdate::Core.plist
