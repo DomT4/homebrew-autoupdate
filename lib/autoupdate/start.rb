@@ -18,7 +18,6 @@ module Autoupdate
       auto_args << " && #{Autoupdate::Core.brew} upgrade -v"
       auto_args << " && #{Autoupdate::Core.brew} cask upgrade -v" if (HOMEBREW_PREFIX/"Caskroom").exist?
       auto_args << " && #{Autoupdate::Core.brew} cleanup" if ARGV.include? "--cleanup"
-      auto_args << " && #{Autoupdate::Core.brew} cask cleanup" if ARGV.include?("--cleanup") && (HOMEBREW_PREFIX/"Caskroom").exist?
     end
     if ARGV.include?("--enable-notification") && MacOS.version < :yosemite
       puts "terminal-notifier has deprecated support for anything below Yosemite"
