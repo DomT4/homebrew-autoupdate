@@ -2,7 +2,7 @@
 
 An easy, convenient way to automatically update Homebrew.
 
-This script will run once every 24 hours by default, running `brew update`.
+This script will run `brew update` in the background once every 24 hours by default.
 
 `brew upgrade` and `brew cleanup` can also be handled automatically but
 are optional flags. If you have `terminal-notifier` installed you can
