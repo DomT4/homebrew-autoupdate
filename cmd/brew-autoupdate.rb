@@ -19,6 +19,9 @@
 #:  * `autoupdate --delete`:
 #:    Cancel the autoupdate, delete the plist and logs.
 #:
+#:  * `autoupdate --status`:
+#:    Prints the current status of this tool.
+#:
 #:  * `autoupdate --version`:
 #:    Output this tool's current version.
 
@@ -32,3 +35,4 @@ Autoupdate.version if ARGV.include? "--version"
 Autoupdate.start if ARGV.include? "--start"
 Autoupdate.stop if ARGV.include? "--stop"
 Autoupdate.delete if ARGV.include? "--delete"
+Autoupdate.status if ARGV.include? "--status"
