@@ -18,28 +18,31 @@ Just `brew tap domt4/autoupdate`.
 
 ```
 brew autoupdate --start [interval] [--upgrade] [--cleanup] [--enable-notification]:
-    Start autoupdating either once every [interval] hours or once every 24 hours.
-    Please note the interval has to be passed in seconds, so 12 hours would be:
-      brew autoupdate --start 43200.
+  Start autoupdating either once every interval hours or once every 24 hours.
+  Please note the interval has to be passed in seconds, so 12 hours would be:
+    brew autoupdate --start 43200.
 
-    If --upgrade is specified, autoupdate will also upgrade your installed
-    formulae. If the Caskroom exists locally Casks will be upgraded as well.
+  If --upgrade is specified, autoupdate will also upgrade your installed
+  formulae. If the Caskroom exists locally Casks will be upgraded as well.
 
-    If --cleanup is specified, autoupdate will also automatically clean
-    brew's cache and logs.
+  If --cleanup is specified, autoupdate will also automatically clean
+  brew's cache and logs.
 
-    If --enable-notification is specified, autoupdate will send a notification
-    when the autoupdate process has finished successfully, if terminal-notifier
-    is installed & found.
+  If --enable-notification is specified, autoupdate will send a notification
+  when the autoupdate process has finished successfully, if terminal-notifier
+  is installed & found.
 
-brew autoupdate --stop:
-    Stop autoupdating, but retain plist & logs.
+ autoupdate --stop:
+  Stop autoupdating, but retain plist & logs.
 
-brew autoupdate --delete:
-    Cancel the autoupdate, delete the plist and logs.
+ autoupdate --delete:
+  Cancel the autoupdate, delete the plist and logs.
 
-brew autoupdate --version:
-    Output this tool's current version.
+ autoupdate --status:
+  Prints the current status of this tool.
+
+ autoupdate --version:
+  Output this tool's current version.
 ```
 
 ## This Vs brew's built-in autoupdate mechanism
