@@ -45,6 +45,8 @@ brew autoupdate --start [interval] [--upgrade] [--cleanup] [--enable-notificatio
   Output this tool's current version.
 ```
 
+**Logs of the performed operations can be found at:** `~/Library/Logs/com.github.domt4.homebrew-autoupdate`
+
 ## This Vs brew's built-in autoupdate mechanism
 
 This command mostly exists to ensure Homebrew is updated regardless of whether
