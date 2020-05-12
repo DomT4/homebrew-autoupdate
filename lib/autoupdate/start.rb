@@ -47,7 +47,7 @@ module Autoupdate
     else
       puts <<~EOS
         #{Autoupdate::Core.logs} does not seem to be writable.
-        You may with to `chown` it back to your user.
+        You may wish to `chown` it back to your user.
       EOS
     end
 
