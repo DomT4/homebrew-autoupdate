@@ -28,6 +28,7 @@ module Autoupdate
 
     script_contents = <<~EOS
       #!/bin/sh
+      export HOMEBREW_NO_BOTTLE_SOURCE_FALLBACK=1
       /bin/date && #{Autoupdate::Core.brew} #{auto_args}
     EOS
     FileUtils.mkpath(Autoupdate::Core.logs)
