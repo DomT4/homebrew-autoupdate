@@ -1,3 +1,5 @@
+require 'formula'
+
 module Autoupdate
   module Notify
     module_function
