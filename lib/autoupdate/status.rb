@@ -11,7 +11,7 @@ module Autoupdate
     File.exist?(Autoupdate::Core.location/"updater") && !autoupdate_running?
   end
 
-  def autoupdate_not_installed?
+  def autoupdate_not_configured?
     !File.exist?(Autoupdate::Core.plist)
   end
 
@@ -20,8 +20,8 @@ module Autoupdate
       puts "Autoupdate is installed and running."
     elsif autoupdate_installed_but_stopped?
       puts "Autoupdate is installed but stopped."
-    elsif autoupdate_not_installed?
-      puts "Autoupdate does not seem to be installed."
+    elsif autoupdate_not_configured?
+      puts "Autoupdate is not configured. Use `brew autoupdate --start` to begin."
     else
       puts <<~EOS
         Autoupdate cannot determine its status.
