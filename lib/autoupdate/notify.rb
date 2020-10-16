@@ -1,4 +1,4 @@
-require 'formula'
+require "formula"
 
 module Autoupdate
   module Notify
