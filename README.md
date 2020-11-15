@@ -72,6 +72,18 @@ export HOMEBREW_NO_AUTO_UPDATE="1"
 Please note that Homebrew themselves slightly frown upon people disabling
 the built-in autoupdate mechanism.
 
+## TO-DO (PRs Welcome)
+* Rewrite the notification system to try and use AppleScript instead of a
+third-party tool, `terminal-notifier`, which may very well be abandoned and
+certainly has a multitude of issues on macOS Big Sur.
+[Related Issue](https://github.com/DomT4/homebrew-autoupdate/issues/25)
+
+* Decide what to do about Cask upgrades, which increasingly require `sudo`
+to succeed and currently just hangs when that situation is encountered. Options
+include removing Cask support, or identifying Casks that require `sudo` to
+upgrade and skipping over those.
+[Related Issue](https://github.com/DomT4/homebrew-autoupdate/issues/35)
+
 ## License
 
 Code is under the [BSD 2 Clause (NetBSD) license](https://github.com/DomT4/homebrew-autoupdate/blob/master/LICENSE).
