@@ -26,9 +26,25 @@ module Autoupdate
       auto_args << " && #{Autoupdate::Notify.notify}"
     end
 
+    # Try to respect user choice as much as possible.
+    env_cache = ENV.fetch("HOMEBREW_CACHE") if ENV["HOMEBREW_CACHE"]
+    env_logs = ENV.fetch("HOMEBREW_LOGS") if ENV["HOMEBREW_LOGS"]
+    env_dev = ENV.fetch("HOMEBREW_DEVELOPER") if ENV["HOMEBREW_DEVELOPER"]
+    env_stats = ENV.fetch("HOMEBREW_NO_ANALYTICS") if ENV["HOMEBREW_NO_ANALYTICS"]
+    env_path = ENV.fetch("PATH")
+
+    set_env = "export HOMEBREW_NO_BOTTLE_SOURCE_FALLBACK=1"
+    # Spacing at start of lines is deliberate. Don't undo.
+    # This is ugly though, and really should be made prettier at some point.
+    set_env << "\nexport PATH='#{env_path}'"
+    set_env << "\nexport HOMEBREW_CACHE='#{env_cache}'" if env_cache
+    set_env << "\nexport HOMEBREW_LOGS='#{env_logs}'" if env_logs
+    set_env << "\nexport HOMEBREW_DEVELOPER=#{env_dev}" if env_dev
+    set_env << "\nexport HOMEBREW_NO_ANALYTICS=#{env_stats}" if env_stats
+
     script_contents = <<~EOS
       #!/bin/sh
-      export HOMEBREW_NO_BOTTLE_SOURCE_FALLBACK=1
+      #{set_env}
       /bin/date && #{Autoupdate::Core.brew} #{auto_args}
     EOS
     FileUtils.mkpath(Autoupdate::Core.logs)
