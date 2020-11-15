@@ -102,10 +102,10 @@ module Autoupdate
         <key>Label</key>
         <string>#{Autoupdate::Core.name}</string>
         <key>Program</key>
-        <string>#{Autoupdate::Core.location}/updater</string>
+        <string>#{Autoupdate::Core.location}/brew_autoupdate</string>
         <key>ProgramArguments</key>
         <array>
-            <string>#{Autoupdate::Core.location}/updater</string>
+            <string>#{Autoupdate::Core.location}/brew_autoupdate</string>
         </array>
         <key>RunAtLoad</key>
         <true/>
