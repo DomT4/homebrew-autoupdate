@@ -73,7 +73,7 @@ module Autoupdate
     # Rename the old script to the new script name, which should provide more
     # clarity to users who run systems with tools like LS installed.
     if File.exist(Autoupdate::Core.location/"updater")
-      FileUtils.mv Autoupdate::Core.location/"updater", Autoupdate::Core.location/"brew_autoupdate"
+      FileUtils.cp Autoupdate::Core.location/"updater", Autoupdate::Core.location/"brew_autoupdate"
     end
 
     # If someone has previously stopped the command assume when they start
