@@ -67,13 +67,22 @@ module Autoupdate
       EOS
     end
 
+
+    # Security tools like "Little Snitch" only display the executable name by
+    # default, which makes this generic name a little worrying without context.
+    # Rename the old script to the new script name, which should provide more
+    # clarity to users who run systems with tools like LS installed.
+    if File.exist(Autoupdate::Core.location/"updater")
+      FileUtils.mv Autoupdate::Core.location/"updater", Autoupdate::Core.location/"brew_autoupdate"
+    end
+
     # If someone has previously stopped the command assume when they start
     # it again they'd want to keep the same options & don't replace the script.
     # If you want to tweak prior-provided options the expected way is with the
     # delete command followed by the start command with new args.
-    unless File.exist?(Autoupdate::Core.location/"updater")
-      File.open(Autoupdate::Core.location/"updater", "w") { |sc| sc << script_contents }
-      FileUtils.chmod 0555, Autoupdate::Core.location/"updater"
+    unless File.exist?(Autoupdate::Core.location/"brew_autoupdate")
+      File.open(Autoupdate::Core.location/"brew_autoupdate", "w") { |sc| sc << script_contents }
+      FileUtils.chmod 0555, Autoupdate::Core.location/"brew_autoupdate"
     end
 
     # There's no other valid reason for including numbers in the arguments
