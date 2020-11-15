@@ -34,8 +34,6 @@ module Autoupdate
     env_path = ENV.fetch("PATH")
 
     set_env = "export HOMEBREW_NO_BOTTLE_SOURCE_FALLBACK=1"
-    # Spacing at start of lines is deliberate. Don't undo.
-    # This is ugly though, and really should be made prettier at some point.
     set_env << "\nexport PATH='#{env_path}'"
     set_env << "\nexport HOMEBREW_CACHE='#{env_cache}'" if env_cache
     set_env << "\nexport HOMEBREW_LOGS='#{env_logs}'" if env_logs
@@ -67,12 +65,11 @@ module Autoupdate
       EOS
     end
 
-
     # Security tools like "Little Snitch" only display the executable name by
     # default, which makes this generic name a little worrying without context.
     # Rename the old script to the new script name, which should provide more
     # clarity to users who run systems with tools like LS installed.
-    if File.exist(Autoupdate::Core.location/"updater")
+    if File.exist?(Autoupdate::Core.location/"updater")
       FileUtils.cp Autoupdate::Core.location/"updater", Autoupdate::Core.location/"brew_autoupdate"
     end
 
