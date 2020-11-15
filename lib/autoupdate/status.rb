@@ -8,7 +8,7 @@ module Autoupdate
   end
 
   def autoupdate_installed_but_stopped?
-    File.exist?(Autoupdate::Core.location/"updater") && !autoupdate_running?
+    File.exist?(Autoupdate::Core.location/"brew_autoupdate") && !autoupdate_running?
   end
 
   def autoupdate_not_configured?
