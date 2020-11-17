@@ -115,6 +115,12 @@ module Autoupdate
         <string>#{log_std}</string>
         <key>StartInterval</key>
         <integer>#{interval}</integer>
+        <key>LowPriorityBackgroundIO</key>
+        <true/>
+        <key>LowPriorityIO</key>
+        <true/>
+        <key>ProcessType</key>
+        <string>Background</string>
       </dict>
       </plist>
     EOS
