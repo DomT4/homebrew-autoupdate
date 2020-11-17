@@ -40,5 +40,10 @@ module Autoupdate
     def notify
       "#{path_to_notifier} #{notifier_arguments}"
     end
+
+    def new_notify
+      quiet_system "/usr/bin/open", File.join(HOMEBREW_REPOSITORY, "Library",
+        "Taps", "domt4", "homebrew-autoupdate", "notifier", "brew-autoupdate.app")
+    end
   end
 end
