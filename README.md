@@ -74,9 +74,10 @@ Please note that Homebrew themselves slightly frown upon people disabling
 the built-in autoupdate mechanism.
 
 ## TO-DO (PRs Welcome)
-* Rewrite the notification system to try and use AppleScript instead of a
-third-party tool, `terminal-notifier`, which may very well be abandoned and
-certainly has a multitude of issues on macOS Big Sur.
+* Complete broader testing and roll-out of new, experimental notification
+support added in [6365cc020](https://github.com/DomT4/homebrew-autoupdate/commit/6365cc020)
+that doesn't require or use any external dependencies, using only an Applescript
+applet.
 [Related Issue](https://github.com/DomT4/homebrew-autoupdate/issues/25)
 
 * Decide what to do about Cask upgrades, which increasingly require `sudo`
