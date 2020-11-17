@@ -30,7 +30,8 @@ brew autoupdate --start [interval] [--upgrade] [--cleanup] [--enable-notificatio
 
   If --enable-notification is specified, autoupdate will send a notification
   when the autoupdate process has finished successfully, if terminal-notifier
-  is installed & found.
+  is installed & found. Note that currently a new experimental notifier runs
+  automatically on macOS Big Sur, without requiring any external dependencies.
 
  autoupdate --stop:
   Stop autoupdating, but retain plist & logs.
