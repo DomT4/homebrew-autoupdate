@@ -94,8 +94,6 @@ module Autoupdate
         <true/>
         <key>LowPriorityIO</key>
         <true/>
-        <key>Nice</key>
-        <integer>20</integer>
         <key>ProcessType</key>
         <string>Background</string>
       </dict>
