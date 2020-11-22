@@ -107,8 +107,6 @@ module Autoupdate
         <array>
             <string>#{Autoupdate::Core.location}/brew_autoupdate</string>
         </array>
-        <key>RunAtLoad</key>
-        <true/>
         <key>StandardErrorPath</key>
         <string>#{log_err}</string>
         <key>StandardOutPath</key>
