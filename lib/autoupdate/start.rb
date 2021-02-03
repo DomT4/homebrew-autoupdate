@@ -94,6 +94,18 @@ module Autoupdate
       interval = "86400"
     end
 
+    # This restores the "Run At Load" key removed in a7de771abcf6 in debug-only
+    # scenarios. The debug flag currently has no other consequences, but that
+    # may change over time, so please don't rely on that flag's behaviour.
+    if ARGV.include?("--debug")
+      debug = <<~EOS
+        <key>RunAtLoad</key>
+        <true/>
+      EOS
+    else
+      debug = ""
+    end
+
     file = <<~EOS
       <?xml version="1.0" encoding="UTF-8"?>
       <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -107,6 +119,7 @@ module Autoupdate
         <array>
             <string>#{Autoupdate::Core.location}/brew_autoupdate</string>
         </array>
+        #{debug}
         <key>StandardErrorPath</key>
         <string>#{log_err}</string>
         <key>StandardOutPath</key>
