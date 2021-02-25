@@ -56,11 +56,9 @@ module Autoupdate
     # we can't write to later, so need to ensure a future `start` command
     # doesn't silently fail.
     if File.writable?(Autoupdate::Core.logs)
-      log_err = "#{Autoupdate::Core.logs}/#{Autoupdate::Core.name}.err"
-      log_std = "#{Autoupdate::Core.logs}/#{Autoupdate::Core.name}.out"
+      log_out = "#{Autoupdate::Core.logs}/#{Autoupdate::Core.name}.out"
     elsif File.writable?(Autoupdate::Core.fallback_logs)
-      log_err = "#{Autoupdate::Core.fallback_logs}/#{Autoupdate::Core.name}.err"
-      log_std = "#{Autoupdate::Core.fallback_logs}/#{Autoupdate::Core.name}.out"
+      log_out = "#{Autoupdate::Core.fallback_logs}/#{Autoupdate::Core.name}.out"
     else
       puts <<~EOS
         #{Autoupdate::Core.logs} does not seem to be writable.
@@ -121,9 +119,9 @@ module Autoupdate
         </array>
         #{debug}
         <key>StandardErrorPath</key>
-        <string>#{log_err}</string>
+        <string>#{log_out}</string>
         <key>StandardOutPath</key>
-        <string>#{log_std}</string>
+        <string>#{log_out}</string>
         <key>StartInterval</key>
         <integer>#{interval}</integer>
         <key>LowPriorityBackgroundIO</key>
