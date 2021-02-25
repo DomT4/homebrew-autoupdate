@@ -15,11 +15,30 @@ module Autoupdate
     !File.exist?(Autoupdate::Core.plist)
   end
 
+  def date_of_last_modification
+    if File.exist?(Autoupdate::Core.location/"brew_autoupdate")
+      birth = File.birthtime(Autoupdate::Core.location/"brew_autoupdate").to_s
+      date = Date.parse(birth)
+      formatted_string = date.strftime("%D")
+    else
+      formatted_string = "Unable to determine date of command invocation. Please report this."
+    end
+    formatted_string
+  end
+
   def status
     if autoupdate_running?
-      puts "Autoupdate is installed and running."
+      puts <<~EOS
+        Autoupdate is installed and running.
+
+        Autoupdate was initialised on #{date_of_last_modification}.
+      EOS
     elsif autoupdate_installed_but_stopped?
-      puts "Autoupdate is installed but stopped."
+      puts <<~EOS
+        Autoupdate is installed but stopped.
+
+        Autoupdate was initialised on #{date_of_last_modification}.
+      EOS
     elsif autoupdate_not_configured?
       puts "Autoupdate is not configured. Use `brew autoupdate --start` to begin."
     else
