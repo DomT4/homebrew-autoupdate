@@ -16,7 +16,7 @@ module Autoupdate
     # Spacing at start of lines is deliberate. Don't undo.
     if ARGV.include? "--upgrade"
       auto_args << " && #{Autoupdate::Core.brew} upgrade --formula -v"
-      auto_args << " && #{Autoupdate::Core.brew} upgrade --cask -v" if (HOMEBREW_PREFIX/"Caskroom").exist?
+      auto_args << " && #{Autoupdate::Core.brew} upgrade --cask --greedy -v" if (HOMEBREW_PREFIX/"Caskroom").exist?
       auto_args << " && #{Autoupdate::Core.brew} cleanup" if ARGV.include? "--cleanup"
     end
     if MacOS.version == :big_sur
