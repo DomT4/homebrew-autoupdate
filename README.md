@@ -84,10 +84,9 @@ that doesn't require or use any external dependencies, using only an Applescript
 applet.
 [Related Issue](https://github.com/DomT4/homebrew-autoupdate/issues/25)
 
-* Decide what to do about Cask upgrades, which increasingly require `sudo`
-to succeed and currently just hangs when that situation is encountered. Options
-include removing Cask support, or identifying Casks that require `sudo` to
-upgrade and skipping over those.
+* Decide what to do about Cask upgrades which require `sudo` to succeed
+and currently just hang when that situation is encountered,
+unless using `SUDO_ASKPASS`.
 [Related Issue](https://github.com/DomT4/homebrew-autoupdate/issues/40)
 
 ## License
