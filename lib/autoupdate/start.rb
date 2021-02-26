@@ -16,7 +16,16 @@ module Autoupdate
     # Spacing at start of lines is deliberate. Don't undo.
     if ARGV.include? "--upgrade"
       auto_args << " && #{Autoupdate::Core.brew} upgrade --formula -v"
-      auto_args << " && #{Autoupdate::Core.brew} upgrade --cask --greedy -v" if (HOMEBREW_PREFIX/"Caskroom").exist?
+
+      if (HOMEBREW_PREFIX/"Caskroom").exist?
+        opoo <<~EOS
+          Please note if you use Casks that require `sudo` to upgrade there
+          are known issues with that use case and this command.
+            https://github.com/DomT4/homebrew-autoupdate/issues/40
+        EOS
+        auto_args << " && #{Autoupdate::Core.brew} upgrade --cask --greedy -v"
+      end
+
       auto_args << " && #{Autoupdate::Core.brew} cleanup" if ARGV.include? "--cleanup"
     end
     if MacOS.version == :big_sur
