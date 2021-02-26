@@ -30,6 +30,7 @@ module Autoupdate
             `SUDO_ASKPASS`.
 
               https://github.com/DomT4/homebrew-autoupdate/issues/40
+
           EOS
         end
 
@@ -38,9 +39,15 @@ module Autoupdate
 
       auto_args << " && #{Autoupdate::Core.brew} cleanup" if ARGV.include? "--cleanup"
     end
+
+    # Enable the new AppleScript applet by default on Big Sur. This enables us
+    # to do fairly broad testing with essentially no downside for the user.
     if MacOS.version == :big_sur
       auto_args << " && #{Autoupdate::Notify.new_notify}"
     end
+    # Otherwise on older platforms fallback to the old terminal-notifier style
+    # of notification where requested. This will be removed when the AppleScript
+    # applet proves itself consistently reliable & can be considered mostly complete.
     if ARGV.include?("--enable-notification") && MacOS.version < :yosemite
       puts "terminal-notifier has deprecated support for anything below Yosemite"
       exit 1
@@ -56,7 +63,11 @@ module Autoupdate
     env_sudo = ENV.fetch("SUDO_ASKPASS") if ENV["SUDO_ASKPASS"]
     env_path = ENV.fetch("PATH")
 
+    # We don't want a background task ramping up the user's CPU to build things
+    # from source, especially since it'll be non-obvious why the CPU is
+    # suddenly being worked hard.
     set_env = "export HOMEBREW_NO_BOTTLE_SOURCE_FALLBACK=1"
+
     set_env << "\nexport PATH='#{env_path}'"
     set_env << "\nexport HOMEBREW_CACHE='#{env_cache}'" if env_cache
     set_env << "\nexport HOMEBREW_LOGS='#{env_logs}'" if env_logs
@@ -98,7 +109,7 @@ module Autoupdate
     # If someone has previously stopped the command assume when they start
     # it again they'd want to keep the same options & don't replace the script.
     # If you want to tweak prior-provided options the expected way is with the
-    # delete command followed by the start command with new args.
+    # --delete command followed by the --start command with new args.
     unless File.exist?(Autoupdate::Core.location/"brew_autoupdate")
       File.open(Autoupdate::Core.location/"brew_autoupdate", "w") { |sc| sc << script_contents }
       FileUtils.chmod 0555, Autoupdate::Core.location/"brew_autoupdate"
