@@ -43,6 +43,7 @@ module Autoupdate
     env_logs = ENV.fetch("HOMEBREW_LOGS") if ENV["HOMEBREW_LOGS"]
     env_dev = ENV.fetch("HOMEBREW_DEVELOPER") if ENV["HOMEBREW_DEVELOPER"]
     env_stats = ENV.fetch("HOMEBREW_NO_ANALYTICS") if ENV["HOMEBREW_NO_ANALYTICS"]
+    env_sudo = ENV.fetch("SUDO_ASKPASS") if ENV("SUDO_ASKPASS")
     env_path = ENV.fetch("PATH")
 
     set_env = "export HOMEBREW_NO_BOTTLE_SOURCE_FALLBACK=1"
@@ -51,6 +52,7 @@ module Autoupdate
     set_env << "\nexport HOMEBREW_LOGS='#{env_logs}'" if env_logs
     set_env << "\nexport HOMEBREW_DEVELOPER=#{env_dev}" if env_dev
     set_env << "\nexport HOMEBREW_NO_ANALYTICS=#{env_stats}" if env_stats
+    set_env << "\nexport SUDO_ASKPASS=#{env_sudo}" if env_sudo
 
     script_contents = <<~EOS
       #!/bin/sh
