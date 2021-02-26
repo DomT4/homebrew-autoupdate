@@ -2,11 +2,15 @@
 
 An easy, convenient way to automatically update Homebrew.
 
-This script will run `brew update` in the background once every 24 hours by default.
+This script will run `brew update` in the background once every 24 hours (by
+default) until explicitly told to stop, utilising `launchd`.
 
 `brew upgrade` and `brew cleanup` can also be handled automatically but
-are optional flags. If you have `terminal-notifier` installed you can
-also request desktop notifications when this command runs.
+are optional flags.
+
+Notifications are enabled by default on macOS Big Sur using a new, codesigned
+AppleScript applet. On older versions of macOS, if you have `terminal-notifier`
+installed you can also request desktop notifications when this command runs.
 
 [![](https://imgs.xkcd.com/comics/update.png)](https://xkcd.com/1328/)
 
@@ -84,7 +88,7 @@ applet.
 to succeed and currently just hangs when that situation is encountered. Options
 include removing Cask support, or identifying Casks that require `sudo` to
 upgrade and skipping over those.
-[Related Issue](https://github.com/DomT4/homebrew-autoupdate/issues/35)
+[Related Issue](https://github.com/DomT4/homebrew-autoupdate/issues/40)
 
 ## License
 
