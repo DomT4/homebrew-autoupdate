@@ -18,11 +18,21 @@ module Autoupdate
       auto_args << " && #{Autoupdate::Core.brew} upgrade --formula -v"
 
       if (HOMEBREW_PREFIX/"Caskroom").exist?
-        opoo <<~EOS
-          Please note if you use Casks that require `sudo` to upgrade there
-          are known issues with that use case and this command.
-            https://github.com/DomT4/homebrew-autoupdate/issues/40
-        EOS
+        # Support unattended Cask upgrades that require `sudo` where possible.
+        # Homebrew themselves permit this same workaround so if they're
+        # comfortable enough with it I can tolerate it. Please consider the
+        # risks of leaving your admin password laying around the system in
+        # plaintext before using this, if you have no other use case for SUDO_ASKPASS.
+        if ENV["SUDO_ASKPASS"].nil?
+          opoo <<~EOS
+            Please note if you use Casks that require `sudo` to upgrade there
+            are known issues with that use case and this command unless using
+            `SUDO_ASKPASS`.
+
+              https://github.com/DomT4/homebrew-autoupdate/issues/40
+          EOS
+        end
+
         auto_args << " && #{Autoupdate::Core.brew} upgrade --cask --greedy -v"
       end
 
@@ -43,7 +53,7 @@ module Autoupdate
     env_logs = ENV.fetch("HOMEBREW_LOGS") if ENV["HOMEBREW_LOGS"]
     env_dev = ENV.fetch("HOMEBREW_DEVELOPER") if ENV["HOMEBREW_DEVELOPER"]
     env_stats = ENV.fetch("HOMEBREW_NO_ANALYTICS") if ENV["HOMEBREW_NO_ANALYTICS"]
-    env_sudo = ENV.fetch("SUDO_ASKPASS") if ENV("SUDO_ASKPASS")
+    env_sudo = ENV.fetch("SUDO_ASKPASS") if ENV["SUDO_ASKPASS"]
     env_path = ENV.fetch("PATH")
 
     set_env = "export HOMEBREW_NO_BOTTLE_SOURCE_FALLBACK=1"
