@@ -93,13 +93,13 @@ unless using `SUDO_ASKPASS`.
 
 ## History
 
-This tap was created by @DomT4 in April 2015 to address a personal desire for
-a background updater, before being moved to the Homebrew organisation in
-April 2021 to become an official part of the project after gaining somewhat
-widespread usage, something I'm both surprised by but also very appreciative
-of people finding a small tool I wrote so useful & contributing their own ideas
-and time towards.
+This tap was created by [DomT4](https://github.com/DomT4) in April 2015 to
+address a personal desire for a background updater, before being moved to
+the Homebrew organisation in April 2021 to become an official part of the
+project after gaining somewhat widespread usage, something I'm both surprised
+by but also very appreciative of people finding a small tool I wrote so
+useful & contributing their own ideas and time towards.
 
 ## License
 
-Code is under the [BSD 2 Clause (NetBSD) license](https://github.com/DomT4/homebrew-autoupdate/blob/master/LICENSE).
+Code is under the [BSD 2 Clause (NetBSD) license](https://github.com/DomT4/homebrew-autoupdate/blob/master/LICENSE.txt).
