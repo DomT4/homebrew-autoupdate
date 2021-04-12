@@ -1,4 +1,4 @@
-# Homebrew-autoupdate
+# Homebrew Autoupdate
 
 An easy, convenient way to automatically update Homebrew.
 
