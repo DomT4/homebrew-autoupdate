@@ -29,7 +29,7 @@ module Autoupdate
             are known issues with that use case and this command unless using
             `SUDO_ASKPASS`.
 
-              https://github.com/DomT4/homebrew-autoupdate/issues/40
+              https://github.com/Homebrew/homebrew-autoupdate/issues/40
 
           EOS
         end
@@ -166,7 +166,7 @@ module Autoupdate
       </plist>
     EOS
 
-    # https://github.com/DomT4/homebrew-autoupdate/issues/10
+    # https://github.com/Homebrew/homebrew-autoupdate/issues/10
     user_la = Pathname.new(Autoupdate::Core.plist).dirname
     unless user_la.exist?
       puts <<~EOS
