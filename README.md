@@ -17,7 +17,7 @@ when this command runs.
 
 ## Installing this command
 
-Just `brew tap domt4/autoupdate`.
+Just `brew tap homebrew/autoupdate`.
 
 ## Usage
 
