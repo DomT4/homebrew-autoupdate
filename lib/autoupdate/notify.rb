@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "formula"
+require "tap"
 
 module Autoupdate
   module Notify
@@ -44,7 +45,8 @@ module Autoupdate
     end
 
     def notifier_app
-      File.join(HOMEBREW_REPOSITORY, "Library", "Taps", "domt4",
+      origin = Tap.names.join(" ").match(%r{(domt4|homebrew)/autoupdate})[1]
+      File.join(HOMEBREW_REPOSITORY, "Library", "Taps", origin,
                 "homebrew-autoupdate", "notifier", "brew-autoupdate.app")
     end
 
