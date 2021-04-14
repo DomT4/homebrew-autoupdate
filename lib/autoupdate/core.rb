@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Autoupdate
   module Core
     module_function

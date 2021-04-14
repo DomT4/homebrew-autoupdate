@@ -1,3 +1,5 @@
+# frozen_string_literal: false
+
 module Autoupdate
   module_function
 
@@ -42,9 +44,7 @@ module Autoupdate
 
     # Enable the new AppleScript applet by default on Big Sur. This enables us
     # to do fairly broad testing with essentially no downside for the user.
-    if MacOS.version == :big_sur
-      auto_args << " && #{Autoupdate::Notify.new_notify}"
-    end
+    auto_args << " && #{Autoupdate::Notify.new_notify}" if MacOS.version == :big_sur
     # Otherwise on older platforms fallback to the old terminal-notifier style
     # of notification where requested. This will be removed when the AppleScript
     # applet proves itself consistently reliable & can be considered mostly complete.
