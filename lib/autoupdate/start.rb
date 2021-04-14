@@ -6,7 +6,7 @@ module Autoupdate
   def start
     # Method from Homebrew.
     # https://github.com/Homebrew/brew/blob/c9c7f4/Library/Homebrew/utils/popen.rb
-    if Utils.popen_read("/bin/launchctl list").include?(Autoupdate::Core.name)
+    if Utils.popen_read("/bin/launchctl", "list").include?(Autoupdate::Core.name)
       puts <<~EOS
         The command already appears to have been started.
         Please run `brew autoupdate --delete` and try again.
@@ -118,22 +118,22 @@ module Autoupdate
     # There's no other valid reason for including numbers in the arguments
     # passed so we can roll with this method for determining interval. At
     # some point we should consider a less gross way of handling this though.
-    if !ARGV.to_s.gsub(/[^\d]/, "").empty?
-      interval = ARGV.to_s.gsub(/[^\d]/, "")
+    interval = if ARGV.to_s.gsub(/[^\d]/, "").empty?
+      "86400"
     else
-      interval = "86400"
+      ARGV.to_s.gsub(/[^\d]/, "")
     end
 
     # This restores the "Run At Load" key removed in a7de771abcf6 in debug-only
     # scenarios. The debug flag currently has no other consequences, but that
     # may change over time, so please don't rely on that flag's behaviour.
-    if ARGV.include?("--debug")
-      debug = <<~EOS
+    debug = if ARGV.include?("--debug")
+      <<~EOS
         <key>RunAtLoad</key>
         <true/>
       EOS
     else
-      debug = ""
+      ""
     end
 
     file = <<~EOS

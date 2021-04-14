@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 module Autoupdate
   module_function
 
   def autoupdate_running?
     # Method from Homebrew.
     # https://github.com/Homebrew/brew/blob/c9c7f4/Library/Homebrew/utils/popen.rb
-    Utils.popen_read("/bin/launchctl list").include?(Autoupdate::Core.name)
+    Utils.popen_read("/bin/launchctl", "list").include?(Autoupdate::Core.name)
   end
 
   def autoupdate_installed_but_stopped?

@@ -45,7 +45,7 @@ module Autoupdate
 
     def notifier_app
       File.join(HOMEBREW_REPOSITORY, "Library", "Taps", "domt4",
-        "homebrew-autoupdate", "notifier", "brew-autoupdate.app")
+                "homebrew-autoupdate", "notifier", "brew-autoupdate.app")
     end
 
     def new_notify
