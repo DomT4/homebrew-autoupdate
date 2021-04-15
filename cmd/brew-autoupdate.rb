@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #:  * `autoupdate --start` [interval] [`--upgrade`] [`--cleanup`] [`--enable-notification`]:
 #:    Start autoupdating either once every `interval` hours or once every 24 hours.
 #:    Please note the interval has to be passed in seconds, so 12 hours would be:
@@ -26,8 +28,8 @@
 #:  * `autoupdate --version`:
 #:    Output this tool's current version.
 
-REPO = File.expand_path("#{File.dirname(__FILE__)}/..")
-LIBS = Pathname.new(REPO)/"lib"
+REPO = File.expand_path("#{File.dirname(__FILE__)}/..").freeze
+LIBS = (Pathname.new(REPO)/"lib").freeze
 $LOAD_PATH.unshift(LIBS) unless $LOAD_PATH.include?(LIBS)
 
 require "autoupdate"

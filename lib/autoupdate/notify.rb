@@ -17,9 +17,8 @@ module Autoupdate
     def path_to_notifier
       # This should allow notifications to work even if someone has
       # brew unlink'ed terminal-notifier.
-      if File.executable?(Formula["terminal-notifier"].opt_bin/"terminal-notifier")
-        File.path(File.expand_path(notifier))
-      elsif which("terminal-notifier") && File.executable?(notifier)
+      if File.executable?(Formula["terminal-notifier"].opt_bin/"terminal-notifier") ||
+         (which("terminal-notifier") && File.executable?(notifier))
         File.path(File.expand_path(notifier))
       elsif File.exist?("/Applications/terminal-notifier.app/Contents/MacOS/terminal-notifier")
         "/Applications/terminal-notifier.app/Contents/MacOS/terminal-notifier"
