@@ -3,7 +3,7 @@
 module Autoupdate
   module_function
 
-  def start
+  def start(args:)
     # Method from Homebrew.
     # https://github.com/Homebrew/brew/blob/c9c7f4/Library/Homebrew/utils/popen.rb
     if Utils.popen_read("/bin/launchctl", "list").include?(Autoupdate::Core.name)
@@ -16,7 +16,7 @@ module Autoupdate
 
     auto_args = "update"
     # Spacing at start of lines is deliberate. Don't undo.
-    if ARGV.include? "--upgrade"
+    if args.upgrade?
       auto_args << " && #{Autoupdate::Core.brew} upgrade --formula -v"
 
       if (HOMEBREW_PREFIX/"Caskroom").exist?
@@ -39,7 +39,7 @@ module Autoupdate
         auto_args << " && #{Autoupdate::Core.brew} upgrade --cask --greedy -v"
       end
 
-      auto_args << " && #{Autoupdate::Core.brew} cleanup" if ARGV.include? "--cleanup"
+      auto_args << " && #{Autoupdate::Core.brew} cleanup" if args.cleanup?
     end
 
     # Enable the new AppleScript applet by default on Big Sur. This enables us
@@ -48,10 +48,10 @@ module Autoupdate
     # Otherwise on older platforms fallback to the old terminal-notifier style
     # of notification where requested. This will be removed when the AppleScript
     # applet proves itself consistently reliable & can be considered mostly complete.
-    if ARGV.include?("--enable-notification") && MacOS.version < :yosemite
+    if args.enable_notification? && MacOS.version < :yosemite
       puts "terminal-notifier has deprecated support for anything below Yosemite"
       exit 1
-    elsif ARGV.include?("--enable-notification") && Autoupdate::Notify.notifier
+    elsif args.enable_notification? && Autoupdate::Notify.notifier
       auto_args << " && #{Autoupdate::Notify.notify}"
     end
 
@@ -115,19 +115,12 @@ module Autoupdate
       FileUtils.chmod 0555, Autoupdate::Core.location/"brew_autoupdate"
     end
 
-    # There's no other valid reason for including numbers in the arguments
-    # passed so we can roll with this method for determining interval. At
-    # some point we should consider a less gross way of handling this though.
-    interval = if ARGV.to_s.gsub(/[^\d]/, "").empty?
-      "86400"
-    else
-      ARGV.to_s.gsub(/[^\d]/, "")
-    end
+    interval = args.named.first || "86400"
 
     # This restores the "Run At Load" key removed in a7de771abcf6 in debug-only
     # scenarios. The debug flag currently has no other consequences, but that
     # may change over time, so please don't rely on that flag's behaviour.
-    debug = if ARGV.include?("--debug")
+    debug = if args.debug?
       <<~EOS
         <key>RunAtLoad</key>
         <true/>
