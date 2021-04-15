@@ -5,7 +5,6 @@ module Homebrew
 
   def autoupdate_args
     Homebrew::CLI::Parser.new do
-      usage_banner "`autoupdate` (<--start>= [<options>]|<--stop>|<--delete>|<--status>)"
       usage_banner "`autoupdate` <subcomand> [<interval>] [<options>]"
       description <<~EOS
         An easy, convenient way to automatically update Homebrew.
