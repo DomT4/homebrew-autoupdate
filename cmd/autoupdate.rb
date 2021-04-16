@@ -9,45 +9,40 @@ module Homebrew
       description <<~EOS
         An easy, convenient way to automatically update Homebrew.
 
-        This script will run `brew update` in the background once every 24 hours (by default) until
-        explicitly told to stop, utilising `launchd`.
+        This script will run `brew update` in the background once every 24 hours (by default)
+        until explicitly told to stop, utilising `launchd`.
 
-        `brew upgrade` and `brew cleanup` can also be handled automatically but are optional flags.
+        `brew autoupdate start` [<`interval`>] [<`options`>]:
+        Start autoupdating either once every `interval` hours or once every 24 hours.
+        Please note the interval has to be passed in seconds, so 12 hours would be
+        `brew autoupdate start 43200`. Pass `--upgrade` or `--cleanup` to automatically
+        run `brew upgrade` and/or `brew cleanup` respectively. Pass `--enable-notification`
+        to send a notification when the autoupdate process has finished successfully.
 
-        Notifications are enabled by default on macOS Big Sur using a new, codesigned, universal
-        AppleScript applet. On older versions of macOS, if you have `terminal-notifier` installed
-        you can also request desktop notifications when this command runs.
+        `brew autoupdate stop`:
+        Stop autoupdating, but retain plist & logs.
+
+        `brew autoupdate delete`:
+        Cancel the autoupdate, delete the plist and logs.
+
+        `brew autoupdate status`:
+        Prints the current status of this tool.
+
+        `brew autoupdate version`:
+        Output this tool's current version.
       EOS
-      switch "--start",
-             description: "Start autoupdating either once every `interval` hours or once every 24 hours. " \
-                          "Please note the interval has to be passed in seconds, so 12 hours would be: " \
-                          "`brew autoupdate --start 43200`."
       switch "--upgrade",
-             depends_on:  "--start",
              description: "Automatically upgrade your installed formulae. If the Caskroom exists locally " \
-                          "Casks will be upgraded as well."
+                          "Casks will be upgraded as well.  Must be passed with `start`."
       switch "--cleanup",
-             depends_on:  "--start",
-             description: "Automatically clean brew's cache and logs."
+             description: "Automatically clean brew's cache and logs. Must be passed with `start`."
       switch "--enable-notification",
-             depends_on:  "--start",
              description: "Send a notification when the autoupdate process has finished successfully, " \
                           "if `terminal-notifier` is installed & found. Note that currently a new " \
                           "experimental notifier runs automatically on macOS Big Sur, without requiring " \
-                          "any external dependencies."
-      switch "--stop",
-             description: "Stop autoupdating, but retain plist & logs."
-      switch "--delete",
-             description: "Cancel the autoupdate, delete the plist and logs."
-      switch "--status",
-             description: "Prints the current status of this tool."
-      switch "--version",
-             description: "Output this tool's current version."
+                          "any external dependencies. Must be passed with `start`."
 
-      %w[--start --stop --delete --status --version].combination(2).each do |conflict|
-        conflicts(*conflict)
-      end
-      named_args :interval, max: 1
+      named_args %w[start stop delete status version], min: 1, max: 2
     end
   end
 
@@ -57,10 +52,10 @@ module Homebrew
   def autoupdate
     args = autoupdate_args.parse
 
-    if !args.no_named? && !args.start?
-      raise UsageError, "This command does not take named arguments without `--start`."
+    if args.named.count > 1 && %w[start --start].exclude?(args.named.first)
+      raise UsageError, "This command does not take a named argument without `start`."
     end
-    if args.start? && !args.named.first.match?(/^\d+$/)
+    if args.named.count > 1 && !args.named.second.match?(/^\d+$/)
       raise UsageError, "This command only accepts integer arguments."
     end
 
@@ -68,11 +63,19 @@ module Homebrew
 
     require "autoupdate"
 
-    # Only one option can be specified because of the conflicts defined in autoupdate_args
-    Autoupdate.version if args.version?
-    Autoupdate.start(args: args) if args.start
-    Autoupdate.stop if args.stop?
-    Autoupdate.delete if args.delete?
-    Autoupdate.status if args.status?
+    case args.named.first
+    when "start", "--start"
+      Autoupdate.start(args: args)
+    when "stop", "--stop"
+      Autoupdate.stop
+    when "delete", "--delete"
+      Autoupdate.delete
+    when "status", "--status"
+      Autoupdate.status
+    when "version", "--version"
+      Autoupdate.version
+    else
+      raise UsageError, "Unknown subcommand: #{args.named.first}"
+    end
   end
 end

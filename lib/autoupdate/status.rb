@@ -42,7 +42,7 @@ module Autoupdate
         Autoupdate was initialised on #{date_of_last_modification}.
       EOS
     elsif autoupdate_not_configured?
-      puts "Autoupdate is not configured. Use `brew autoupdate --start` to begin."
+      puts "Autoupdate is not configured. Use `brew autoupdate start` to begin."
     else
       puts <<~EOS
         Autoupdate cannot determine its status.

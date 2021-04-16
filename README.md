@@ -22,33 +22,50 @@ Just `brew tap homebrew/autoupdate`.
 ## Usage
 
 ```
-brew autoupdate --start [interval] [--upgrade] [--cleanup] [--enable-notification]:
-  Start autoupdating either once every interval hours or once every 24 hours.
-  Please note the interval has to be passed in seconds, so 12 hours would be:
-    brew autoupdate --start 43200.
+Usage: brew autoupdate subcommand [interval] [options]
 
-  If --upgrade is specified, autoupdate will also upgrade your installed
-  formulae. If the Caskroom exists locally Casks will be upgraded as well.
+An easy, convenient way to automatically update Homebrew.
 
-  If --cleanup is specified, autoupdate will also automatically clean
-  brew's cache and logs.
+This script will run brew update in the background once every 24 hours (by
+default) until explicitly told to stop, utilising launchd.
 
-  If --enable-notification is specified, autoupdate will send a notification
-  when the autoupdate process has finished successfully, if terminal-notifier
-  is installed & found. Note that currently a new experimental notifier runs
-  automatically on macOS Big Sur, without requiring any external dependencies.
+brew autoupdate start [interval] [options]:
+    Start autoupdating either once every interval hours or once every 24
+hours. Please note the interval has to be passed in seconds, so 12 hours would
+be brew autoupdate start 43200. Pass --upgrade or --cleanup to
+automatically run brew upgrade and/or brew cleanup respectively. Pass
+--enable-notification to send a notification when the autoupdate process has
+finished successfully.
 
- autoupdate --stop:
-  Stop autoupdating, but retain plist & logs.
+brew autoupdate stop:
+    Stop autoupdating, but retain plist & logs.
 
- autoupdate --delete:
-  Cancel the autoupdate, delete the plist and logs.
+brew autoupdate delete:
+    Cancel the autoupdate, delete the plist and logs.
 
- autoupdate --status:
-  Prints the current status of this tool.
+brew autoupdate status:
+    Prints the current status of this tool.
 
- autoupdate --version:
-  Output this tool's current version.
+brew autoupdate version:
+    Output this tool's current version.
+
+      --upgrade                    Automatically upgrade your installed
+                                   formulae. If the Caskroom exists locally
+                                   Casks will be upgraded as well.  Must be
+                                   passed with start.
+      --cleanup                    Automatically clean brew's cache and logs.
+                                   Must be passed with start.
+      --enable-notification        Send a notification when the autoupdate
+                                   process has finished successfully, if
+                                   terminal-notifier is installed & found.
+                                   Note that currently a new experimental
+                                   notifier runs automatically on macOS Big
+                                   Sur, without requiring any external
+                                   dependencies. Must be passed with start.
+  -d, --debug                      Display any debugging information.
+  -q, --quiet                      Make some output more quiet.
+  -v, --verbose                    Make some output more verbose.
+  -h, --help                       Show this message.
 ```
 
 **Logs of the performed operations can be found at:** `~/Library/Logs/com.github.domt4.homebrew-autoupdate`

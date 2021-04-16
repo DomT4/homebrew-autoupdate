@@ -9,7 +9,7 @@ module Autoupdate
     if Utils.popen_read("/bin/launchctl", "list").include?(Autoupdate::Core.name)
       puts <<~EOS
         The command already appears to have been started.
-        Please run `brew autoupdate --delete` and try again.
+        Please run `brew autoupdate delete` and try again.
       EOS
       exit 1
     end
@@ -109,13 +109,13 @@ module Autoupdate
     # If someone has previously stopped the command assume when they start
     # it again they'd want to keep the same options & don't replace the script.
     # If you want to tweak prior-provided options the expected way is with the
-    # --delete command followed by the --start command with new args.
+    # delete command followed by the start command with new args.
     unless File.exist?(Autoupdate::Core.location/"brew_autoupdate")
       File.open(Autoupdate::Core.location/"brew_autoupdate", "w") { |sc| sc << script_contents }
       FileUtils.chmod 0555, Autoupdate::Core.location/"brew_autoupdate"
     end
 
-    interval = args.named.first || "86400"
+    interval = args.named.second || "86400"
 
     # This restores the "Run At Load" key removed in a7de771abcf6 in debug-only
     # scenarios. The debug flag currently has no other consequences, but that
