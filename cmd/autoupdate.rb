@@ -3,6 +3,10 @@
 module Homebrew
   module_function
 
+  SUBCOMMANDS = %w[start stop delete status version].freeze
+  REPO = File.expand_path("#{File.dirname(__FILE__)}/..").freeze
+  LIBS = (Pathname.new(REPO)/"lib").freeze
+
   def autoupdate_args
     Homebrew::CLI::Parser.new do
       usage_banner "`autoupdate` <subcommand> [<interval>] [<options>]"
@@ -42,40 +46,65 @@ module Homebrew
                           "experimental notifier runs automatically on macOS Big Sur, without requiring " \
                           "any external dependencies. Must be passed with `start`."
 
-      named_args %w[start stop delete status version], min: 1, max: 2
+      named_args SUBCOMMANDS
     end
   end
 
-  REPO = File.expand_path("#{File.dirname(__FILE__)}/..").freeze
-  LIBS = (Pathname.new(REPO)/"lib").freeze
-
   def autoupdate
-    args = autoupdate_args.parse
+    # We want to add the -- versions of subcommands as valid arguments
+    # but only when executing the command, not when displaying the help text
+    parser = autoupdate_args
+    SUBCOMMANDS.each do |subcommand|
+      parser.switch "--#{subcommand}"
+    end
+    args = parser.parse
 
-    if args.named.count > 1 && %w[start --start].exclude?(args.named.first)
+    subcommand = subcommand_from_args(args: args)
+    interval = interval_from_args(args: args)
+
+    raise UsageError, "This command requires a subcommand argument." if subcommand.nil?
+    if subcommand != :start && interval.present?
       raise UsageError, "This command does not take a named argument without `start`."
     end
-    if args.named.count > 1 && !args.named.second.match?(/^\d+$/)
-      raise UsageError, "This command only accepts integer arguments."
+    if interval.present? && !interval.match?(/^\d+$/)
+      raise UsageError, "This subcommand only accepts integer arguments."
     end
 
     $LOAD_PATH.unshift(LIBS) unless $LOAD_PATH.include?(LIBS)
 
     require "autoupdate"
 
-    case args.named.first
-    when "start", "--start"
-      Autoupdate.start(args: args)
-    when "stop", "--stop"
+    case subcommand
+    when :start
+      Autoupdate.start(interval: interval, args: args)
+    when :stop
       Autoupdate.stop
-    when "delete", "--delete"
+    when :delete
       Autoupdate.delete
-    when "status", "--status"
+    when :status
       Autoupdate.status
-    when "version", "--version"
+    when :version
       Autoupdate.version
     else
       raise UsageError, "Unknown subcommand: #{args.named.first}"
     end
+  end
+
+  def subcommand_from_args(args:)
+    choice = nil
+    SUBCOMMANDS.each do |subcommand|
+      next if args.named.first != subcommand && !args.send("#{subcommand}?")
+      raise UsageError, "Conflicting subcommands specified." if choice.present?
+
+      choice = subcommand.to_sym
+    end
+    choice
+  end
+
+  def interval_from_args(args:)
+    possibilities = args.named.reject { |arg| SUBCOMMANDS.include? arg }
+    raise UsageError, "This subcommand does not take more than 1 named argument." if possibilities.length > 1
+
+    possibilities.first
   end
 end
