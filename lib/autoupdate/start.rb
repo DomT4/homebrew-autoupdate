@@ -3,7 +3,7 @@
 module Autoupdate
   module_function
 
-  def start(args:)
+  def start(interval:, args:)
     # Method from Homebrew.
     # https://github.com/Homebrew/brew/blob/c9c7f4/Library/Homebrew/utils/popen.rb
     if Utils.popen_read("/bin/launchctl", "list").include?(Autoupdate::Core.name)
@@ -115,7 +115,7 @@ module Autoupdate
       FileUtils.chmod 0555, Autoupdate::Core.location/"brew_autoupdate"
     end
 
-    interval = args.named.second || "86400"
+    interval ||= "86400"
 
     # This restores the "Run At Load" key removed in a7de771abcf6 in debug-only
     # scenarios. The debug flag currently has no other consequences, but that
