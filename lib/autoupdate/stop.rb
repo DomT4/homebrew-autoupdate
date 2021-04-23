@@ -4,11 +4,11 @@ module Autoupdate
   module_function
 
   def check_is_not_already_stopped
-    unless Utils.popen_read("/bin/launchctl", "list").include?(Autoupdate::Core.name)
-      odie <<~EOS
-        Autoupdate is not currently running; cannot stop a command that is not running.
-      EOS
-    end
+    return if Utils.popen_read("/bin/launchctl", "list").include?(Autoupdate::Core.name)
+
+    odie <<~EOS
+      Autoupdate is not currently running; cannot stop a command that is not running.
+    EOS
   end
 
   def stop
