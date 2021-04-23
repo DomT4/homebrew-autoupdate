@@ -7,11 +7,10 @@ module Autoupdate
     # Method from Homebrew.
     # https://github.com/Homebrew/brew/blob/c9c7f4/Library/Homebrew/utils/popen.rb
     if Utils.popen_read("/bin/launchctl", "list").include?(Autoupdate::Core.name)
-      puts <<~EOS
+      odie <<~EOS
         The command already appears to have been started.
         Please run `brew autoupdate delete` and try again.
       EOS
-      exit 1
     end
 
     auto_args = "update"
@@ -49,8 +48,7 @@ module Autoupdate
     # of notification where requested. This will be removed when the AppleScript
     # applet proves itself consistently reliable & can be considered mostly complete.
     if args.enable_notification? && MacOS.version < :yosemite
-      puts "terminal-notifier has deprecated support for anything below Yosemite"
-      exit 1
+      odie "terminal-notifier has deprecated support for anything below Yosemite"
     elsif args.enable_notification? && Autoupdate::Notify.notifier
       auto_args << " && #{Autoupdate::Notify.notify}"
     end
@@ -162,12 +160,11 @@ module Autoupdate
     # https://github.com/Homebrew/homebrew-autoupdate/issues/10
     user_la = Pathname.new(Autoupdate::Core.plist).dirname
     unless user_la.exist?
-      puts <<~EOS
+      odie <<~EOS
         #{user_la} does not exist. Please create it first:
           mkdir -p #{user_la}
         You may need to use `sudo`.
       EOS
-      exit 1
     end
 
     File.open(Autoupdate::Core.plist, "w") { |f| f << file }
