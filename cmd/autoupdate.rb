@@ -70,6 +70,11 @@ module Homebrew
       raise UsageError, "This subcommand only accepts integer arguments."
     end
 
+    # This entire tool is essentially a "bells and whistles" wrapper around
+    # `launchd` so Linux support is a no-go unless someone wants to put
+    # the work in to add/support it in a sustainable manner.
+    raise UsageError, "`brew autoupdate` is supported only on macOS!" unless OS.mac?
+
     $LOAD_PATH.unshift(LIBS) unless $LOAD_PATH.include?(LIBS)
 
     require "autoupdate"
