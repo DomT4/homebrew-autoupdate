@@ -1,0 +1,16 @@
+name: GitHub Actions CI
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  tests:
+    runs-on: macos-latest
+    steps:
+      - name: Set up Homebrew
+        id: set-up-homebrew
+        uses: Homebrew/actions/setup-homebrew@master
+
+      - run: brew style $GITHUB_REPOSITORY

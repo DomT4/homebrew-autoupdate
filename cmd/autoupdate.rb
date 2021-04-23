@@ -37,7 +37,7 @@ module Homebrew
       EOS
       switch "--upgrade",
              description: "Automatically upgrade your installed formulae. If the Caskroom exists locally " \
-                          "Casks will be upgraded as well.  Must be passed with `start`."
+                          "Casks will be upgraded as well. Must be passed with `start`."
       switch "--cleanup",
              description: "Automatically clean brew's cache and logs. Must be passed with `start`."
       switch "--enable-notification",
