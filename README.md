@@ -70,7 +70,7 @@ brew autoupdate version:
 
 **Logs of the performed operations can be found at:** `~/Library/Logs/com.github.domt4.homebrew-autoupdate`
 
-## This Vs brew's built-in autoupdate mechanism
+## This vs `brew`'s built-in autoupdate mechanism
 
 This command mostly exists to ensure Homebrew is updated regardless of whether
 you invoke `brew` or not, which is the primary difference from the autoupdate
@@ -92,21 +92,21 @@ or if you wish to disable the built-in autoupdate mechanism entirely:
 export HOMEBREW_NO_AUTO_UPDATE="1"
 ```
 
-Please note that Homebrew themselves slightly frown upon people disabling
-the built-in autoupdate mechanism.
+Please note that Homebrew slightly frowns upon people disabling the built-in
+autoupdate mechanism.
 
 ## TO-DO (PRs Welcome)
 
 * Complete broader testing and roll-out of new, experimental notification
-support added in [6365cc020](https://github.com/DomT4/homebrew-autoupdate/commit/6365cc020)
+support added in [6365cc020](https://github.com/Homebrew/homebrew-autoupdate/commit/6365cc020)
 that doesn't require or use any external dependencies, using only an Applescript
 applet.
-[Related Issue](https://github.com/DomT4/homebrew-autoupdate/issues/25)
+[Related Issue](https://github.com/Homebrew/homebrew-autoupdate/issues/25)
 
 * Decide what to do about Cask upgrades which require `sudo` to succeed
 and currently just hang when that situation is encountered,
 unless using `SUDO_ASKPASS`.
-[Related Issue](https://github.com/DomT4/homebrew-autoupdate/issues/40)
+[Related Issue](https://github.com/Homebrew/homebrew-autoupdate/issues/40)
 
 ## History
 
