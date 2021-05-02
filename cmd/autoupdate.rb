@@ -4,8 +4,6 @@ module Homebrew
   module_function
 
   SUBCOMMANDS = %w[start stop delete status version].freeze
-  REPO = File.expand_path("#{File.dirname(__FILE__)}/..").freeze
-  LIBS = (Pathname.new(REPO)/"lib").freeze
 
   def autoupdate_args
     Homebrew::CLI::Parser.new do
@@ -75,9 +73,8 @@ module Homebrew
     # the work in to add/support it in a sustainable manner.
     raise UsageError, "`brew autoupdate` is supported only on macOS!" unless OS.mac?
 
-    $LOAD_PATH.unshift(LIBS) unless $LOAD_PATH.include?(LIBS)
-
-    require "autoupdate"
+    # Don't require anything until this point to keep help speedy.
+    require_relative "../lib/autoupdate"
 
     case subcommand
     when :start
