@@ -3,9 +3,39 @@
 module Autoupdate
   module_function
 
+  def generate_version_notes
+    # Reused code from notify; could be combined logic eventually.
+    origin = Tap.names.join(" ").match(%r{(domt4|homebrew)/autoupdate})[1]
+    tap = Pathname.new(File.join(HOMEBREW_REPOSITORY, "Library", "Taps", origin, "homebrew-autoupdate"))
+
+    log = nil
+    unless (tap/".git/shallow").exist?
+      last_version = Utils.popen_read("git", "-C", tap.to_s, "log", "--oneline",
+                                      "--grep=version: bump", "-n1", "--skip=1",
+                                      "--pretty=format:'%h'").delete("'").chomp
+
+      current_version = Utils.popen_read("git", "-C", tap.to_s, "log", "--oneline",
+                                         "--grep=version: bump", "-n1",
+                                         "--pretty=format:'%h'").delete("'").chomp
+
+      log = Utils.popen_read("git", "-C", tap.to_s, "log", "--oneline", "--no-merges",
+                             "#{last_version}..#{current_version}").chomp
+    end
+
+    return if log.nil?
+
+    puts <<~EOS
+      Changes since last version:
+
+      #{log}
+    EOS
+  end
+
   def version
     puts <<~EOS
       Version 2.14.0. Last Changed: May 2021
+
     EOS
+    generate_version_notes
   end
 end
