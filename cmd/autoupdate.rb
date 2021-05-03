@@ -45,6 +45,9 @@ module Homebrew
                           "if `terminal-notifier` is installed & found. Note that currently a new " \
                           "experimental notifier runs automatically on macOS Catalina and newer, without " \
                           "requiring any external dependencies. Must be passed with `start`."
+      switch "--immediate",
+             description: "Starts the autoupdate command immediately, instead of waiting for one interval " \
+                          "(24 hours by default) to pass first. Must be passed with `start`."
 
       named_args SUBCOMMANDS
     end
