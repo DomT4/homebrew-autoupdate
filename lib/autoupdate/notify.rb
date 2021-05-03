@@ -44,9 +44,7 @@ module Autoupdate
     end
 
     def notifier_app
-      origin = Tap.names.join(" ").match(%r{(domt4|homebrew)/autoupdate})[1]
-      File.join(HOMEBREW_REPOSITORY, "Library", "Taps", origin,
-                "homebrew-autoupdate", "notifier", "brew-autoupdate.app")
+      File.join(Autoupdate::Core.tap_dir, "notifier", "brew-autoupdate.app")
     end
 
     def new_notify
