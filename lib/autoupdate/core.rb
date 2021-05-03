@@ -27,5 +27,10 @@ module Autoupdate
     def location
       Pathname.new(File.expand_path("~/Library/Application Support/#{name}"))
     end
+
+    def tap_dir
+      origin = Tap.names.join(" ").match(%r{(domt4|homebrew)/autoupdate})[1]
+      Pathname.new(File.join(HOMEBREW_LIBRARY, "Taps", origin, "homebrew-autoupdate"))
+    end
   end
 end
