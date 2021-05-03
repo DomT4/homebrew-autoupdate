@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require "formula"
-require "tap"
-
 module Autoupdate
   module Notify
     module_function
