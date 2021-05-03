@@ -4,21 +4,19 @@ module Autoupdate
   module_function
 
   def generate_version_notes
-    # Reused code from notify; could be combined logic eventually.
-    origin = Tap.names.join(" ").match(%r{(domt4|homebrew)/autoupdate})[1]
-    tap = Pathname.new(File.join(HOMEBREW_REPOSITORY, "Library", "Taps", origin, "homebrew-autoupdate"))
-
+    tapdir = Autoupdate::Core.tap_dir
     log = nil
-    unless (tap/".git/shallow").exist?
-      last_version = Utils.popen_read("git", "-C", tap.to_s, "log", "--oneline",
+
+    unless (tapdir/".git/shallow").exist?
+      last_version = Utils.popen_read("git", "-C", tapdir, "log", "--oneline",
                                       "--grep=version: bump", "-n1", "--skip=1",
                                       "--pretty=format:'%h'").delete("'").chomp
 
-      current_version = Utils.popen_read("git", "-C", tap.to_s, "log", "--oneline",
+      current_version = Utils.popen_read("git", "-C", tapdir, "log", "--oneline",
                                          "--grep=version: bump", "-n1",
                                          "--pretty=format:'%h'").delete("'").chomp
 
-      log = Utils.popen_read("git", "-C", tap.to_s, "log", "--oneline", "--no-merges",
+      log = Utils.popen_read("git", "-C", tapdir, "log", "--oneline", "--no-merges",
                              "#{last_version}..#{current_version}").chomp
     end
 
