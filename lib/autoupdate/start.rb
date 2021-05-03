@@ -115,13 +115,11 @@ module Autoupdate
 
     interval ||= "86400"
 
-    # This restores the "Run At Load" key removed in a7de771abcf6 in debug-only
-    # scenarios. The debug flag currently has no other consequences, but that
-    # may change over time, so please don't rely on that flag's behaviour.
-    debug = if args.debug?
+    # This restores the "Run At Load" key removed in a7de771abcf6 when requested.
+    launch_immediately = if args.immediate?
       <<~EOS
         <key>RunAtLoad</key>
-        <true/>
+          <true/>
       EOS
     else
       ""
@@ -140,7 +138,7 @@ module Autoupdate
         <array>
             <string>#{Autoupdate::Core.location}/brew_autoupdate</string>
         </array>
-        #{debug}
+        #{launch_immediately.chomp}
         <key>StandardErrorPath</key>
         <string>#{log_out}</string>
         <key>StandardOutPath</key>
