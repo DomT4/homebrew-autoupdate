@@ -28,18 +28,33 @@ module Autoupdate
     formatted_string
   end
 
+  def autoupdate_inadvisably_old?
+    creation = File.birthtime(Autoupdate::Core.location/"brew_autoupdate").to_date
+    days_old = (Date.today - creation).to_i
+
+    return unless days_old >= 90
+
+    <<~EOS
+      Autoupdate has been running for more than 90 days. Please consider
+      periodically deleting and re-starting this command to ensure the
+      latest features are enabled for you.
+    EOS
+  end
+
   def status
     if autoupdate_running?
       puts <<~EOS
         Autoupdate is installed and running.
 
         Autoupdate was initialised on #{date_of_last_modification}.
+        \n#{autoupdate_inadvisably_old?}
       EOS
     elsif autoupdate_installed_but_stopped?
       puts <<~EOS
         Autoupdate is installed but stopped.
 
         Autoupdate was initialised on #{date_of_last_modification}.
+        \n#{autoupdate_inadvisably_old?}
       EOS
     elsif autoupdate_not_configured?
       puts "Autoupdate is not configured. Use `brew autoupdate start` to begin."
