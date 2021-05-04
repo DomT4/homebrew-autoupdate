@@ -33,7 +33,7 @@ module Homebrew
         Prints the current status of this tool.
 
         `brew autoupdate version`:
-        Output this tool's current version.
+        Output this tool's current version, and a short changelog.
       EOS
       switch "--upgrade",
              description: "Automatically upgrade your installed formulae. If the Caskroom exists locally " \
@@ -43,8 +43,11 @@ module Homebrew
       switch "--enable-notification",
              description: "Send a notification when the autoupdate process has finished successfully, " \
                           "if `terminal-notifier` is installed & found. Note that currently a new " \
-                          "experimental notifier runs automatically on macOS Big Sur, without requiring " \
-                          "any external dependencies. Must be passed with `start`."
+                          "experimental notifier runs automatically on macOS Catalina and newer, without " \
+                          "requiring any external dependencies. Must be passed with `start`."
+      switch "--immediate",
+             description: "Starts the autoupdate command immediately, instead of waiting for one interval " \
+                          "(24 hours by default) to pass first. Must be passed with `start`."
 
       named_args SUBCOMMANDS
     end

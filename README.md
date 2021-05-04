@@ -47,7 +47,7 @@ brew autoupdate status:
     Prints the current status of this tool.
 
 brew autoupdate version:
-    Output this tool's current version.
+    Output this tool's current version, and a short changelog.
 
       --upgrade                    Automatically upgrade your installed
                                    formulae. If the Caskroom exists locally
@@ -59,9 +59,14 @@ brew autoupdate version:
                                    process has finished successfully, if
                                    terminal-notifier is installed & found.
                                    Note that currently a new experimental
-                                   notifier runs automatically on macOS Big
-                                   Sur, without requiring any external
-                                   dependencies. Must be passed with start.
+                                   notifier runs automatically on macOS
+                                   Catalina and newer, without requiring any
+                                   external dependencies. Must be passed with
+                                   start.
+      --immediate                  Starts the autoupdate command immediately,
+                                   instead of waiting for one interval (24
+                                   hours by default) to pass first. Must be
+                                   passed with start.
   -d, --debug                      Display any debugging information.
   -q, --quiet                      Make some output more quiet.
   -v, --verbose                    Make some output more verbose.
