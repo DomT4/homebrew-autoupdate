@@ -10,10 +10,12 @@ module Autoupdate
     unless (tapdir/".git/shallow").exist?
       last_version = Utils.popen_read("git", "-C", tapdir, "log", "--oneline",
                                       "--grep=version: bump", "-n1", "--skip=1",
+                                      "--no-merges",
                                       "--pretty=format:'%h'").delete("'").chomp
 
       current_version = Utils.popen_read("git", "-C", tapdir, "log", "--oneline",
                                          "--grep=version: bump", "-n1",
+                                         "--no-merges",
                                          "--pretty=format:'%h'").delete("'").chomp
 
       log = Utils.popen_read("git", "-C", tapdir, "log", "--oneline", "--no-merges",
