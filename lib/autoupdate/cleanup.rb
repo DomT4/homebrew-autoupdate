@@ -4,11 +4,13 @@ module Autoupdate
   module_function
 
   def cleanup
-    fallback_logs = Dir[File.join(Autoupdate::Core.fallback_logs, "#{Autoupdate::Core.name}.*")]
+    log_files = Dir[File.join(Autoupdate::Core.fallback_logs, "**/#{Autoupdate::Core.base_name}.out")] |
+                Dir[File.join(Autoupdate::Core.fallback_logs, "**/#{Autoupdate::Core.name}.out")]
+    logs = Autoupdate::Core.logs
 
-    FileUtils.rm_f fallback_logs
+    FileUtils.rm_f log_files
     FileUtils.rm_f Autoupdate::Core.plist
     FileUtils.rm_rf Autoupdate::Core.location
-    FileUtils.rm_rf Autoupdate::Core.logs
+    FileUtils.rmdir logs if File.exist?(logs) && Dir["#{logs}/*"].empty?
   end
 end
