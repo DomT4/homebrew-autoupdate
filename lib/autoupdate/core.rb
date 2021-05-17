@@ -4,8 +4,14 @@ module Autoupdate
   module Core
     module_function
 
-    def name
+    def base_name
       "com.github.domt4.homebrew-autoupdate"
+    end
+
+    def name
+      return base_name if File.exist?(File.expand_path("~/Library/LaunchAgents/#{base_name}.plist"))
+
+      "#{base_name}.#{Hardware::CPU.arch}"
     end
 
     def plist
@@ -17,7 +23,7 @@ module Autoupdate
     end
 
     def logs
-      File.expand_path("~/Library/Logs/#{name}")
+      File.expand_path("~/Library/Logs/#{base_name}")
     end
 
     def fallback_logs
