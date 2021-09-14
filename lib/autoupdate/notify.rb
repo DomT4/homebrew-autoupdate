@@ -5,7 +5,7 @@ module Autoupdate
     module_function
 
     def notifier
-      Formula["terminal-notifier"].opt_bin/"terminal-notifier" ||
+      (Formula["terminal-notifier"].opt_bin/"terminal-notifier") ||
         which("terminal-notifier") ||
         File.exist?("/Applications/terminal-notifier.app/Contents/MacOS/terminal-notifier") ||
         File.exist?(File.expand_path("~/Applications/terminal-notifier.app/Contents/MacOS/terminal-notifier"))
