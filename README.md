@@ -58,11 +58,9 @@ brew autoupdate version:
       --enable-notification        Send a notification when the autoupdate
                                    process has finished successfully, if
                                    terminal-notifier is installed & found.
-                                   Note that currently a new experimental
-                                   notifier runs automatically on macOS
-                                   Catalina and newer, without requiring any
-                                   external dependencies. Must be passed with
-                                   start.
+                                   Must be passed with start.
+                                   NOTE: Notifications are enabled by default
+                                   on macOS Catalina and newer.
       --immediate                  Starts the autoupdate command immediately,
                                    instead of waiting for one interval (24
                                    hours by default) to pass first. Must be
