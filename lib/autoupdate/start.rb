@@ -42,8 +42,13 @@ module Autoupdate
       auto_args << " && #{Autoupdate::Core.brew} cleanup" if args.cleanup?
     end
 
-    # Enable the new AppleScript applet by default on Big Sur. This enables us
-    # to do fairly broad testing with essentially no downside for the user.
+    # Enable the new AppleScript applet by default on Catalina and above.
+    # This enables us to do fairly broad testing with essentially
+    # no downside for the user. This will also pave the way for removal of
+    # terminal-notifier support, which is effectively dead and problematic
+    # upstream. Examples:
+    # https://github.com/julienXX/terminal-notifier/pull/289
+    # https://github.com/julienXX/terminal-notifier/pull/285
     auto_args << " && #{Autoupdate::Notify.new_notify}" if MacOS.version >= :catalina
     # Otherwise on older platforms fallback to the old terminal-notifier style
     # of notification where requested. This will be removed when the AppleScript
@@ -51,6 +56,13 @@ module Autoupdate
     if args.enable_notification? && MacOS.version < :yosemite
       odie "terminal-notifier has deprecated support for anything below Yosemite"
     elsif args.enable_notification? && Autoupdate::Notify.notifier
+      opoo <<~EOS
+        Notification support for macOS versions older than
+        Catalina (macOS 10.15) will be removed in October 2022
+        due to terminal-notifier essentially being Abandonware.
+
+        Newer versions of macOS are supported by a native Applet.
+      EOS
       auto_args << " && #{Autoupdate::Notify.notify}"
     end
 
