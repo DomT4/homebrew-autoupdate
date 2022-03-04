@@ -55,6 +55,13 @@ module Autoupdate
     # applet proves itself consistently reliable & can be considered mostly complete.
     if args.enable_notification? && MacOS.version < :yosemite
       odie "terminal-notifier has deprecated support for anything below Yosemite"
+    elsif args.enable_notification? && MacOS.version >= :catalina
+      opoo <<~EOS
+        Notifications are automatically enabled for macOS Catalina
+        and newer using a native Applet. Passing --enable-notification
+        is no longer required.
+
+      EOS
     elsif args.enable_notification? && Autoupdate::Notify.notifier
       opoo <<~EOS
         Notification support for macOS versions older than
