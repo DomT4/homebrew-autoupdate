@@ -53,6 +53,8 @@ brew autoupdate version:
                                    formulae. If the Caskroom exists locally
                                    Casks will be upgraded as well. Must be
                                    passed with start.
+      --greedy                     Upgrade casks with --greedy. See brew(1).
+                                   Must be passed with start.
       --cleanup                    Automatically clean brew's cache and logs.
                                    Must be passed with start.
       --enable-notification        Send a notification when the autoupdate

@@ -35,7 +35,8 @@ module Autoupdate
           EOS
         end
 
-        auto_args << " && #{Autoupdate::Core.brew} upgrade --cask --greedy -v"
+        greedy = args.greedy? ? " --greedy" : ""
+        auto_args << " && #{Autoupdate::Core.brew} upgrade --cask -v#{greedy}"
       end
 
       auto_args << " && #{Autoupdate::Core.brew} cleanup" if args.cleanup?
