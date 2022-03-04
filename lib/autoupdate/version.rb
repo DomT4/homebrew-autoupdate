@@ -33,7 +33,7 @@ module Autoupdate
 
   def version
     puts <<~EOS
-      Version 2.15.2. Last Changed: August 2021
+      Version 2.16.0. Last Changed: March 2022
 
     EOS
     generate_version_notes
