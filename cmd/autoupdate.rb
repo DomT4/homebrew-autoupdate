@@ -39,7 +39,7 @@ module Homebrew
              description: "Automatically upgrade your installed formulae. If the Caskroom exists locally " \
                           "Casks will be upgraded as well. Must be passed with `start`."
       switch "--greedy",
-             description: "Upgrade casks with --greedy. See brew(1)." \
+             description: "Upgrade casks with --greedy (include auto-updating casks). " \
                           "Must be passed with `start`."
       switch "--cleanup",
              description: "Automatically clean brew's cache and logs. Must be passed with `start`."
