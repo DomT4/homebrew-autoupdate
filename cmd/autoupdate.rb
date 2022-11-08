@@ -24,7 +24,7 @@ module Homebrew
         to send a notification when the autoupdate process has finished successfully.
 
         `brew autoupdate stop`:
-        Stop autoupdating, but retain plist & logs.
+        Stop autoupdating, but retain plist and logs.
 
         `brew autoupdate delete`:
         Cancel the autoupdate, delete the plist and logs.
@@ -45,8 +45,8 @@ module Homebrew
              description: "Automatically clean brew's cache and logs. Must be passed with `start`."
       switch "--enable-notification",
              description: "Send a notification when the autoupdate process has finished successfully, " \
-                          "if `terminal-notifier` is installed & found. Must be passed with `start`. " \
-                          "<NOTE: Notifications are enabled by default on macOS Catalina and newer.>"
+                          "if `terminal-notifier` is installed and found. Must be passed with `start`. " \
+                          "Note: notifications are enabled by default on macOS Catalina and newer."
       switch "--immediate",
              description: "Starts the autoupdate command immediately, instead of waiting for one interval " \
                           "(24 hours by default) to pass first. Must be passed with `start`."
