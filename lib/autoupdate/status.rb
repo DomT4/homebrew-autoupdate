@@ -32,7 +32,7 @@ module Autoupdate
     creation = File.birthtime(Autoupdate::Core.location/"brew_autoupdate").to_date
     days_old = (Date.today - creation).to_i
 
-    return unless days_old >= 90
+    return if days_old < 90
 
     <<~EOS
       Autoupdate has been running for more than 90 days. Please consider
