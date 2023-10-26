@@ -94,11 +94,17 @@ module Autoupdate
     set_env << "\nexport HOMEBREW_NO_ANALYTICS=#{env_stats}" if env_stats
     set_env << "\nexport HOMEBREW_CASK_OPTS=#{env_cask}" if env_cask
 
-    #TODO: Fix if/else statement and fix path to script
     if args.sudo?
-      set_env << "\nextport SUDO_ASKPASS=#{Autoupdate::Core}" if env_sudo
+      set_env << "\nextport SUDO_ASKPASS=#{Autoupdate::Core.location/"brew_autoupdate_sudo_gui"}"
+      sudo_gui_script_contents = <<~EOS
+      #!/bin/sh
+      export PATH='#{env_path}'
+      PW="$(printf "%s\n" "SETOK OK" "SETCANCEL Cancel" "SETDESC homebrew-autoupdate needs your admin password to complete the upgrade" "SETPROMPT Enter Password:" "SETTITLE homebrew-autoupdate Password Request" "GETPIN" | pinentry-mac --no-global-grab | awk '/^D / {print substr($0, index($0, $2))}')"
+      echo "$PW"
+    EOS
     else
       set_env << "\nexport SUDO_ASKPASS=#{env_sudo}" if env_sudo
+    end
 
     script_contents = <<~EOS
       #!/bin/sh
@@ -138,6 +144,11 @@ module Autoupdate
     unless File.exist?(Autoupdate::Core.location/"brew_autoupdate")
       File.open(Autoupdate::Core.location/"brew_autoupdate", "w") { |sc| sc << script_contents }
       FileUtils.chmod 0555, Autoupdate::Core.location/"brew_autoupdate"
+    end
+
+    unless File.exist?(Autoupdate::Core.location/"brew_autoupdate_sudo_gui")
+      File.open(Autoupdate::Core.location/"brew_autoupdate_sudo_gui", "w") { |sc| sc << sudo_gui_script_contents }
+      FileUtils.chmod 0555, Autoupdate::Core.location/"brew_autoupdate_sudo_gui"
     end
 
     interval ||= "86400"
