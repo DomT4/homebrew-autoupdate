@@ -95,6 +95,12 @@ module Autoupdate
     set_env << "\nexport HOMEBREW_CASK_OPTS=#{env_cask}" if env_cask
 
     if args.sudo?
+      unless Formula["pinentry-mac"].any_version_installed?
+        odie <<~EOS
+          `--sudo` requires https://formulae.brew.sh/formula/pinentry-mac to be installed.
+          Please run `brew install pinentry-mac` and try again.
+        EOS
+      end
       set_env << "\nexport SUDO_ASKPASS='#{Autoupdate::Core.location/"brew_autoupdate_sudo_gui"}'"
       sudo_gui_script_contents = <<~EOS
         #!/bin/sh
