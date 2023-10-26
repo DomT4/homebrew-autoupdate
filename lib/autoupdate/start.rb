@@ -95,7 +95,7 @@ module Autoupdate
     set_env << "\nexport HOMEBREW_CASK_OPTS=#{env_cask}" if env_cask
 
     if args.sudo?
-      set_env << "\nexport SUDO_ASKPASS=#{Autoupdate::Core.location/"brew_autoupdate_sudo_gui"}"
+      set_env << "\nexport SUDO_ASKPASS='#{Autoupdate::Core.location/"brew_autoupdate_sudo_gui"}'"
       sudo_gui_script_contents = <<~EOS
       #!/bin/sh
       export PATH='#{env_path}'
