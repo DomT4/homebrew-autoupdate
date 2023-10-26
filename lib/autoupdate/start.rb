@@ -102,8 +102,8 @@ module Autoupdate
         PW="$(printf "%s\n" "SETOK OK" "SETCANCEL Cancel" "SETDESC homebrew-autoupdate needs your admin password to complete the upgrade" "SETPROMPT Enter Password:" "SETTITLE homebrew-autoupdate Password Request" "GETPIN" | pinentry-mac --no-global-grab | awk '/^D / {print substr($0, index($0, $2))}')"
         echo "$PW"
       EOS
-    else
-      set_env << "\nexport SUDO_ASKPASS=#{env_sudo}" if env_sudo
+    elsif env_sudo
+      set_env << "\nexport SUDO_ASKPASS=#{env_sudo}"
     end
 
     script_contents = <<~EOS
