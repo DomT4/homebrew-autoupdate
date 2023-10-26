@@ -67,7 +67,10 @@ brew autoupdate version:
                                    instead of waiting for one interval (24
                                    hours by default) to pass first. Must be
                                    passed with start.
-      --sudo                       If a Cask requires sudo, autoupdate will open a GUI to ask for the password.
+      --sudo                       If a Cask requires sudo, autoupdate will 
+                                   open a GUI to ask for the password.
+                                   Requires https://formulae.brew.sh/formula/pinentry-mac
+                                   to be installed.
   -d, --debug                      Display any debugging information.
   -q, --quiet                      Make some output more quiet.
   -v, --verbose                    Make some output more verbose.
