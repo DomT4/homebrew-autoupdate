@@ -67,6 +67,7 @@ brew autoupdate version:
                                    instead of waiting for one interval (24
                                    hours by default) to pass first. Must be
                                    passed with start.
+      --sudo                       Run with `SUDO_ASKPASS` (which is required for some formulae).
   -d, --debug                      Display any debugging information.
   -q, --quiet                      Make some output more quiet.
   -v, --verbose                    Make some output more verbose.

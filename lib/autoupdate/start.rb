@@ -93,7 +93,12 @@ module Autoupdate
     set_env << "\nexport HOMEBREW_DEVELOPER=#{env_dev}" if env_dev
     set_env << "\nexport HOMEBREW_NO_ANALYTICS=#{env_stats}" if env_stats
     set_env << "\nexport HOMEBREW_CASK_OPTS=#{env_cask}" if env_cask
-    set_env << "\nexport SUDO_ASKPASS=#{env_sudo}" if env_sudo
+
+    #TODO: Fix if/else statement and fix path to script
+    if args.sudo?
+      set_env << "\nextport SUDO_ASKPASS=#{Autoupdate::Core}" if env_sudo
+    else
+      set_env << "\nexport SUDO_ASKPASS=#{env_sudo}" if env_sudo
 
     script_contents = <<~EOS
       #!/bin/sh

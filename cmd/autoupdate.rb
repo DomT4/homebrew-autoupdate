@@ -22,6 +22,7 @@ module Homebrew
         `brew autoupdate start 43200`. Pass `--upgrade` or `--cleanup` to automatically
         run `brew upgrade` and/or `brew cleanup` respectively. Pass `--enable-notification`
         to send a notification when the autoupdate process has finished successfully.
+        Add `--sudo` to run `brew upgrade` with `SUDO_ASKPASS` (which is required for some formulae).
 
         `brew autoupdate stop`:
         Stop autoupdating, but retain plist and logs.
@@ -50,6 +51,8 @@ module Homebrew
       switch "--immediate",
              description: "Starts the autoupdate command immediately, instead of waiting for one interval " \
                           "(24 hours by default) to pass first. Must be passed with `start`."
+      switch "--sudo",
+             description: "Run `brew upgrade` with `SUDO_ASKPASS` (which is required for some formulae). " \
 
       named_args SUBCOMMANDS
     end
