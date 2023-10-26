@@ -22,7 +22,7 @@ module Homebrew
         `brew autoupdate start 43200`. If you want to start the autoupdate immediately
         and after every reboot, pass `--immediate`. Pass `--upgrade` or `--cleanup`
         to automatically run `brew upgrade` and/or `brew cleanup` respectively.
-        Pass `--enable-notification` to send a notification when the autoupdate 
+        Pass `--enable-notification` to send a notification when the autoupdate
         process has finished successfully.
 
         `brew autoupdate stop`:
