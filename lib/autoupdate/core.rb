@@ -32,5 +32,18 @@ module Autoupdate
       origin = Tap.names.join(" ").match(%r{(domt4|homebrew)/autoupdate})[1]
       Pathname.new(File.join(HOMEBREW_LIBRARY, "Taps", origin, "homebrew-autoupdate"))
     end
+
+    def command_upgrade
+      " && #{Autoupdate::Core.brew} upgrade --formula -v"
+    end
+
+    def command_cask(greedy)
+      greedy_argument = greedy ? " --greedy" : ""
+      " && #{Autoupdate::Core.brew} upgrade --cask -v#{greedy_argument}"
+    end
+
+    def command_cleanup
+      " && #{Autoupdate::Core.brew} cleanup"
+    end
   end
 end

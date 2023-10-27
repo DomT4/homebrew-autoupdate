@@ -16,7 +16,7 @@ module Autoupdate
     auto_args = "update"
     # Spacing at start of lines is deliberate. Don't undo.
     if args.upgrade?
-      auto_args << " && #{Autoupdate::Core.brew} upgrade --formula -v"
+      auto_args << "#{Autoupdate::Core.command_upgrade}"
 
       if (HOMEBREW_PREFIX/"Caskroom").exist?
         # Support unattended Cask upgrades that require `sudo` where possible.
@@ -35,11 +35,10 @@ module Autoupdate
           EOS
         end
 
-        greedy = args.greedy? ? " --greedy" : ""
-        auto_args << " && #{Autoupdate::Core.brew} upgrade --cask -v#{greedy}"
+        auto_args << "#{Autoupdate::Core.command_cask(args.greedy?)}"
       end
 
-      auto_args << " && #{Autoupdate::Core.brew} cleanup" if args.cleanup?
+      auto_args << "#{Autoupdate::Core.command_cleanup}" if args.cleanup?
     end
 
     # Enable the new AppleScript applet by default on Catalina and above.

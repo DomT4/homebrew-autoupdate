@@ -23,50 +23,44 @@ module Autoupdate
     if File.exist?(Autoupdate::Core.location/"brew_autoupdate")
       birth = File.birthtime(Autoupdate::Core.location/"brew_autoupdate").to_s
       date = Date.parse(birth)
-      formatted_string = date.strftime("%D")
+      out = date.strftime("%D")
     else
-      formatted_string = "Unable to determine date of command invocation. Please report this."
+      out = "Unable to determine date of command invocation. Please report this."
     end
-    formatted_string
+    out
   end
 
   def brew_update_arguments
-    brew_autoupdate_command = File.readlines(Autoupdate::Core.location/"brew_autoupdate").last
-    formatted_string = ""
+    brew_autoupdate = File.readlines(Autoupdate::Core.location/"brew_autoupdate").last
+    out = ""
   
-    if brew_autoupdate_command
-      formatted_string += "--upgrade\n" if brew_autoupdate_command.include?("&& #{Autoupdate::Core.brew} upgrade --formula -v")
-      formatted_string += "--cleanup\n" if brew_autoupdate_command.include?("&& #{Autoupdate::Core.brew} cleanup")
-      formatted_string += "--greedy\n" if brew_autoupdate_command.include?(" && #{Autoupdate::Core.brew} upgrade --cask -v --greedy")
+    if brew_autoupdate
+      out += "--upgrade\n" if brew_autoupdate.include?("#{Autoupdate::Core.command_upgrade}")
+      out += "--cleanup\n" if brew_autoupdate.include?("#{Autoupdate::Core.command_cleanup}")
+      out += "--greedy" if brew_autoupdate.include?("#{Autoupdate::Core.command_cask(true)}")
     end
-    formatted_string
+    out
   end
 
   def autoupdate_interval
-    file_path = Autoupdate::Core.plist
-    content = File.read(file_path)
-    doc = REXML::Document.new(content)
+    plist = REXML::Document.new(File.read(Autoupdate::Core.plist))
     key = 'StartInterval'
-    if (element = doc.elements["//key[text()='#{key}']"])
+    if (element = plist.elements["//key[text()='#{key}']"])
       value = element.next_element.text.to_i
-      formatted_string = "Interval: #{value} seconds"
+      out = "Interval: #{value}"
     else
-      formatted_string = "Interval not found. Maybe using `StartCalendarInterval`"
+      out = "Interval: Not found, maybe using `StartCalendarInterval`"
     end
-    formatted_string
+    out
   end
 
   def autoupdate_start_on_launch
-    file_path = Autoupdate::Core.plist
-    content = File.read(file_path)
-    doc = REXML::Document.new(content)
+    plist = REXML::Document.new(File.read(Autoupdate::Core.plist))
     key = 'RunAtLoad'
-    formatted_string = if doc.elements["//key[text()='#{key}']"]
-      "--immediate is enabled. Autoupdate will start on system boot."
-    else
-      ""
+    out = if plist.elements["//key[text()='#{key}']"]
+      "--immediate\n"
     end
-    formatted_string
+    out
   end
 
   def autoupdate_inadvisably_old?
@@ -88,19 +82,18 @@ module Autoupdate
         Autoupdate is installed and running.
 
         Options:
-        #{autoupdate_interval.chomp}
-        #{brew_update_arguments.chomp}
-        #{autoupdate_start_on_launch.chomp}
-
+        #{autoupdate_interval}
+        #{brew_update_arguments}
+        #{autoupdate_start_on_launch}
         Autoupdate was initialised on #{date_of_last_modification}.
-        \n#{autoupdate_inadvisably_old?}
+        #{autoupdate_inadvisably_old?}
       EOS
     elsif autoupdate_installed_but_stopped?
       puts <<~EOS
         Autoupdate is installed but stopped.
 
         Autoupdate was initialised on #{date_of_last_modification}.
-        \n#{autoupdate_inadvisably_old?}
+        #{autoupdate_inadvisably_old?}
       EOS
     elsif autoupdate_not_configured?
       puts "Autoupdate is not configured. Use `brew autoupdate start` to begin."
