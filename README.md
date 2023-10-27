@@ -64,7 +64,7 @@ brew autoupdate version:
                                    NOTE: Notifications are enabled by default
                                    on macOS Catalina and newer.
       --immediate                  Starts the autoupdate command immediately
-                                   and after every reboot,
+                                   and on system boot,
                                    instead of waiting for one interval (24
                                    hours by default) to pass first. Must be
                                    passed with start.
