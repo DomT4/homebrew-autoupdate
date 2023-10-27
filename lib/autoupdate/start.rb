@@ -103,7 +103,7 @@ module Autoupdate
         fi
       EOS
     else
-      ac_only = ""
+      ""
     end
 
     script_contents = <<~EOS
