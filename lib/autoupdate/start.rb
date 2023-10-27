@@ -198,7 +198,7 @@ module Autoupdate
     if args.immediate?
       puts "#{update_message}, now, and on system boot."
     else
-      puts update_message + "."
+      puts "#{update_message}."
     end
   end
 end
