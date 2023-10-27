@@ -31,6 +31,15 @@ module Autoupdate
   end
 
   def brew_update_arguments
+    brew_autoupdate_command = File.readlines(Autoupdate::Core.location/"brew_autoupdate").last
+    formatted_string = ""
+  
+    if brew_autoupdate_command
+      formatted_string += "--upgrade\n" if brew_autoupdate_command.include?("&& #{Autoupdate::Core.brew} upgrade --formula -v")
+      formatted_string += "--cleanup\n" if brew_autoupdate_command.include?("&& #{Autoupdate::Core.brew} cleanup")
+      formatted_string += "--greedy\n" if brew_autoupdate_command.include?(" && #{Autoupdate::Core.brew} upgrade --cask -v --greedy")
+    end
+    formatted_string
   end
 
   def autoupdate_interval
@@ -80,6 +89,7 @@ module Autoupdate
 
         Options:
         #{autoupdate_interval.chomp}
+        #{brew_update_arguments.chomp}
         #{autoupdate_start_on_launch.chomp}
 
         Autoupdate was initialised on #{date_of_last_modification}.
