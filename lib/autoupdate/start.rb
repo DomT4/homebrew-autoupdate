@@ -24,13 +24,11 @@ module Autoupdate
         # comfortable enough with it I can tolerate it. Please consider the
         # risks of leaving your admin password laying around the system in
         # plaintext before using this, if you have no other use case for SUDO_ASKPASS.
-        if ENV["SUDO_ASKPASS"].nil?
+        if ENV["SUDO_ASKPASS"].nil? && !args.sudo?
           opoo <<~EOS
-            Please note if you use Casks that require `sudo` to upgrade there
-            are known issues with that use case and this command unless using
-            `SUDO_ASKPASS`.
-
-              https://github.com/Homebrew/homebrew-autoupdate/issues/40
+            Please note if you use Casks that require `sudo` to upgrade,
+            you need to use `--sudo` or defining a custom `SUDO_ASKPASS`
+            environment variable.
 
           EOS
         end
