@@ -50,7 +50,8 @@ module Homebrew
       switch "--immediate",
              description: "Starts the autoupdate command immediately, instead of waiting for one interval " \
                           "(24 hours by default) to pass first. Must be passed with `start`."
-
+      switch "--ac-only",
+             description: "Only run autoupdate when on AC power. Must be passed with `start`."
       named_args SUBCOMMANDS
     end
   end

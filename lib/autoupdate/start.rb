@@ -95,8 +95,20 @@ module Autoupdate
     set_env << "\nexport HOMEBREW_CASK_OPTS=#{env_cask}" if env_cask
     set_env << "\nexport SUDO_ASKPASS=#{env_sudo}" if env_sudo
 
+    ac_only = if args.ac_only?
+      <<~EOS
+        if [[ $(pmset -g ps | head -1) =~ "Battery Power" ]]; then
+          echo "Not starting autoupdate, because device is running on Battery"
+          exit
+        fi
+      EOS
+    else
+      ac_only = ""
+    end
+
     script_contents = <<~EOS
       #!/bin/sh
+      #{ac_only.chomp}
       #{set_env}
       /bin/date && #{Autoupdate::Core.brew} #{auto_args}
     EOS
