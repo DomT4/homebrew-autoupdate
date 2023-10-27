@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'rexml/document'
+
 module Autoupdate
   module_function
 
@@ -28,6 +30,25 @@ module Autoupdate
     formatted_string
   end
 
+  def brew_update_arguments
+  end
+
+  def autoupdate_interval
+  end
+
+  def autoupdate_start_on_launch
+    file_path = Autoupdate::Core.plist
+    content = File.read(file_path)
+    doc = REXML::Document.new(content)
+    key = 'RunAtLoad'
+    formatted_string = if doc.elements["//key[text()='#{key}']"]
+      "--immediate is enabled. Autoupdate will start on system boot."
+    else
+      ""
+    end
+    formatted_string
+  end
+
   def autoupdate_inadvisably_old?
     creation = File.birthtime(Autoupdate::Core.location/"brew_autoupdate").to_date
     days_old = (Date.today - creation).to_i
@@ -45,6 +66,9 @@ module Autoupdate
     if autoupdate_running?
       puts <<~EOS
         Autoupdate is installed and running.
+
+        Options:
+        #{autoupdate_start_on_launch.chomp}
 
         Autoupdate was initialised on #{date_of_last_modification}.
         \n#{autoupdate_inadvisably_old?}
