@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'rexml/document'
+require "rexml/document"
 
 module Autoupdate
   module_function
@@ -33,18 +33,18 @@ module Autoupdate
   def brew_update_arguments
     brew_autoupdate = File.readlines(Autoupdate::Core.location/"brew_autoupdate").last
     out = ""
-  
+
     if brew_autoupdate
-      out += "--upgrade\n" if brew_autoupdate.include?("#{Autoupdate::Core.command_upgrade}")
-      out += "--cleanup\n" if brew_autoupdate.include?("#{Autoupdate::Core.command_cleanup}")
-      out += "--greedy" if brew_autoupdate.include?("#{Autoupdate::Core.command_cask(true)}")
+      out += "--upgrade\n" if brew_autoupdate.include?(Autoupdate::Core.command_upgrade.to_s)
+      out += "--cleanup\n" if brew_autoupdate.include?(Autoupdate::Core.command_cleanup.to_s)
+      out += "--greedy" if brew_autoupdate.include?(Autoupdate::Core.command_cask(true).to_s)
     end
     out
   end
 
   def autoupdate_interval
     plist = REXML::Document.new(File.read(Autoupdate::Core.plist))
-    key = 'StartInterval'
+    key = "StartInterval"
     if (element = plist.elements["//key[text()='#{key}']"])
       value = element.next_element.text.to_i
       out = "Interval: #{value}"
@@ -56,11 +56,8 @@ module Autoupdate
 
   def autoupdate_start_on_launch
     plist = REXML::Document.new(File.read(Autoupdate::Core.plist))
-    key = 'RunAtLoad'
-    out = if plist.elements["//key[text()='#{key}']"]
-      "--immediate\n"
-    end
-    out
+    key = "RunAtLoad"
+    ("--immediate\n" if plist.elements["//key[text()='#{key}']"])
   end
 
   def autoupdate_inadvisably_old?
