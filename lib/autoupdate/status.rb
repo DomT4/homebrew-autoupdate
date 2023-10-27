@@ -34,6 +34,17 @@ module Autoupdate
   end
 
   def autoupdate_interval
+    file_path = Autoupdate::Core.plist
+    content = File.read(file_path)
+    doc = REXML::Document.new(content)
+    key = 'StartInterval'
+    if (element = doc.elements["//key[text()='#{key}']"])
+      value = element.next_element.text.to_i
+      formatted_string = "Interval: #{value} seconds"
+    else
+      formatted_string = "Interval not found. Maybe using `StartCalendarInterval`"
+    end
+    formatted_string
   end
 
   def autoupdate_start_on_launch
@@ -68,6 +79,7 @@ module Autoupdate
         Autoupdate is installed and running.
 
         Options:
+        #{autoupdate_interval.chomp}
         #{autoupdate_start_on_launch.chomp}
 
         Autoupdate was initialised on #{date_of_last_modification}.
