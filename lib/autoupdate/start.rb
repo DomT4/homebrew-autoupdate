@@ -214,6 +214,11 @@ module Autoupdate
     # It'll behave strangely if someone wants autoupdate
     # to run more than once an hour, but... surely not?
     interval_to_hours = interval.to_i / 60 / 60
-    puts "Homebrew will now automatically update every #{interval_to_hours} hours, or on system boot."
+    update_message = "Homebrew will now automatically update every #{interval_to_hours} hours"
+    if args.immediate?
+      puts "#{update_message}, now, and on system boot."
+    else
+      puts "#{update_message}."
+    end
   end
 end
