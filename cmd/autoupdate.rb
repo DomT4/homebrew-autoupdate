@@ -19,9 +19,11 @@ module Homebrew
         `brew autoupdate start` [<`interval`>] [<`options`>]:
         Start autoupdating either once every `interval` hours or once every 24 hours.
         Please note the interval has to be passed in seconds, so 12 hours would be
-        `brew autoupdate start 43200`. Pass `--upgrade` or `--cleanup` to automatically
-        run `brew upgrade` and/or `brew cleanup` respectively. Pass `--enable-notification`
-        to send a notification when the autoupdate process has finished successfully.
+        `brew autoupdate start 43200`. If you want to start the autoupdate immediately
+        and on system boot, pass `--immediate`. Pass `--upgrade` or `--cleanup`
+        to automatically run `brew upgrade` and/or `brew cleanup` respectively.
+        Pass `--enable-notification` to send a notification when the autoupdate
+        process has finished successfully.
 
         `brew autoupdate stop`:
         Stop autoupdating, but retain plist and logs.
@@ -48,8 +50,9 @@ module Homebrew
                           "if `terminal-notifier` is installed and found. Must be passed with `start`. " \
                           "Note: notifications are enabled by default on macOS Catalina and newer."
       switch "--immediate",
-             description: "Starts the autoupdate command immediately, instead of waiting for one interval " \
-                          "(24 hours by default) to pass first. Must be passed with `start`."
+             description: "Starts the autoupdate command immediately and on system boot, " \
+                          "instead of waiting for one interval (24 hours by default) to pass first. " \
+                          "Must be passed with `start`."
 
       named_args SUBCOMMANDS
     end
