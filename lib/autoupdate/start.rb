@@ -27,7 +27,7 @@ module Autoupdate
         if ENV["SUDO_ASKPASS"].nil? && !args.sudo?
           opoo <<~EOS
             Please note if you use Casks that require `sudo` to upgrade,
-            you need to use `--sudo` or defining a custom `SUDO_ASKPASS`
+            you need to use `--sudo` or define a custom `SUDO_ASKPASS`
             environment variable.
 
           EOS
