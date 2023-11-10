@@ -21,6 +21,7 @@ Just `brew tap homebrew/autoupdate`.
 
 ## Usage
 
+<!-- HELP-COMMAND-OUTPUT:START -->
 ```
 Usage: brew autoupdate subcommand [interval] [options]
 
@@ -73,6 +74,7 @@ brew autoupdate version:
   -v, --verbose                    Make some output more verbose.
   -h, --help                       Show this message.
 ```
+<!-- HELP-COMMAND-OUTPUT:END -->
 
 **Logs of the performed operations can be found at:** `~/Library/Logs/com.github.domt4.homebrew-autoupdate`
 
