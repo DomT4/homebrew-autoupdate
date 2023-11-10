@@ -22,7 +22,7 @@ Just `brew tap homebrew/autoupdate`.
 ## Usage
 
 <!-- HELP-COMMAND-OUTPUT:START -->
-```
+```shell
 Usage: brew autoupdate subcommand [interval] [options]
 
 An easy, convenient way to automatically update Homebrew.
@@ -33,13 +33,14 @@ default) until explicitly told to stop, utilising launchd.
 brew autoupdate start [interval] [options]:
     Start autoupdating either once every interval hours or once every 24
 hours. Please note the interval has to be passed in seconds, so 12 hours would
-be brew autoupdate start 43200. Pass --upgrade or --cleanup to
-automatically run brew upgrade and/or brew cleanup respectively. Pass
---enable-notification to send a notification when the autoupdate process has
-finished successfully.
+be brew autoupdate start 43200. If you want to start the autoupdate
+immediately and on system boot, pass --immediate. Pass --upgrade or
+--cleanup to automatically run brew upgrade and/or brew cleanup
+respectively. Pass --enable-notification to send a notification when the
+autoupdate process has finished successfully.
 
 brew autoupdate stop:
-    Stop autoupdating, but retain plist & logs.
+    Stop autoupdating, but retain plist and logs.
 
 brew autoupdate delete:
     Cancel the autoupdate, delete the plist and logs.
@@ -54,21 +55,21 @@ brew autoupdate version:
                                    formulae. If the Caskroom exists locally
                                    Casks will be upgraded as well. Must be
                                    passed with start.
-      --greedy                     Upgrade casks with --greedy. See brew(1).
-                                   Must be passed with start.
+      --greedy                     Upgrade casks with --greedy (include
+                                   auto-updating casks). Must be passed with
+                                   start.
       --cleanup                    Automatically clean brew's cache and logs.
                                    Must be passed with start.
       --enable-notification        Send a notification when the autoupdate
                                    process has finished successfully, if
-                                   terminal-notifier is installed & found.
+                                   terminal-notifier is installed and found.
+                                   Must be passed with start. Note:
+                                   notifications are enabled by default on macOS
+                                   Catalina and newer.
+      --immediate                  Starts the autoupdate command immediately and
+                                   on system boot, instead of waiting for one
+                                   interval (24 hours by default) to pass first.
                                    Must be passed with start.
-                                   NOTE: Notifications are enabled by default
-                                   on macOS Catalina and newer.
-      --immediate                  Starts the autoupdate command immediately
-                                   and on system boot,
-                                   instead of waiting for one interval (24
-                                   hours by default) to pass first. Must be
-                                   passed with start.
   -d, --debug                      Display any debugging information.
   -q, --quiet                      Make some output more quiet.
   -v, --verbose                    Make some output more verbose.
