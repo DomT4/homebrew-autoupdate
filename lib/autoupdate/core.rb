@@ -45,5 +45,9 @@ module Autoupdate
     def command_cleanup
       " && #{Autoupdate::Core.brew} cleanup"
     end
+
+    def command_sudo
+      "export SUDO_ASKPASS='#{Autoupdate::Core.location/"brew_autoupdate_sudo_gui"}'"
+    end
   end
 end

@@ -30,14 +30,15 @@ module Autoupdate
     out
   end
 
-  def brew_update_arguments
-    brew_autoupdate = File.readlines(Autoupdate::Core.location/"brew_autoupdate").last
-    out = ""
+  def brew_update_options
+    brew_autoupdate = File.readlines(Autoupdate::Core.location/"brew_autoupdate")
+    out = "Options:"
 
     if brew_autoupdate
-      out += "--upgrade\n" if brew_autoupdate.include?(Autoupdate::Core.command_upgrade.to_s)
-      out += "--cleanup\n" if brew_autoupdate.include?(Autoupdate::Core.command_cleanup.to_s)
-      out += "--greedy" if brew_autoupdate.include?(Autoupdate::Core.command_cask(true).to_s)
+      out += "\n--upgrade" if brew_autoupdate.last.include?(Autoupdate::Core.command_upgrade.to_s)
+      out += "\n--cleanup" if brew_autoupdate.last.include?(Autoupdate::Core.command_cleanup.to_s)
+      out += "\n--greedy" if brew_autoupdate.last.include?(Autoupdate::Core.command_cask(true).to_s)
+      out += "\n--sudo" if brew_autoupdate.any? { |line| line.chomp == Autoupdate::Core.command_sudo.to_s }
     end
     out
   end
@@ -78,9 +79,9 @@ module Autoupdate
       puts <<~EOS
         Autoupdate is installed and running.
 
-        Options:
         #{autoupdate_interval}
-        #{brew_update_arguments}
+        
+        #{brew_update_options}
         #{autoupdate_start_on_launch}
         Autoupdate was initialised on #{date_of_last_modification}.
         #{autoupdate_inadvisably_old?}
