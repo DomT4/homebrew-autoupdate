@@ -80,7 +80,7 @@ module Autoupdate
         Autoupdate is installed and running.
 
         #{autoupdate_interval}
-        
+
         #{brew_update_options}
         #{autoupdate_start_on_launch}
         Autoupdate was initialised on #{date_of_last_modification}.

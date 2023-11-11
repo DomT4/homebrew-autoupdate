@@ -98,7 +98,7 @@ module Autoupdate
           Please run `brew install pinentry-mac` and try again.
         EOS
       end
-      set_env << "\n#{Autoupdate::Core.command_sudo.to_s}"
+      set_env << "\n#{Autoupdate::Core.command_sudo}"
       sudo_gui_script_contents = <<~EOS
         #!/bin/sh
         export PATH='#{env_path}'
