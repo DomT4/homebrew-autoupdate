@@ -68,6 +68,10 @@ brew autoupdate version:
                                    instead of waiting for one interval (24
                                    hours by default) to pass first. Must be
                                    passed with start.
+      --sudo                       If a Cask requires sudo, autoupdate will 
+                                   open a GUI to ask for the password.
+                                   Requires https://formulae.brew.sh/formula/pinentry-mac
+                                   to be installed.
   -d, --debug                      Display any debugging information.
   -q, --quiet                      Make some output more quiet.
   -v, --verbose                    Make some output more verbose.
@@ -108,11 +112,6 @@ support added in [6365cc020](https://github.com/Homebrew/homebrew-autoupdate/com
 that doesn't require or use any external dependencies, using only an Applescript
 applet.
 [Related Issue](https://github.com/Homebrew/homebrew-autoupdate/issues/25)
-
-* Decide what to do about Cask upgrades which require `sudo` to succeed
-and currently just hang when that situation is encountered,
-unless using `SUDO_ASKPASS`.
-[Related Issue](https://github.com/Homebrew/homebrew-autoupdate/issues/40)
 
 ## History
 
