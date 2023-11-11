@@ -150,11 +150,9 @@ module Autoupdate
       FileUtils.chmod 0555, Autoupdate::Core.location/"brew_autoupdate"
     end
 
-    if args.sudo?
-      unless File.exist?(Autoupdate::Core.location/"brew_autoupdate_sudo_gui")
-        File.open(Autoupdate::Core.location/"brew_autoupdate_sudo_gui", "w") { |sc| sc << sudo_gui_script_contents }
-        FileUtils.chmod 0555, Autoupdate::Core.location/"brew_autoupdate_sudo_gui"
-      end
+    if args.sudo? && !File.exist?(Autoupdate::Core.location/"brew_autoupdate_sudo_gui")
+      File.open(Autoupdate::Core.location/"brew_autoupdate_sudo_gui", "w") { |sc| sc << sudo_gui_script_contents }
+      FileUtils.chmod 0555, Autoupdate::Core.location/"brew_autoupdate_sudo_gui"
     end
 
     interval ||= "86400"
