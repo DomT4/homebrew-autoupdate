@@ -19,11 +19,6 @@ module Autoupdate
       auto_args << " && #{Autoupdate::Core.brew} upgrade --formula -v"
 
       if (HOMEBREW_PREFIX/"Caskroom").exist?
-        # Support unattended Cask upgrades that require `sudo` where possible.
-        # Homebrew themselves permit this same workaround so if they're
-        # comfortable enough with it I can tolerate it. Please consider the
-        # risks of leaving your admin password laying around the system in
-        # plaintext before using this, if you have no other use case for SUDO_ASKPASS.
         if ENV["SUDO_ASKPASS"].nil? && !args.sudo?
           opoo <<~EOS
             Please note if you use Casks that require `sudo` to upgrade,
