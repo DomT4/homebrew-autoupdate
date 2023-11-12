@@ -155,12 +155,28 @@ module Autoupdate
       FileUtils.chmod 0555, Autoupdate::Core.location/"brew_autoupdate_sudo_gui"
     end
 
-    if is_schedule?(schedule_or_interval)
+    # If "*-*-*-*-*" pattern detected, it's a schedule.
+    if schedule_or_interval.match?(/^.*-.*-.*-.*-.*$/)
       schedule = schedule_or_interval
       validate_schedule_pattern(schedule)
     else
       interval = schedule_or_interval
       interval ||= "86400"
+    end
+
+    interval_definition = if interval
+      <<~EOS
+        <key>StartInterval</key>
+          <integer>#{interval}</integer>
+      EOS
+    else
+      ""
+    end
+
+    schedule_definition = if schedule
+      generate_schedule_plist(schedule)
+    else
+      ""
     end
 
     # This restores the "Run At Load" key removed in a7de771abcf6 when requested.
@@ -191,8 +207,8 @@ module Autoupdate
         <string>#{log_out}</string>
         <key>StandardOutPath</key>
         <string>#{log_out}</string>
-        <key>StartInterval</key>
-        <integer>#{interval}</integer>
+        #{interval_definition.chomp}
+        #{schedule_definition.chomp}
         <key>LowPriorityBackgroundIO</key>
         <true/>
         <key>LowPriorityIO</key>
@@ -225,19 +241,15 @@ module Autoupdate
       # to run more than once an hour, but... surely not?
       interval_to_hours = interval.to_i / 60 / 60
       update_message += " every #{interval_to_hours} hours"
+      # TODO: Add a message with the hint that execution during sleep whill be skipped.
+      # And recommend to use the schedule option.
     end
     if args.immediate?
       puts "#{update_message}, now, and on system boot."
-      # TODO: Add a message with the hint that exetuins during sleep whill be skipped.
-      # And recommend to use the schedule option.
     else
       puts "#{update_message}."
     end
   end
-end
-
-def is_schedule?(schedule)
-  schedule.match?(/^.*-.*-.*-.*-.*$/)
 end
 
 def validate_schedule_pattern(schedule)
@@ -260,4 +272,44 @@ def validate_schedule_pattern(schedule)
     (invalid_positions << "#{name} #{part} (allowed range: #{range.min}-#{range.max})"; false) }
     odie "Error: Schedule definition '#{schedule}' is outside the allowed range: #{invalid_positions.join(', ')}"
   end
+end
+
+def generate_schedule_plist(schedule)
+  schedule_parts = schedule.split('-')
+
+  result = <<~EOS
+    <key>StartCalendarInterval</key>
+    <dict>
+  EOS
+
+  result += <<~EOS if schedule_parts[0] =~ /^\d+$/
+    <key>Minute</key>
+    <integer>#{schedule_parts[0]}</integer>
+  EOS
+
+  result += <<~EOS if schedule_parts[1] =~ /^\d+$/
+    <key>Hour</key>
+    <integer>#{schedule_parts[1]}</integer>
+  EOS
+
+  result += <<~EOS if schedule_parts[2] =~ /^\d+$/
+    <key>Day</key>
+    <integer>#{schedule_parts[2]}</integer>
+  EOS
+
+  result += <<~EOS if schedule_parts[3] =~ /^\d+$/
+    <key>Weekday</key>
+    <integer>#{schedule_parts[3]}</integer>
+  EOS
+
+  result += <<~EOS if schedule_parts[4] =~ /^\d+$/
+    <key>Month</key>
+    <integer>#{schedule_parts[4]}</integer>
+  EOS
+
+  result += <<~EOS
+    </dict>
+  EOS
+
+  result
 end

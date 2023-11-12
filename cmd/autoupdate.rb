@@ -16,9 +16,9 @@ module Homebrew
         This script will run `brew update` in the background once every 24 hours (by default)
         until explicitly told to stop, utilising `launchd`.
 
-        `brew autoupdate start` [<`schedule`>/<`schedule_or_interval`>] [<`options`>]:
-        Start autoupdating either once every `schedule_or_interval` hours or once every 24 hours.
-        Please note the schedule_or_interval has to be passed in seconds, so 12 hours would be
+        `brew autoupdate start` [<`schedule`>/<`interval`>] [<`options`>]:
+        Start autoupdating either once every `interval` hours or once every 24 hours.
+        Please note the interval has to be passed in seconds, so 12 hours would be
         `brew autoupdate start 43200`. If you want to start the autoupdate immediately
         and on system boot, pass `--immediate`. Pass `--upgrade` or `--cleanup`
         to automatically run `brew upgrade` and/or `brew cleanup` respectively.
