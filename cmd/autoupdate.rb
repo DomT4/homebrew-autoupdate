@@ -9,16 +9,16 @@ module Homebrew
 
   def autoupdate_args
     Homebrew::CLI::Parser.new do
-      usage_banner "`autoupdate` <subcommand> [<interval>] [<options>]"
+      usage_banner "`autoupdate` <subcommand> [<schedule>/<schedule_or_interval>] [<options>]"
       description <<~EOS
         An easy, convenient way to automatically update Homebrew.
 
         This script will run `brew update` in the background once every 24 hours (by default)
         until explicitly told to stop, utilising `launchd`.
 
-        `brew autoupdate start` [<`interval`>] [<`options`>]:
-        Start autoupdating either once every `interval` hours or once every 24 hours.
-        Please note the interval has to be passed in seconds, so 12 hours would be
+        `brew autoupdate start` [<`schedule`>/<`schedule_or_interval`>] [<`options`>]:
+        Start autoupdating either once every `schedule_or_interval` hours or once every 24 hours.
+        Please note the schedule_or_interval has to be passed in seconds, so 12 hours would be
         `brew autoupdate start 43200`. If you want to start the autoupdate immediately
         and on system boot, pass `--immediate`. Pass `--upgrade` or `--cleanup`
         to automatically run `brew upgrade` and/or `brew cleanup` respectively.
@@ -51,7 +51,7 @@ module Homebrew
                           "Note: notifications are enabled by default on macOS Catalina and newer."
       switch "--immediate",
              description: "Starts the autoupdate command immediately and on system boot, " \
-                          "instead of waiting for one interval (24 hours by default) to pass first. " \
+                          "instead of waiting for one schedule_or_interval (24 hours by default) to pass first. " \
                           "Must be passed with `start`."
       switch "--sudo",
              description: "If a Cask requires sudo, autoupdate will open a GUI to ask for the password." \
@@ -71,14 +71,15 @@ module Homebrew
     args = parser.parse
 
     subcommand = subcommand_from_args(args: args)
-    interval = interval_from_args(args: args)
+    schedule_or_interval = schedule_or_interval_from_args(args: args)
 
     raise UsageError, "This command requires a subcommand argument." if subcommand.nil?
-    if subcommand != :start && interval.present?
+    if subcommand != :start && schedule_or_interval.present?
       raise UsageError, "This command does not take a named argument without `start`."
     end
-    if interval.present? && !interval.match?(/^\d+$/)
-      raise UsageError, "This subcommand only accepts integer arguments."
+
+    if schedule_or_interval.present? && !(schedule_or_interval.match?(/^\d+$/) || schedule_or_interval.match?(/^.*-.*-.*-.*-.*$/))
+      raise UsageError, "This subcommand only accepts a schedule pattern or interval integer as argument."
     end
 
     # This entire tool is essentially a "bells and whistles" wrapper around
@@ -91,7 +92,7 @@ module Homebrew
 
     case subcommand
     when :start
-      Autoupdate.start(interval: interval, args: args)
+      Autoupdate.start(schedule_or_interval: schedule_or_interval, args: args)
     when :stop
       Autoupdate.stop
     when :delete
@@ -116,7 +117,7 @@ module Homebrew
     choice
   end
 
-  def interval_from_args(args:)
+  def schedule_or_interval_from_args(args:)
     possibilities = args.named.reject { |arg| SUBCOMMANDS.include? arg }
     raise UsageError, "This subcommand does not take more than 1 named argument." if possibilities.length > 1
 

@@ -3,7 +3,7 @@
 module Autoupdate
   module_function
 
-  def start(interval:, args:)
+  def start(schedule_or_interval:, args:)
     # Method from Homebrew.
     # https://github.com/Homebrew/brew/blob/c9c7f4/Library/Homebrew/utils/popen.rb
     if Utils.popen_read("/bin/launchctl", "list").include?(Autoupdate::Core.name)
@@ -155,7 +155,13 @@ module Autoupdate
       FileUtils.chmod 0555, Autoupdate::Core.location/"brew_autoupdate_sudo_gui"
     end
 
-    interval ||= "86400"
+    if is_schedule?(schedule_or_interval)
+      schedule = schedule_or_interval
+      validate_schedule_pattern(schedule)
+    else
+      interval = schedule_or_interval
+      interval ||= "86400"
+    end
 
     # This restores the "Run At Load" key removed in a7de771abcf6 when requested.
     launch_immediately = if args.immediate?
@@ -210,15 +216,48 @@ module Autoupdate
     File.open(Autoupdate::Core.plist, "w") { |f| f << file }
     quiet_system "/bin/launchctl", "load", Autoupdate::Core.plist
 
-    # This should round to a whole number consistently.
-    # It'll behave strangely if someone wants autoupdate
-    # to run more than once an hour, but... surely not?
-    interval_to_hours = interval.to_i / 60 / 60
-    update_message = "Homebrew will now automatically update every #{interval_to_hours} hours"
+    update_message = "Homebrew will now automatically update"
+    if schedule
+      update_message += " with the schedule '#{schedule}'"
+    else
+      # This should round to a whole number consistently.
+      # It'll behave strangely if someone wants autoupdate
+      # to run more than once an hour, but... surely not?
+      interval_to_hours = interval.to_i / 60 / 60
+      update_message += " every #{interval_to_hours} hours"
+    end
     if args.immediate?
       puts "#{update_message}, now, and on system boot."
+      # TODO: Add a message with the hint that exetuins during sleep whill be skipped.
+      # And recommend to use the schedule option.
     else
       puts "#{update_message}."
     end
+  end
+end
+
+def is_schedule?(schedule)
+  schedule.match?(/^.*-.*-.*-.*-.*$/)
+end
+
+def validate_schedule_pattern(schedule)
+  position_ranges = [
+    ["Minute", (0..59)],
+    ["Hour", (0..23)],
+    ["Day", (1..31)],
+    ["Weekday", (0..7)],
+    ["Month", (1..12)]
+  ]
+
+  schedule_parts = schedule.split('-')
+  invalid_positions = []
+
+  unless schedule_parts.all? { |part| part =~ /\d/ || part == '*' }
+    odie "Error: Schedule definition '#{schedule}' contains invalid character. Must be a digit or '*' or empty."
+  end
+
+  unless schedule_parts.zip(position_ranges).all? { |part, (name, range)| part == '*' || range.cover?(part.to_i) ||
+    (invalid_positions << "#{name} #{part} (allowed range: #{range.min}-#{range.max})"; false) }
+    odie "Error: Schedule definition '#{schedule}' is outside the allowed range: #{invalid_positions.join(', ')}"
   end
 end
