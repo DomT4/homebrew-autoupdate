@@ -258,51 +258,54 @@ def validate_schedule_pattern(schedule)
     ["Hour", (0..23)],
     ["Day", (1..31)],
     ["Weekday", (0..7)],
-    ["Month", (1..12)]
+    ["Month", (1..12)],
   ]
 
-  schedule_parts = schedule.split('-')
+  schedule_parts = schedule.split("-")
   invalid_positions = []
 
-  unless schedule_parts.all? { |part| part =~ /\d/ || part == '*' }
+  unless schedule_parts.all? { |part| part =~ /\d/ || part == "*" }
     odie "Error: Schedule definition '#{schedule}' contains invalid character. Must be a digit or '*' or empty."
   end
 
-  unless schedule_parts.zip(position_ranges).all? { |part, (name, range)| part == '*' || range.cover?(part.to_i) ||
-    (invalid_positions << "#{name} #{part} (allowed range: #{range.min}-#{range.max})"; false) }
-    odie "Error: Schedule definition '#{schedule}' is outside the allowed range: #{invalid_positions.join(', ')}"
+  unless schedule_parts.zip(position_ranges).all? do |part, (name, range)|
+           part == "*" || range.cover?(part.to_i) ||
+           (invalid_positions << "#{name} #{part} (allowed range: #{range.min}-#{range.max})"
+            false)
+         end
+    odie "Error: Schedule definition '#{schedule}' is outside the allowed range: #{invalid_positions.join(", ")}"
   end
 end
 
 def generate_schedule_plist(schedule)
-  schedule_parts = schedule.split('-')
+  schedule_parts = schedule.split("-")
 
   result = <<~EOS
     <key>StartCalendarInterval</key>
     <dict>
   EOS
 
-  result += <<~EOS if schedule_parts[0] =~ /^\d+$/
+  result += <<~EOS if /^\d+$/.match?(schedule_parts[0])
     <key>Minute</key>
     <integer>#{schedule_parts[0]}</integer>
   EOS
 
-  result += <<~EOS if schedule_parts[1] =~ /^\d+$/
+  result += <<~EOS if /^\d+$/.match?(schedule_parts[1])
     <key>Hour</key>
     <integer>#{schedule_parts[1]}</integer>
   EOS
 
-  result += <<~EOS if schedule_parts[2] =~ /^\d+$/
+  result += <<~EOS if /^\d+$/.match?(schedule_parts[2])
     <key>Day</key>
     <integer>#{schedule_parts[2]}</integer>
   EOS
 
-  result += <<~EOS if schedule_parts[3] =~ /^\d+$/
+  result += <<~EOS if /^\d+$/.match?(schedule_parts[3])
     <key>Weekday</key>
     <integer>#{schedule_parts[3]}</integer>
   EOS
 
-  result += <<~EOS if schedule_parts[4] =~ /^\d+$/
+  result += <<~EOS if /^\d+$/.match?(schedule_parts[4])
     <key>Month</key>
     <integer>#{schedule_parts[4]}</integer>
   EOS
