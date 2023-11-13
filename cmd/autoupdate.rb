@@ -72,7 +72,7 @@ module Homebrew
                           "instead of waiting for one schedule or interval (24 hours by default) to pass first. " \
                           "Must be passed with `start`."
       switch "--sudo",
-             description: "If a Cask requires sudo, autoupdate will open a GUI to ask for the password." \
+             description: "If a Cask requires sudo, autoupdate will open a GUI to ask for the password. " \
                           "Requires https://formulae.brew.sh/formula/pinentry-mac to be installed."
 
       named_args SUBCOMMANDS
