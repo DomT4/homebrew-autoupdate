@@ -156,12 +156,13 @@ module Autoupdate
     end
 
     # If "*-*-*-*-*" pattern detected, it's a schedule.
-    if schedule_or_interval.match?(/^.*-.*-.*-.*-.*$/)
+    if schedule_or_interval.nil? || schedule_or_interval.match?(/^.*-.*-.*-.*-.*$/)
       schedule = schedule_or_interval
-      validate_schedule_pattern(schedule)
+      schedule ||= "0-12---" # Default to once a day at noon.
+      schedule_parts = schedule.split("-")
+      validate_schedule_pattern(schedule_parts)
     else
       interval = schedule_or_interval
-      interval ||= "86400"
     end
 
     interval_definition = if interval
@@ -174,7 +175,7 @@ module Autoupdate
     end
 
     schedule_definition = if schedule
-      generate_schedule_plist(schedule)
+      generate_schedule_plist(schedule_parts)
     else
       ""
     end
@@ -234,7 +235,7 @@ module Autoupdate
 
     update_message = "Homebrew will now automatically update"
     if schedule
-      update_message += " with the schedule '#{schedule}'"
+      update_message += " with the schedule (#{describe_schedule(schedule_parts)})"
     else
       # This should round to a whole number consistently.
       # It'll behave strangely if someone wants autoupdate
@@ -252,7 +253,7 @@ module Autoupdate
   end
 end
 
-def validate_schedule_pattern(schedule)
+def validate_schedule_pattern(schedule_parts)
   position_ranges = [
     ["Minute", (0..59)],
     ["Hour", (0..23)],
@@ -261,25 +262,28 @@ def validate_schedule_pattern(schedule)
     ["Month", (1..12)],
   ]
 
-  schedule_parts = schedule.split("-")
-  invalid_positions = []
-
-  unless schedule_parts.all? { |part| part =~ /\d/ || part == "*" }
-    odie "Error: Schedule definition '#{schedule}' contains invalid character. Must be a digit or '*' or empty."
+  # Check for invalid characters.
+  unless schedule_parts.all? { |part| part.blank? || part =~ /^\d+$/ }
+    invalid_part_index = schedule_parts.index { |part| !(part.blank? || part =~ /^\d+$/) }
+    odie "Error: Schedule (#{describe_schedule(schedule_parts)}) contains invalid character \
+'#{schedule_parts[invalid_part_index]}' in #{position_ranges[invalid_part_index][0]} at position \
+#{invalid_part_index + 1}. Must be a digit or empty."
   end
 
-  unless schedule_parts.zip(position_ranges).all? do |part, (name, range)|
-           part == "*" || range.cover?(part.to_i) ||
-           (invalid_positions << "#{name} #{part} (allowed range: #{range.min}-#{range.max})"
-            false)
-         end
-    odie "Error: Schedule definition '#{schedule}' is outside the allowed range: #{invalid_positions.join(", ")}"
+  # Check for values inside allowed range.
+  unless (invalid_position = schedule_parts.zip(position_ranges).map.with_index do |(part, (name, range)), i|
+    if part.blank? || range.cover?(part.to_i)
+      nil
+    else
+      "is outside the allowed range '#{part}' in #{name} \
+at position #{i + 1}. Allowed range #{name}: #{range.min}-#{range.max}"
+    end
+  end.compact.join(", ")).empty?
+    odie "Error: Schedule (#{describe_schedule(schedule_parts)}) #{invalid_position}."
   end
 end
 
-def generate_schedule_plist(schedule)
-  schedule_parts = schedule.split("-")
-
+def generate_schedule_plist(schedule_parts)
   result = <<~EOS
     <key>StartCalendarInterval</key>
     <dict>
@@ -315,4 +319,12 @@ def generate_schedule_plist(schedule)
   EOS
 
   result
+end
+
+def describe_schedule(schedule_parts)
+  labels = %w[Minute Hour Day Weekday Month]
+  description = labels.map.with_index do |label, i|
+    "#{label}:#{schedule_parts[i].nil? ? "any" : schedule_parts[i]}"
+  end.join(", ")
+  description.to_s
 end
