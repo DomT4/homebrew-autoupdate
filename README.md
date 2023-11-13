@@ -9,8 +9,8 @@ default) until explicitly told to stop, utilizing `launchd`.
 are optional flags.
 
 Notifications are enabled by default on macOS Big Sur using a new,
-code signed, universal AppleScript applet. On older versions of macOS, if you
-have `terminal-notifier` installed you can also request desktop notifications
+code-signed, universal AppleScript applet. On older versions of macOS, if you
+have `terminal-notifier` installed, you can also request desktop notifications
 when this command runs.
 
 ![A comic highlighting humanity's habit of skipping important updates](https://imgs.xkcd.com/comics/update.png)
@@ -25,11 +25,11 @@ Now run `brew autoupdate start [interval] [options]` to enable autoupdate.
 
 `brew  autoupdate start 43200 --upgrade --cleanup --immediate --sudo`
 
-This will upgrade all your casks and formulae every 12h and on every system boot. <br>
-If a sudo password is required for an upgrade, a GUI to enter you password will be displayed. <br>
+This will upgrade all your casks and formulae every 12 hours and on every system boot. <br>
+If a sudo password is required for an upgrade, a GUI to enter your password will be displayed. <br>
 Also, it will clean up every old version and left-over files.
 
-Casks which have built-in auto updates enabled by default, will not be upgraded.
+Casks that have built-in auto-updates enabled by default will not be upgraded.
 
 ## Usage
 
