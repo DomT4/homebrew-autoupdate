@@ -128,7 +128,7 @@ module Homebrew
   def subcommand_from_args(args:)
     choice = nil
     SUBCOMMANDS.each do |subcommand|
-      next if args.named.first != subcommand && !args.send("#{subcommand}?")
+      next if args.named.first != subcommand && !args.send(:"#{subcommand}?")
       raise UsageError, "Conflicting subcommands specified." if choice.present?
 
       choice = subcommand.to_sym
