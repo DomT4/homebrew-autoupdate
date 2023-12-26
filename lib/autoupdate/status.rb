@@ -28,7 +28,7 @@ module Autoupdate
     formatted_string
   end
 
-  def autoupdate_inadvisably_old?
+  def autoupdate_inadvisably_old_message
     creation = File.birthtime(Autoupdate::Core.location/"brew_autoupdate").to_date
     days_old = (Date.today - creation).to_i
 
@@ -47,14 +47,14 @@ module Autoupdate
         Autoupdate is installed and running.
 
         Autoupdate was initialised on #{date_of_last_modification}.
-        \n#{autoupdate_inadvisably_old?}
+        \n#{autoupdate_inadvisably_old_message}
       EOS
     elsif autoupdate_installed_but_stopped?
       puts <<~EOS
         Autoupdate is installed but stopped.
 
         Autoupdate was initialised on #{date_of_last_modification}.
-        \n#{autoupdate_inadvisably_old?}
+        \n#{autoupdate_inadvisably_old_message}
       EOS
     elsif autoupdate_not_configured?
       puts "Autoupdate is not configured. Use `brew autoupdate start` to begin."
