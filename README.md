@@ -19,13 +19,13 @@ when this command runs.
 
 Just `brew tap homebrew/autoupdate`.
 
-Now run `brew autoupdate start [interval] [options]` to enable autoupdate.
+Now run `brew autoupdate start [schedule/interval] [options]` to enable autoupdate.
 
 ## Example
 
-`brew  autoupdate start 43200 --upgrade --cleanup --immediate --sudo`
+`brew  autoupdate start 0-12--- --upgrade --cleanup --immediate --sudo`
 
-This will upgrade all your casks and formulae every 12 hours and on every system boot. <br>
+This will upgrade all your casks and formulae would run autoupdate every day at noon (12:00) and on every system boot. <br>
 If a sudo password is required for an upgrade, a GUI to enter your password will be displayed. <br>
 Also, it will clean up every old version and left-over files.
 
