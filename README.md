@@ -3,7 +3,7 @@
 An easy, convenient way to automatically update Homebrew.
 
 This script will run `brew update` in the background once every 24 hours (by
-default) until explicitly told to stop, utilizing `launchd`.
+default) until explicitly told to stop, utilising `launchd`.
 
 `brew upgrade` and `brew cleanup` can also be handled automatically, but
 are optional flags.
