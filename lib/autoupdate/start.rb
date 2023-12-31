@@ -98,7 +98,7 @@ module Autoupdate
       sudo_gui_script_contents = <<~EOS
         #!/bin/sh
         export PATH='#{env_path}'
-        PW="$(printf "%s\n" "SETOK OK" "SETCANCEL Cancel" "SETDESC homebrew-autoupdate needs your admin password to complete the upgrade" "SETPROMPT Enter Password:" "SETTITLE homebrew-autoupdate Password Request" "GETPIN" | pinentry-mac --no-global-grab | awk '/^D / {print substr($0, index($0, $2))}')"
+        PW="$(printf "%s\n" "SETOK OK" "SETCANCEL Cancel" "SETDESC homebrew-autoupdate needs your admin password to complete the upgrade" "SETPROMPT Enter Password:" "SETTITLE homebrew-autoupdate Password Request" "GETPIN" | pinentry-mac --no-global-grab --timeout 60 | awk '/^D / {print substr($0, index($0, $2))}')"
         echo "$PW"
       EOS
     elsif env_sudo
