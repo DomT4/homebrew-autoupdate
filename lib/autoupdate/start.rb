@@ -97,9 +97,8 @@ module Autoupdate
       set_env << "\nexport SUDO_ASKPASS='#{Autoupdate::Core.location/"brew_autoupdate_sudo_gui"}'"
       sudo_gui_script_contents = <<~EOS
         #!/bin/sh
-        export PATH='#{env_path}'
-        PW="$(printf "%s\n" "SETOK OK" "SETCANCEL Cancel" "SETDESC homebrew-autoupdate needs your admin password to complete the upgrade" "SETPROMPT Enter Password:" "SETTITLE homebrew-autoupdate Password Request" "GETPIN" | pinentry-mac --no-global-grab | awk '/^D / {print substr($0, index($0, $2))}')"
-        echo "$PW"
+        PATH='#{HOMEBREW_PREFIX}/bin'
+        printf "%s\n" "SETOK OK" "SETCANCEL Cancel" "SETDESC homebrew-autoupdate needs your admin password to complete the upgrade" "SETPROMPT Enter Password:" "SETTITLE homebrew-autoupdate Password Request" "GETPIN" | pinentry-mac --no-global-grab --timeout 60 | /usr/bin/awk '/^D / {print substr($0, index($0, $2))}'
       EOS
     elsif env_sudo
       set_env << "\nexport SUDO_ASKPASS=#{env_sudo}"
