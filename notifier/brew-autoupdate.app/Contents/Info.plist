@@ -10,18 +10,16 @@
 	<string>applet</string>
 	<key>CFBundleIconFile</key>
 	<string>applet</string>
-	<key>NSHumanReadableCopyright</key>
-	<string>Dominyk Tiller</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.github.domt4.homebrew-autoupdate.autoupdater</string>
+	<string>com.apple.ScriptEditor.id.notifier</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>brew-autoupdate</string>
+	<string>notifier</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.2</string>
+	<string>1.0</string>
 	<key>CFBundleSignature</key>
 	<string>aplt</string>
 	<key>LSMinimumSystemVersionByArchitecture</key>
@@ -60,7 +58,7 @@
 		<key>bundleDividerCollapsed</key>
 		<true/>
 		<key>bundlePositionOfDivider</key>
-		<real>0</real>
+		<real>0.0</real>
 		<key>dividerCollapsed</key>
 		<false/>
 		<key>eventLogLevel</key>
@@ -70,9 +68,9 @@
 		<key>positionOfDivider</key>
 		<real>443</real>
 		<key>savedFrame</key>
-		<string>91 188 700 678 0 0 1440 875 </string>
+		<string>84 181 700 678 0 0 1440 875 </string>
 		<key>selectedTab</key>
-		<string>result</string>
+		<string>description</string>
 	</dict>
 </dict>
 </plist>
