@@ -10,8 +10,6 @@
 	<string>applet</string>
 	<key>CFBundleIconFile</key>
 	<string>applet</string>
-	<key>NSHumanReadableCopyright</key>
-	<string>Dominyk Tiller</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.github.domt4.homebrew-autoupdate.autoupdater</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -21,7 +19,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.2</string>
+	<string>1.3</string>
 	<key>CFBundleSignature</key>
 	<string>aplt</string>
 	<key>LSMinimumSystemVersionByArchitecture</key>
@@ -70,9 +68,9 @@
 		<key>positionOfDivider</key>
 		<real>443</real>
 		<key>savedFrame</key>
-		<string>91 188 700 678 0 0 1440 875 </string>
+		<string>84 181 700 678 0 0 1440 875 </string>
 		<key>selectedTab</key>
-		<string>result</string>
+		<string>description</string>
 	</dict>
 </dict>
 </plist>
