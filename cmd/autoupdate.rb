@@ -50,19 +50,19 @@ module Homebrew
         Cancel the autoupdate, delete the plist and logs.
 
         `brew autoupdate status`:
-        Prints the current status of this tool.
+        Print the current status of this tool.
 
         `brew autoupdate version`:
         Output this tool's current version, and a short changelog.
       EOS
       switch "--upgrade",
              description: "Automatically upgrade your installed formulae. If the Caskroom exists locally " \
-                          "Casks will be upgraded as well. Must be passed with `start`."
+                          "then casks will be upgraded as well. Must be passed with `start`."
       switch "--greedy",
-             description: "Upgrade casks with --greedy (include auto-updating casks). " \
+             description: "Upgrade casks with `--greedy` (include auto-updating casks). " \
                           "Must be passed with `start`."
       switch "--cleanup",
-             description: "Automatically clean brew's cache and logs. Must be passed with `start`."
+             description: "Automatically clean Homebrew's cache and logs. Must be passed with `start`."
       switch "--enable-notification",
              description: "Send a notification when the autoupdate process has finished successfully, " \
                           "if `terminal-notifier` is installed and found. Must be passed with `start`. " \
@@ -72,7 +72,7 @@ module Homebrew
                           "instead of waiting for one schedule or interval (24 hours by default) to pass first. " \
                           "Must be passed with `start`."
       switch "--sudo",
-             description: "If a Cask requires sudo, autoupdate will open a GUI to ask for the password. " \
+             description: "If a cask requires `sudo`, autoupdate will open a GUI to ask for the password. " \
                           "Requires https://formulae.brew.sh/formula/pinentry-mac to be installed."
 
       named_args SUBCOMMANDS
