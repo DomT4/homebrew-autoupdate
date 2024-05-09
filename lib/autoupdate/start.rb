@@ -19,18 +19,11 @@ module Autoupdate
       auto_args << " && #{Autoupdate::Core.brew} upgrade --formula -v"
 
       if (HOMEBREW_PREFIX/"Caskroom").exist?
-        # Support unattended Cask upgrades that require `sudo` where possible.
-        # Homebrew themselves permit this same workaround so if they're
-        # comfortable enough with it I can tolerate it. Please consider the
-        # risks of leaving your admin password laying around the system in
-        # plaintext before using this, if you have no other use case for SUDO_ASKPASS.
-        if ENV["SUDO_ASKPASS"].nil?
+        if ENV["SUDO_ASKPASS"].nil? && !args.sudo?
           opoo <<~EOS
-            Please note if you use Casks that require `sudo` to upgrade there
-            are known issues with that use case and this command unless using
-            `SUDO_ASKPASS`.
-
-              https://github.com/Homebrew/homebrew-autoupdate/issues/40
+            Please note if you use Casks that require `sudo` to upgrade,
+            you need to use `--sudo` or define a custom `SUDO_ASKPASS`
+            environment variable.
 
           EOS
         end
@@ -93,7 +86,23 @@ module Autoupdate
     set_env << "\nexport HOMEBREW_DEVELOPER=#{env_dev}" if env_dev
     set_env << "\nexport HOMEBREW_NO_ANALYTICS=#{env_stats}" if env_stats
     set_env << "\nexport HOMEBREW_CASK_OPTS=#{env_cask}" if env_cask
-    set_env << "\nexport SUDO_ASKPASS=#{env_sudo}" if env_sudo
+
+    if args.sudo?
+      unless Formula["pinentry-mac"].any_version_installed?
+        odie <<~EOS
+          `--sudo` requires https://formulae.brew.sh/formula/pinentry-mac to be installed.
+          Please run `brew install pinentry-mac` and try again.
+        EOS
+      end
+      set_env << "\nexport SUDO_ASKPASS='#{Autoupdate::Core.location/"brew_autoupdate_sudo_gui"}'"
+      sudo_gui_script_contents = <<~EOS
+        #!/bin/sh
+        PATH='#{HOMEBREW_PREFIX}/bin'
+        printf "%s\n" "SETOK OK" "SETCANCEL Cancel" "SETDESC homebrew-autoupdate needs your admin password to complete the upgrade" "SETPROMPT Enter Password:" "SETTITLE homebrew-autoupdate Password Request" "GETPIN" | pinentry-mac --no-global-grab --timeout 60 | /usr/bin/awk '/^D / {print substr($0, index($0, $2))}'
+      EOS
+    elsif env_sudo
+      set_env << "\nexport SUDO_ASKPASS=#{env_sudo}"
+    end
 
     script_contents = <<~EOS
       #!/bin/sh
@@ -133,6 +142,11 @@ module Autoupdate
     unless File.exist?(Autoupdate::Core.location/"brew_autoupdate")
       File.open(Autoupdate::Core.location/"brew_autoupdate", "w") { |sc| sc << script_contents }
       FileUtils.chmod 0555, Autoupdate::Core.location/"brew_autoupdate"
+    end
+
+    if args.sudo? && !File.exist?(Autoupdate::Core.location/"brew_autoupdate_sudo_gui")
+      File.open(Autoupdate::Core.location/"brew_autoupdate_sudo_gui", "w") { |sc| sc << sudo_gui_script_contents }
+      FileUtils.chmod 0555, Autoupdate::Core.location/"brew_autoupdate_sudo_gui"
     end
 
     interval ||= "86400"

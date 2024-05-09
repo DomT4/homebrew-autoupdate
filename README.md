@@ -5,12 +5,12 @@ An easy, convenient way to automatically update Homebrew.
 This script will run `brew update` in the background once every 24 hours (by
 default) until explicitly told to stop, utilising `launchd`.
 
-`brew upgrade` and `brew cleanup` can also be handled automatically but
+`brew upgrade` and `brew cleanup` can also be handled automatically, but
 are optional flags.
 
 Notifications are enabled by default on macOS Big Sur using a new,
-codesigned, universal AppleScript applet. On older versions of macOS, if you
-have `terminal-notifier` installed you can also request desktop notifications
+code-signed, universal AppleScript applet. On older versions of macOS, if you
+have `terminal-notifier` installed, you can also request desktop notifications
 when this command runs.
 
 ![A comic highlighting humanity's habit of skipping important updates](https://imgs.xkcd.com/comics/update.png)
@@ -18,6 +18,18 @@ when this command runs.
 ## Installing this command
 
 Just `brew tap homebrew/autoupdate`.
+
+Now run `brew autoupdate start [interval] [options]` to enable autoupdate.
+
+## Example
+
+`brew  autoupdate start 43200 --upgrade --cleanup --immediate --sudo`
+
+This will upgrade all your casks and formulae every 12 hours and on every system boot. <br>
+If a sudo password is required for an upgrade, a GUI to enter your password will be displayed. <br>
+Also, it will clean up every old version and left-over files.
+
+Casks that have built-in auto-updates enabled by default will not be upgraded.
 
 ## Usage
 
@@ -88,7 +100,7 @@ any of `brew install`, `brew tap` or `brew upgrade`.
 
 If you run `brew` commands regularly yourself, you may wish to consider using
 the built-in autoupdate mechanism, which can be instructed to autoupdate less
-often or disabled entirely. If you wish to update every 24 hours using the
+often, or disabled entirely. If you wish to update every 24 hours using the
 built-in autoupdate mechanism set this in your environment:
 
 ```bash
@@ -107,15 +119,10 @@ autoupdate mechanism.
 ## TO-DO (PRs Welcome)
 
 * Complete broader testing and roll-out of new, experimental notification
-support added in [6365cc020](https://github.com/Homebrew/homebrew-autoupdate/commit/6365cc020)
+Support was added in [6365cc020](https://github.com/Homebrew/homebrew-autoupdate/commit/6365cc020)
 that doesn't require or use any external dependencies, using only an Applescript
 applet.
 [Related Issue](https://github.com/Homebrew/homebrew-autoupdate/issues/25)
-
-* Decide what to do about Cask upgrades which require `sudo` to succeed
-and currently just hang when that situation is encountered,
-unless using `SUDO_ASKPASS`.
-[Related Issue](https://github.com/Homebrew/homebrew-autoupdate/issues/40)
 
 ## History
 
@@ -123,7 +130,7 @@ This tap was created by [DomT4](https://github.com/DomT4) in April 2015 to
 address a personal desire for a background updater, before being moved to
 the Homebrew organisation in April 2021 to become an official part of the
 project after gaining somewhat widespread usage, something I'm both surprised
-by but also very appreciative of people finding a small tool I wrote so
+by, but also very appreciative of people finding a small tool I wrote so
 useful & contributing their own ideas and time towards.
 
 ## License
