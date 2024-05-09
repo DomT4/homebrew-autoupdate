@@ -58,20 +58,20 @@ brew autoupdate delete:
     Cancel the autoupdate, delete the plist and logs.
 
 brew autoupdate status:
-    Prints the current status of this tool.
+    Print the current status of this tool.
 
 brew autoupdate version:
     Output this tool's current version, and a short changelog.
 
       --upgrade                    Automatically upgrade your installed
-                                   formulae. If the Caskroom exists locally
-                                   Casks will be upgraded as well. Must be
+                                   formulae. If the Caskroom exists locally then
+                                   casks will be upgraded as well. Must be
                                    passed with start.
       --greedy                     Upgrade casks with --greedy (include
                                    auto-updating casks). Must be passed with
                                    start.
-      --cleanup                    Automatically clean brew's cache and logs.
-                                   Must be passed with start.
+      --cleanup                    Automatically clean Homebrew's cache and
+                                   logs. Must be passed with start.
       --enable-notification        Send a notification when the autoupdate
                                    process has finished successfully, if
                                    terminal-notifier is installed and found.
@@ -82,6 +82,10 @@ brew autoupdate version:
                                    on system boot, instead of waiting for one
                                    interval (24 hours by default) to pass first.
                                    Must be passed with start.
+      --sudo                       If a cask requires sudo, autoupdate will
+                                   open a GUI to ask for the password. Requires
+                                   https://formulae.brew.sh/formula/pinentry-mac
+                                   to be installed.
   -d, --debug                      Display any debugging information.
   -q, --quiet                      Make some output more quiet.
   -v, --verbose                    Make some output more verbose.
