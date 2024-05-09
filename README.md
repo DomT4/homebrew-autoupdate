@@ -23,7 +23,9 @@ Now run `brew autoupdate start [interval] [options]` to enable autoupdate.
 
 ## Example
 
-`brew  autoupdate start 43200 --upgrade --cleanup --immediate --sudo`
+`brew install pinentry-mac` to allow updates if a cask requires `sudo`.
+
+`brew autoupdate start 43200 --upgrade --cleanup --immediate --sudo`
 
 This will upgrade all your casks and formulae every 12 hours and on every system boot. <br>
 If a sudo password is required for an upgrade, a GUI to enter your password will be displayed. <br>
