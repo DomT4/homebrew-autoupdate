@@ -70,8 +70,8 @@ module Homebrew
     end
     args = parser.parse
 
-    subcommand = subcommand_from_args(args: args)
-    interval = interval_from_args(args: args)
+    subcommand = subcommand_from_args(args:)
+    interval = interval_from_args(args:)
 
     raise UsageError, "This command requires a subcommand argument." if subcommand.nil?
     if subcommand != :start && interval.present?
@@ -91,7 +91,7 @@ module Homebrew
 
     case subcommand
     when :start
-      Autoupdate.start(interval: interval, args: args)
+      Autoupdate.start(interval:, args:)
     when :stop
       Autoupdate.stop
     when :delete
