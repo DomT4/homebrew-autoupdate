@@ -13,4 +13,4 @@ jobs:
         id: set-up-homebrew
         uses: Homebrew/actions/setup-homebrew@master
 
-      - run: brew style $GITHUB_REPOSITORY
+      - run: brew style "$GITHUB_REPOSITORY"
