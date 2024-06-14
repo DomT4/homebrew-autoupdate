@@ -8,16 +8,13 @@ default) until explicitly told to stop, utilising `launchd`.
 `brew upgrade` and `brew cleanup` can also be handled automatically, but
 are optional flags.
 
-Notifications are enabled by default on macOS Big Sur using a new,
-code-signed, universal AppleScript applet. On older versions of macOS, if you
-have `terminal-notifier` installed, you can also request desktop notifications
-when this command runs.
+Notifications are enabled by default using a new, code-signed, universal AppleScript applet.
 
 ![A comic highlighting humanity's habit of skipping important updates](https://imgs.xkcd.com/comics/update.png)
 
 ## Installing this command
 
-Just `brew tap homebrew/autoupdate`.
+Just `brew tap domt4/autoupdate`.
 
 Now run `brew autoupdate start [interval] [options]` to enable autoupdate.
 
@@ -66,12 +63,6 @@ autoupdate mechanism.
 
 ## TO-DO (PRs Welcome)
 
-* Complete broader testing and roll-out of new, experimental notification
-Support was added in [6365cc020](https://github.com/Homebrew/homebrew-autoupdate/commit/6365cc020)
-that doesn't require or use any external dependencies, using only an Applescript
-applet.
-[Related Issue](https://github.com/Homebrew/homebrew-autoupdate/issues/25)
-
 ## History
 
 This tap was created by [DomT4](https://github.com/DomT4) in April 2015 to
@@ -80,6 +71,9 @@ the Homebrew organisation in April 2021 to become an official part of the
 project after gaining somewhat widespread usage, something I'm both surprised
 by, but also very appreciative of people finding a small tool I wrote so
 useful & contributing their own ideas and time towards.
+
+It was in late 2023 moved back to DomT4's ownership to reduce the burden on
+the wider Homebrew leadership team in terms of maintenance/support requests.
 
 ## License
 
