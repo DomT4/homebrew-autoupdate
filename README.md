@@ -33,9 +33,46 @@ Casks that have built-in auto-updates enabled by default will not be upgraded.
 
 ## Usage
 
-Refer to the link below to find an in-depth description of the commands.
+### `brew autoupdate` *`subcommand`* [*`interval`*] [*`options`*]
 
-**[Homebrew Documentation autoupdate subcommand](https://docs.brew.sh/Manpage#autoupdate-subcommand-interval-options)**
+An easy, convenient way to automatically update Homebrew.
+
+This script will run `brew update` in the background once every 24 hours (by default)
+until explicitly told to stop, utilising `launchd`.
+
+`brew autoupdate start` [*``interval``*] [*``options``*]
+<br>Start autoupdating either once every `interval` hours or once every 24 hours.
+Please note the interval has to be passed in seconds, so 12 hours would be
+`brew autoupdate start 43200`. If you want to start the autoupdate immediately
+and on system boot, pass `--immediate`. Pass `--upgrade` or `--cleanup`
+to automatically run `brew upgrade` and/or `brew cleanup` respectively.
+Pass `--enable-notification` to send a notification when the autoupdate
+process has finished successfully.
+
+`brew autoupdate stop`
+<br>Stop autoupdating, but retain plist and logs.
+
+`brew autoupdate delete`
+<br>Cancel the autoupdate, delete the plist and logs.
+
+`brew autoupdate status`
+<br>Print the current status of this tool.
+
+`brew autoupdate version`
+<br>Output this tool's current version, and a short changelog.
+
+* `--upgrade`:
+  Automatically upgrade your installed formulae. If the Caskroom exists locally then casks will be upgraded as well. Must be passed with `start`.
+* `--greedy`:
+  Upgrade casks with `--greedy` (include auto-updating casks). Must be passed with `start`.
+* `--cleanup`:
+  Automatically clean Homebrew's cache and logs. Must be passed with `start`.
+* `--enable-notification`:
+  Send a notification when the autoupdate process has finished successfully, if `terminal-notifier` is installed and found. Must be passed with `start`. Note: notifications are enabled by default on macOS Catalina and newer.
+* `--immediate`:
+  Starts the autoupdate command immediately and on system boot, instead of waiting for one interval (24 hours by default) to pass first. Must be passed with `start`.
+* `--sudo`:
+  If a cask requires `sudo`, autoupdate will open a GUI to ask for the password. Requires https://formulae.brew.sh/formula/pinentry-mac to be installed.
 
 **Logs of the performed operations can be found at:** `~/Library/Logs/com.github.domt4.homebrew-autoupdate`
 
@@ -80,6 +117,11 @@ the Homebrew organisation in April 2021 to become an official part of the
 project after gaining somewhat widespread usage, something I'm both surprised
 by, but also very appreciative of people finding a small tool I wrote so
 useful & contributing their own ideas and time towards.
+
+In March 2024 DomT4 and the Homebrew maintainers agreed that
+homebrew/autoupdate is a better fit for not being an official tap and
+[has been moved](https://github.com/Homebrew/brew/pull/16822) back to the
+list of interesting tap.
 
 ## License
 
