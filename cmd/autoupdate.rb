@@ -53,7 +53,8 @@ module Homebrew
       switch "--sudo",
              description: "If a cask requires `sudo`, autoupdate will open a GUI to ask for the password. " \
                           "Requires https://formulae.brew.sh/formula/pinentry-mac to be installed."
-
+      switch "--ac-only",
+             description: "Only run autoupdate when on AC power. Must be passed with `start`."
       named_args SUBCOMMANDS
     end
   end
