@@ -45,8 +45,7 @@ hours. Please note the interval has to be passed in seconds, so 12 hours would
 be brew autoupdate start 43200. If you want to start the autoupdate
 immediately and on system boot, pass --immediate. Pass --upgrade or
 --cleanup to automatically run brew upgrade and/or brew cleanup
-respectively. Pass --enable-notification to send a notification when the
-autoupdate process has finished successfully.
+respectively.
 
 brew autoupdate stop:
     Stop autoupdating, but retain plist and logs.
@@ -69,12 +68,9 @@ brew autoupdate version:
                                    start.
       --cleanup                    Automatically clean Homebrew's cache and
                                    logs. Must be passed with start.
-      --enable-notification        Send a notification when the autoupdate
-                                   process has finished successfully, if
-                                   terminal-notifier is installed and found.
-                                   Must be passed with start. Note:
-                                   notifications are enabled by default on macOS
-                                   Catalina and newer.
+      --enable-notification        Notifications are enabled by default on macOS
+                                   Catalina and newer. This flag is no longer
+                                   required and can be safely dropped.
       --immediate                  Starts the autoupdate command immediately and
                                    on system boot, instead of waiting for one
                                    interval (24 hours by default) to pass first.
