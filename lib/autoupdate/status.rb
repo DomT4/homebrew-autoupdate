@@ -62,7 +62,7 @@ module Autoupdate
       puts <<~EOS
         Autoupdate cannot determine its status.
         Please feel free to file an issue with further information here:
-        https://github.com/Homebrew/homebrew-autoupdate/issues
+        https://github.com/DomT4/homebrew-autoupdate/issues
       EOS
     end
   end

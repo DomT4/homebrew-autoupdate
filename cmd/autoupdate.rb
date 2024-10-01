@@ -22,8 +22,6 @@ module Homebrew
         `brew autoupdate start 43200`. If you want to start the autoupdate immediately
         and on system boot, pass `--immediate`. Pass `--upgrade` or `--cleanup`
         to automatically run `brew upgrade` and/or `brew cleanup` respectively.
-        Pass `--enable-notification` to send a notification when the autoupdate
-        process has finished successfully.
 
         `brew autoupdate stop`:
         Stop autoupdating, but retain plist and logs.
@@ -46,9 +44,8 @@ module Homebrew
       switch "--cleanup",
              description: "Automatically clean Homebrew's cache and logs. Must be passed with `start`."
       switch "--enable-notification",
-             description: "Send a notification when the autoupdate process has finished successfully, " \
-                          "if `terminal-notifier` is installed and found. Must be passed with `start`. " \
-                          "Note: notifications are enabled by default on macOS Catalina and newer."
+             description: "Notifications are enabled by default on macOS Catalina and newer. This flag " \
+                          "is no longer required and can be safely dropped."
       switch "--immediate",
              description: "Starts the autoupdate command immediately and on system boot, " \
                           "instead of waiting for one interval (24 hours by default) to pass first. " \
