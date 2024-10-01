@@ -32,20 +32,38 @@ Casks that have built-in auto-updates enabled by default will not be upgraded.
 
 <!-- HELP-COMMAND-OUTPUT:START -->
 ```shell
-Usage: brew autoupdate subcommand [interval] [options]
+Usage: brew autoupdate subcommand [schedule/interval] [options]
 
 An easy, convenient way to automatically update Homebrew.
 
-This script will run brew update in the background once every 24 hours (by
-default) until explicitly told to stop, utilising launchd.
+This script will run brew update in the background every day at noon (12:00)
+(by default) until explicitly told to stop, utilizing launchd. If the computer
+is asleep at the scheduled time, it will start as soon the computer is awake.
 
-brew autoupdate start [interval] [options]:
-    Start autoupdating either once every interval hours or once every 24
-hours. Please note the interval has to be passed in seconds, so 12 hours would
-be brew autoupdate start 43200. If you want to start the autoupdate
-immediately and on system boot, pass --immediate. Pass --upgrade or
---cleanup to automatically run brew upgrade and/or brew cleanup
-respectively.
+brew autoupdate start [schedule/interval] [options] Start
+autoupdate either by defining a schedule or an interval.
+
+brew autoupdate start --upgrade --cleanup --immediate --sudo This will upgrade
+all your casks and formulae every day at noon (12:00) and on every system boot.
+If a sudo password is required for an upgrade, a GUI to enter your password will
+be displayed. Also, it will clean up every old version and left-over files.
+Casks that have built-in auto-updates enabled by default will not be upgraded.
+
+A schedule is a string of five hyphen-separated digits in a cron like
+format. Minute(0-59)-Hour(0-23)-Day(1-31)-Weekday(0-7)-Month(1-12) Missing
+values are considered wildcards. For example: brew autoupdate start 0-12---
+would run autoupdate every day at noon (12:00). For more information on
+StartCalendarInterval, see man launchd.plist.
+
+A interval has to be passed in seconds, so 12 hours would be brew autoupdate
+start 43200. The exact time of execution depends on the last system boot. If
+the computer is asleep at the scheduled time, the interval will be skipped. This
+could lead to skipped intervals and is therefor not a recommended option. Use a
+schedule instead.
+
+If you want to start the autoupdate immediately and on system boot, pass
+--immediate. Pass --upgrade or --cleanupto automatically run brew
+upgrade and/or brew cleanup respectively.
 
 brew autoupdate stop:
     Stop autoupdating, but retain plist and logs.
@@ -73,8 +91,8 @@ brew autoupdate version:
                                    required and can be safely dropped.
       --immediate                  Starts the autoupdate command immediately and
                                    on system boot, instead of waiting for one
-                                   interval (24 hours by default) to pass first.
-                                   Must be passed with start.
+                                   schedule or interval (24 hours by default) to
+                                   pass first. Must be passed with start.
       --sudo                       If a cask requires sudo, autoupdate will
                                    open a GUI to ask for the password. Requires
                                    https://formulae.brew.sh/formula/pinentry-mac
