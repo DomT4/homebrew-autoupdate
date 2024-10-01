@@ -79,6 +79,8 @@ brew autoupdate version:
                                    open a GUI to ask for the password. Requires
                                    https://formulae.brew.sh/formula/pinentry-mac
                                    to be installed.
+      --ac-only                    Only run autoupdate when on AC power. Must be
+                                   passed with start.
   -d, --debug                      Display any debugging information.
   -q, --quiet                      Make some output more quiet.
   -v, --verbose                    Make some output more verbose.
