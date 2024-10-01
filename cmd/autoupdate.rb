@@ -64,9 +64,8 @@ module Homebrew
       switch "--cleanup",
              description: "Automatically clean Homebrew's cache and logs. Must be passed with `start`."
       switch "--enable-notification",
-             description: "Send a notification when the autoupdate process has finished successfully, " \
-                          "if `terminal-notifier` is installed and found. Must be passed with `start`. " \
-                          "Note: notifications are enabled by default on macOS Catalina and newer."
+             description: "Notifications are enabled by default on macOS Catalina and newer. This flag " \
+                          "is no longer required and can be safely dropped."
       switch "--immediate",
              description: "Starts the autoupdate command immediately and on system boot, " \
                           "instead of waiting for one schedule or interval (24 hours by default) to pass first. " \
