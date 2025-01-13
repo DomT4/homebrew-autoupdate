@@ -1,10 +1,10 @@
 # This file is synced from the `.github` repository, do not modify it directly.
-name: Triage issues
+name: Manage stale issues
 
 on:
   push:
     paths:
-      - .github/workflows/triage-issues.yml
+      - .github/workflows/stale-issues.yml
     branches-ignore:
       - dependabot/**
   schedule:
@@ -12,12 +12,14 @@ on:
     - cron: "0 0 * * *"
   issue_comment:
 
-permissions:
-  issues: write
-  pull-requests: write
+permissions: {}
+
+defaults:
+  run:
+    shell: bash -xeuo pipefail {0}
 
 concurrency:
-  group: triage-issues
+  group: stale-issues
   cancel-in-progress: ${{ github.event_name != 'issue_comment' }}
 
 jobs:
@@ -30,9 +32,13 @@ jobs:
         )
       )
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
     steps:
       - name: Mark/Close Stale Issues and Pull Requests
-        uses: actions/stale@v9
+        uses: actions/stale@28ca1036281a5e5922ead5184a1bbf96e5fc984e # v9.0.0
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           days-before-stale: 21
@@ -45,6 +51,7 @@ jobs:
             recent activity. It will be closed if no further activity occurs.
           exempt-issue-labels: "gsoc-outreachy,help wanted,in progress"
           exempt-pr-labels: "gsoc-outreachy,help wanted,in progress"
+          delete-branch: true
 
   bump-pr-stale:
     if: >
@@ -55,9 +62,13 @@ jobs:
         )
       )
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
     steps:
       - name: Mark/Close Stale `bump-formula-pr` and `bump-cask-pr` Pull Requests
-        uses: actions/stale@v9
+        uses: actions/stale@28ca1036281a5e5922ead5184a1bbf96e5fc984e # v9.0.0
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           days-before-stale: 2
@@ -68,17 +79,4 @@ jobs:
             pull request open, add a `help wanted` or `in progress` label.
           exempt-pr-labels: "help wanted,in progress"
           any-of-labels: "bump-formula-pr,bump-cask-pr"
-
-  lock-threads:
-    if: github.repository_owner == 'Homebrew' && github.event_name != 'issue_comment'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Lock Outdated Threads
-        uses: dessant/lock-threads@1bf7ec25051fe7c00bdd17e6a7cf3d7bfb7dc771
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          process-only: 'issues, prs'
-          issue-inactive-days: 30
-          add-issue-labels: outdated
-          pr-inactive-days: 30
-          add-pr-labels: outdated
+          delete-branch: true
