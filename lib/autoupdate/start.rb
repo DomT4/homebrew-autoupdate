@@ -84,8 +84,20 @@ module Autoupdate
       set_env << "\nexport SUDO_ASKPASS=#{env_sudo}"
     end
 
+    ac_only = if args.ac_only?
+      <<~EOS
+        if [[ $(pmset -g ps | head -1) =~ "Battery Power" ]]; then
+          echo "Not starting autoupdate, because device is running on Battery"
+          exit
+        fi
+      EOS
+    else
+      ""
+    end
+
     script_contents = <<~EOS
       #!/bin/sh
+      #{ac_only.chomp}
       #{set_env}
       /bin/date && #{Autoupdate::Core.brew} #{auto_args}
     EOS
