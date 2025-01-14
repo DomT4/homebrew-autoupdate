@@ -56,7 +56,9 @@ module Homebrew
                description: "If a cask requires `sudo`, autoupdate will open a GUI to ask for the password. " \
                             "Requires https://formulae.brew.sh/formula/pinentry-mac to be installed."
 
-        named_args SUBCOMMANDS, max: 1
+        # Needs to be two as otherwise it breaks the passing of an interval
+        # such as: start --immediate 3600. `Error: Invalid usage:`
+        named_args SUBCOMMANDS, max: 2
       end
 
       def run
