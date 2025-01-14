@@ -48,10 +48,6 @@ module Homebrew
                             "Must be passed with `start`."
         switch "--cleanup",
                description: "Automatically clean Homebrew's cache and logs. Must be passed with `start`."
-
-        switch "--enable-notification",
-               description: "Notifications are enabled by default on macOS Catalina and newer. This flag " \
-                            "is no longer required and can be safely dropped."
         switch "--immediate",
                description: "Starts the autoupdate command immediately and on system boot, " \
                             "instead of waiting for one interval (24 hours by default) to pass first. " \
