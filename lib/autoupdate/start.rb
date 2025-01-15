@@ -37,14 +37,6 @@ module Autoupdate
 
     # Enable the new AppleScript applet by default on Catalina and above.
     auto_args << " && #{Autoupdate::Notify.new_notify}" if MacOS.version >= :catalina
-    if args.enable_notification? && MacOS.version >= :catalina
-      opoo <<~EOS
-        Notifications are automatically enabled for macOS Catalina
-        and newer using a native Applet. Passing --enable-notification
-        is no longer required.
-
-      EOS
-    end
 
     # Try to respect user choice as much as possible.
     env_cache = ENV.fetch("HOMEBREW_CACHE") if ENV["HOMEBREW_CACHE"]
