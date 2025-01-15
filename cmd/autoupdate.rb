@@ -60,7 +60,7 @@ module Homebrew
                description: "If a cask requires `sudo`, autoupdate will open a GUI to ask for the password. " \
                             "Requires https://formulae.brew.sh/formula/pinentry-mac to be installed."
 
-        named_args SUBCOMMANDS, max: 1
+        named_args SUBCOMMANDS
       end
 
       def run
