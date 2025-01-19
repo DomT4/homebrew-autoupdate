@@ -30,9 +30,9 @@ module Homebrew
           `brew autoupdate status`:
           Print the current status of this tool.
 
-        `brew autoupdate version`:
-        Output this tool's current version, and a short changelog.
-      EOS
+          `brew autoupdate version`:
+          Output this tool's current version, and a short changelog.
+        EOS
 
         # We want to add the -- versions of subcommands as valid arguments
         # but only when executing the command, not when displaying the help text
@@ -40,27 +40,27 @@ module Homebrew
           switch "--#{subcommand}", hidden: true
         end
 
-      switch "--upgrade",
+        switch "--upgrade",
              description: "Automatically upgrade your installed formulae. If the Caskroom exists locally " \
                           "then casks will be upgraded as well. Must be passed with `start`."
-      switch "--greedy",
-             description: "Upgrade casks with `--greedy` (include auto-updating casks). " \
-                          "Must be passed with `start`."
-      switch "--cleanup",
-             description: "Automatically clean Homebrew's cache and logs. Must be passed with `start`."
-      switch "--enable-notification",
-             description: "Notifications are enabled by default on macOS Catalina and newer. This flag " \
-                          "is no longer required and can be safely dropped."
-      switch "--immediate",
-             description: "Starts the autoupdate command immediately and on system boot, " \
-                          "instead of waiting for one interval (24 hours by default) to pass first. " \
-                          "Must be passed with `start`."
-      switch "--sudo",
-             description: "If a cask requires `sudo`, autoupdate will open a GUI to ask for the password. " \
-                          "Requires https://formulae.brew.sh/formula/pinentry-mac to be installed."
-      switch "--ac-only",
-             description: "Only run autoupdate when on AC power. Must be passed with `start`."
-      named_args SUBCOMMANDS
+        switch "--greedy",
+              description: "Upgrade casks with `--greedy` (include auto-updating casks). " \
+                            "Must be passed with `start`."
+        switch "--cleanup",
+              description: "Automatically clean Homebrew's cache and logs. Must be passed with `start`."
+        switch "--enable-notification",
+              description: "Notifications are enabled by default on macOS Catalina and newer. This flag " \
+                            "is no longer required and can be safely dropped."
+        switch "--immediate",
+              description: "Starts the autoupdate command immediately and on system boot, " \
+                            "instead of waiting for one interval (24 hours by default) to pass first. " \
+                            "Must be passed with `start`."
+        switch "--sudo",
+              description: "If a cask requires `sudo`, autoupdate will open a GUI to ask for the password. " \
+                            "Requires https://formulae.brew.sh/formula/pinentry-mac to be installed."
+        switch "--ac-only",
+              description: "Only run autoupdate when on AC power. Must be passed with `start`."
+        named_args SUBCOMMANDS
     end
   end
 
