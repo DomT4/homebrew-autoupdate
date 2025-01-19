@@ -1,0 +1,29 @@
+# To get started with Dependabot version updates, you'll need to specify which
+# package ecosystems to update and where the package manifests are located.
+# Please see the documentation for all configuration options:
+# https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
+
+version: 2
+updates:
+  - package-ecosystem: "github-actions" # See documentation for possible values
+    # You can use `directory: "/"` for workflow files stored in the default location of `.github/workflows`.
+    # (You don't need to specify `/.github/workflows` for `directory`.)
+    directory: "/" # Location of package manifests
+    schedule:
+      interval: "weekly"
+# <!--- NOTE: End of required stanzas. The following is all optional. -->
+      # By default, Dependabot checks for new versions on Monday at a
+      # random set time for the repository.
+    groups:
+      all-actions:
+        patterns:
+          # A wildcard that matches all dependencies in the package
+          # ecosystem. Note: using "*" may open a large pull request.
+          - "*"
+        update-types:
+          # Any packages where the highest resolvable version is minor
+          # or patch will be grouped together. Dependabot will create a
+          # separate pull request for any package that doesn't update to
+          # a minor or patch version.
+          - "minor"
+          - "patch"

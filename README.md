@@ -86,9 +86,6 @@ brew autoupdate version:
                                    start.
       --cleanup                    Automatically clean Homebrew's cache and
                                    logs. Must be passed with start.
-      --enable-notification        Notifications are enabled by default on macOS
-                                   Catalina and newer. This flag is no longer
-                                   required and can be safely dropped.
       --immediate                  Starts the autoupdate command immediately and
                                    on system boot, instead of waiting for one
                                    schedule or interval (24 hours by default) to
