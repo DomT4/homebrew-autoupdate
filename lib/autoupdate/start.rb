@@ -37,14 +37,6 @@ module Autoupdate
 
     # Enable the new AppleScript applet by default on Catalina and above.
     auto_args << " && #{Autoupdate::Notify.new_notify}" if MacOS.version >= :catalina
-    if args.enable_notification? && MacOS.version >= :catalina
-      opoo <<~EOS
-        Notifications are automatically enabled for macOS Catalina
-        and newer using a native Applet. Passing --enable-notification
-        is no longer required.
-
-      EOS
-    end
 
     # Try to respect user choice as much as possible.
     env_cache = ENV.fetch("HOMEBREW_CACHE") if ENV["HOMEBREW_CACHE"]
@@ -78,7 +70,7 @@ module Autoupdate
       sudo_gui_script_contents = <<~EOS
         #!/bin/sh
         PATH='#{HOMEBREW_PREFIX}/bin'
-        printf "%s\n" "SETOK OK" "SETCANCEL Cancel" "SETDESC homebrew-autoupdate needs your admin password to complete the upgrade" "SETPROMPT Enter Password:" "SETTITLE homebrew-autoupdate Password Request" "GETPIN" | pinentry-mac --no-global-grab --timeout 60 | /usr/bin/awk '/^D / {print substr($0, index($0, $2))}'
+        printf "%s\n" "OPTION allow-external-cache" "SETOK OK" "SETCANCEL Cancel" "SETDESC homebrew-autoupdate needs your admin password to complete the upgrade" "SETPROMPT Enter Password:" "SETTITLE homebrew-autoupdate Password Request" "GETPIN" | pinentry-mac --no-global-grab --timeout 60 | /usr/bin/awk '/^D / {print substr($0, index($0, $2))}'
       EOS
     elsif env_sudo
       set_env << "\nexport SUDO_ASKPASS=#{env_sudo}"
