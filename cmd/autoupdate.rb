@@ -1,3 +1,4 @@
+# typed: strict
 # frozen_string_literal: true
 
 module Homebrew
@@ -56,7 +57,7 @@ module Homebrew
                description: "If a cask requires `sudo`, autoupdate will open a GUI to ask for the password. " \
                             "Requires https://formulae.brew.sh/formula/pinentry-mac to be installed."
         switch "--ac-only",
-              description: "Only run autoupdate when on AC power. Must be passed with `start`."
+               description: "Only run autoupdate when on AC power. Must be passed with `start`."
 
         # Needs to be two as otherwise it breaks the passing of an interval
         # such as: start --immediate 3600. `Error: Invalid usage:`
