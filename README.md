@@ -110,6 +110,18 @@ export HOMEBREW_NO_AUTO_UPDATE="1"
 Please note that Homebrew slightly frowns upon people disabling the built-in
 autoupdate mechanism.
 
+## Development
+
+### Logs
+
+location: `~/Library/Logs/com.github.domt4.homebrew-autoupdate/com.github.domt4.homebrew-autoupdate.out`
+
+### Launch Agent
+
+Location: `~/Library/LaunchAgents/com.github.domt4.homebrew-autoupdate.plist`
+
+Manually invoke autoupdate: `launchctl start com.github.domt4.homebrew-autoupdate`
+
 ## TO-DO (PRs Welcome)
 
 ## History
