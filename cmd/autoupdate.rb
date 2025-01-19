@@ -41,37 +41,33 @@ module Homebrew
         end
 
         switch "--upgrade",
-             description: "Automatically upgrade your installed formulae. If the Caskroom exists locally " \
-                          "then casks will be upgraded as well. Must be passed with `start`."
+               description: "Automatically upgrade your installed formulae. If the Caskroom exists locally " \
+                            "then casks will be upgraded as well. Must be passed with `start`."
         switch "--greedy",
-              description: "Upgrade casks with `--greedy` (include auto-updating casks). " \
+               description: "Upgrade casks with `--greedy` (include auto-updating casks). " \
                             "Must be passed with `start`."
         switch "--cleanup",
-              description: "Automatically clean Homebrew's cache and logs. Must be passed with `start`."
-        switch "--enable-notification",
-              description: "Notifications are enabled by default on macOS Catalina and newer. This flag " \
-                            "is no longer required and can be safely dropped."
+               description: "Automatically clean Homebrew's cache and logs. Must be passed with `start`."
         switch "--immediate",
-              description: "Starts the autoupdate command immediately and on system boot, " \
+               description: "Starts the autoupdate command immediately and on system boot, " \
                             "instead of waiting for one interval (24 hours by default) to pass first. " \
                             "Must be passed with `start`."
         switch "--sudo",
-              description: "If a cask requires `sudo`, autoupdate will open a GUI to ask for the password. " \
+               description: "If a cask requires `sudo`, autoupdate will open a GUI to ask for the password. " \
                             "Requires https://formulae.brew.sh/formula/pinentry-mac to be installed."
         switch "--ac-only",
               description: "Only run autoupdate when on AC power. Must be passed with `start`."
-        named_args SUBCOMMANDS
-    end
-  end
 
-  def autoupdate
-    # We want to add the -- versions of subcommands as valid arguments
-    # but only when executing the command, not when displaying the help text
-    parser = autoupdate_args
-    SUBCOMMANDS.each do |subcommand|
-      parser.switch "--#{subcommand}"
-    end
-    args = parser.parse
+        # Needs to be two as otherwise it breaks the passing of an interval
+        # such as: start --immediate 3600. `Error: Invalid usage:`
+        named_args SUBCOMMANDS, max: 2
+      end
+
+      def run
+        # This entire tool is essentially a "bells and whistles" wrapper around
+        # `launchd` so Linux support is a no-go unless someone wants to put
+        # the work in to add/support it in a sustainable manner.
+        raise UsageError, "`brew autoupdate` is supported only on macOS!" unless OS.mac?
 
         subcommand = subcommand_from_args(args:)
         interval = interval_from_args(args:)
