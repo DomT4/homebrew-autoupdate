@@ -15,14 +15,13 @@ if not os.path.exists(readme_file):
 with open(readme_file, "r") as f:
     readme_content = f.read()
 
-start_comment_tag = "<!-- HELP-COMMAND-OUTPUT:START -->"
-stop_comment_tag = "<!-- HELP-COMMAND-OUTPUT:END -->"
+start_comment_tag = "[comment]: # (HELP-COMMAND-OUTPUT:START)"
+stop_comment_tag = "[comment]: # (HELP-COMMAND-OUTPUT:END)"
 
 comment_tag_pattern = rf"{start_comment_tag}(.*?){stop_comment_tag}"
 tag_section_content = re.search(comment_tag_pattern, readme_content, re.DOTALL)
 
 if tag_section_content:
-
     try:
         help_command_output_new = subprocess.check_output(["brew", "autoupdate", "--help"], text=True)
     except subprocess.CalledProcessError as e:
@@ -32,7 +31,7 @@ if tag_section_content:
     help_command_output_current = tag_section_content.group(1).strip()
     help_command_output_new = remove_ansi_escape_codes(help_command_output_new.strip())
 
-    start_code_pattern = "```shell"
+    start_code_pattern = "```help"
     end_code_pattern = "```"
 
     # Regex to check if the existing help section is in a shell code block
@@ -41,13 +40,13 @@ if tag_section_content:
 
     if help_command_output_current != help_command_output_new:
         print("Content change detected.")
-        help = f"{start_comment_tag}\n{start_code_pattern}\n{help_command_output_new}\n{end_code_pattern}\n{stop_comment_tag}"
+        help = f"{start_comment_tag}\n\n{start_code_pattern}\n{help_command_output_new}\n{end_code_pattern}\n\n{stop_comment_tag}"
         readme_content = re.sub(comment_tag_pattern, help, readme_content, flags=re.DOTALL)
         print("Content updated.")
 
         # Set GitHub Actions output variable
         with open(os.environ['GITHUB_OUTPUT'], 'a') as fh:
-            print(f'changed=true', file=fh)
+            print('changed=true', file=fh)
     else:
         print("No change detected. Content remains unchanged.")
 else:
