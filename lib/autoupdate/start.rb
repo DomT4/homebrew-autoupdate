@@ -16,7 +16,7 @@ module Autoupdate
     auto_args = "update"
     # Spacing at start of lines is deliberate. Don't undo.
     if args.upgrade?
-      auto_args << " && #{Autoupdate::Core.brew} upgrade --formula -v"
+      auto_args << Autoupdate::Core.command_upgrade.to_s
 
       if (HOMEBREW_PREFIX/"Caskroom").exist?
         if ENV["SUDO_ASKPASS"].nil? && !args.sudo?
@@ -28,11 +28,10 @@ module Autoupdate
           EOS
         end
 
-        greedy = args.greedy? ? " --greedy" : ""
-        auto_args << " && #{Autoupdate::Core.brew} upgrade --cask -v#{greedy}"
+        auto_args << Autoupdate::Core.command_cask(args.greedy?).to_s
       end
 
-      auto_args << " && #{Autoupdate::Core.brew} cleanup" if args.cleanup?
+      auto_args << Autoupdate::Core.command_cleanup.to_s if args.cleanup?
     end
 
     # Enable the new AppleScript applet by default on Catalina and above.
@@ -66,7 +65,7 @@ module Autoupdate
           Please run `brew install pinentry-mac` and try again.
         EOS
       end
-      set_env << "\nexport SUDO_ASKPASS='#{Autoupdate::Core.location/"brew_autoupdate_sudo_gui"}'"
+      set_env << "\n#{Autoupdate::Core.command_sudo}"
       sudo_gui_script_contents = <<~EOS
         #!/bin/sh
         PATH='#{HOMEBREW_PREFIX}/bin'

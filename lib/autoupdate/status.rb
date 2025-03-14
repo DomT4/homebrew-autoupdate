@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "rexml/document"
+
 module Autoupdate
   module_function
 
@@ -21,11 +23,42 @@ module Autoupdate
     if File.exist?(Autoupdate::Core.location/"brew_autoupdate")
       birth = File.birthtime(Autoupdate::Core.location/"brew_autoupdate").to_s
       date = Date.parse(birth)
-      formatted_string = date.strftime("%D")
+      out = date.strftime("%D")
     else
-      formatted_string = "Unable to determine date of command invocation. Please report this."
+      out = "Unable to determine date of command invocation. Please report this."
     end
-    formatted_string
+    out
+  end
+
+  def brew_update_options
+    brew_autoupdate = File.readlines(Autoupdate::Core.location/"brew_autoupdate")
+    out = "Options:"
+
+    if brew_autoupdate
+      out += "\n--upgrade" if brew_autoupdate.last.include?(Autoupdate::Core.command_upgrade.to_s)
+      out += "\n--cleanup" if brew_autoupdate.last.include?(Autoupdate::Core.command_cleanup.to_s)
+      out += "\n--greedy" if brew_autoupdate.last.include?(Autoupdate::Core.command_cask(true).to_s)
+      out += "\n--sudo" if brew_autoupdate.any? { |line| line.chomp == Autoupdate::Core.command_sudo.to_s }
+    end
+    out
+  end
+
+  def autoupdate_interval
+    plist = REXML::Document.new(File.read(Autoupdate::Core.plist))
+    key = "StartInterval"
+    if (element = plist.elements["//key[text()='#{key}']"])
+      value = element.next_element.text.to_i
+      out = "Interval: #{value}"
+    else
+      out = "Interval: Not found, maybe using `StartCalendarInterval`"
+    end
+    out
+  end
+
+  def autoupdate_start_on_launch
+    plist = REXML::Document.new(File.read(Autoupdate::Core.plist))
+    key = "RunAtLoad"
+    ("--immediate\n" if plist.elements["//key[text()='#{key}']"])
   end
 
   def autoupdate_inadvisably_old_message
@@ -46,15 +79,19 @@ module Autoupdate
       puts <<~EOS
         Autoupdate is installed and running.
 
+        #{autoupdate_interval}
+
+        #{brew_update_options}
+        #{autoupdate_start_on_launch}
         Autoupdate was initialised on #{date_of_last_modification}.
-        \n#{autoupdate_inadvisably_old_message}
+        #{autoupdate_inadvisably_old_message}
       EOS
     elsif autoupdate_installed_but_stopped?
       puts <<~EOS
         Autoupdate is installed but stopped.
 
         Autoupdate was initialised on #{date_of_last_modification}.
-        \n#{autoupdate_inadvisably_old_message}
+        #{autoupdate_inadvisably_old_message}
       EOS
     elsif autoupdate_not_configured?
       puts "Autoupdate is not configured. Use `brew autoupdate start` to begin."
