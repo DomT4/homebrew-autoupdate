@@ -45,6 +45,8 @@ module Autoupdate
 
         # Create a temporary script file
         script_path = Autoupdate::Core.location/"brew_autoupdate_leaves"
+        # Ensure the directory exists
+        FileUtils.mkpath(Autoupdate::Core.location)
         File.open(script_path, "w") { |f| f << temp_script }
         FileUtils.chmod 0555, script_path
 
