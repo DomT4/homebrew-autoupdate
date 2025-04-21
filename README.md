@@ -116,13 +116,15 @@ autoupdate mechanism.
 
 ## Shell Completion
 
-This tap provides shell completion for the `brew autoupdate` command. To enable it, run:
+This tap provides shell completion for the `brew autoupdate` command. The completions support bash, zsh, and fish shells.
+
+To enable completions for external commands (including `brew autoupdate`), run:
 
 ```sh
 brew completions link
 ```
 
-This will link all external tap completions, including those for `brew autoupdate`. The completions support bash, zsh, and fish shells.
+This will link all external tap completions to the appropriate locations. You may need to restart your shell or run `compinit` (for zsh) after linking completions.
 
 ## TO-DO (PRs Welcome)
 
