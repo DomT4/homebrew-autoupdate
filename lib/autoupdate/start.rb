@@ -13,6 +13,14 @@ module Autoupdate
       EOS
     end
 
+    # Validate that --leaves-only is only used with --upgrade
+    if args.leaves_only? && !args.upgrade?
+      odie <<~EOS
+        The `--leaves-only` option must be used with `--upgrade`.
+        Please run with both options: `brew autoupdate start --upgrade --leaves-only`
+      EOS
+    end
+
     auto_args = "update"
     # Spacing at start of lines is deliberate. Don't undo.
     if args.upgrade?
