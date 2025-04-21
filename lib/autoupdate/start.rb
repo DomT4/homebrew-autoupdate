@@ -51,7 +51,8 @@ module Autoupdate
         FileUtils.chmod 0555, script_path
 
         # Add the script to the auto_args
-        auto_args << " && #{script_path}"
+        # Use quotes around the script path to handle spaces
+        auto_args << " && \"#{script_path}\""
       else
         auto_args << " && #{Autoupdate::Core.brew} upgrade --formula -v"
       end
