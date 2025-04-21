@@ -16,7 +16,12 @@ module Autoupdate
     auto_args = "update"
     # Spacing at start of lines is deliberate. Don't undo.
     if args.upgrade?
-      auto_args << " && #{Autoupdate::Core.brew} upgrade --formula -v"
+      if args.leaves_only?
+        # For --leaves-only, we need to get the list of leaves and upgrade only those
+        auto_args << " && #{Autoupdate::Core.brew} leaves | xargs #{Autoupdate::Core.brew} upgrade --formula -v"
+      else
+        auto_args << " && #{Autoupdate::Core.brew} upgrade --formula -v"
+      end
 
       if (HOMEBREW_PREFIX/"Caskroom").exist?
         if ENV["SUDO_ASKPASS"].nil? && !args.sudo?
