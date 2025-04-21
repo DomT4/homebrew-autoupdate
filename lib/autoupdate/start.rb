@@ -18,7 +18,24 @@ module Autoupdate
     if args.upgrade?
       if args.leaves_only?
         # For --leaves-only, we need to get the list of leaves and upgrade only those
-        auto_args << " && #{Autoupdate::Core.brew} leaves | xargs #{Autoupdate::Core.brew} upgrade --formula -v"
+        # We create a temporary script to handle this safely
+        temp_script = <<~SCRIPT
+          #!/bin/bash
+          LEAVES=$(#{Autoupdate::Core.brew} leaves)
+          if [ -n "$LEAVES" ]; then
+            #{Autoupdate::Core.brew} upgrade --formula -v $(echo "$LEAVES")
+          else
+            echo "No leaves packages to upgrade."
+          fi
+        SCRIPT
+
+        # Create a temporary script file
+        script_path = Autoupdate::Core.location/"brew_autoupdate_leaves"
+        File.open(script_path, "w") { |f| f << temp_script }
+        FileUtils.chmod 0555, script_path
+
+        # Add the script to the auto_args
+        auto_args << " && #{script_path}"
       else
         auto_args << " && #{Autoupdate::Core.brew} upgrade --formula -v"
       end
