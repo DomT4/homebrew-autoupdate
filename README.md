@@ -24,8 +24,8 @@ Now run `brew autoupdate start [interval] [options]` to enable autoupdate.
 brew autoupdate start 43200 --upgrade --cleanup --immediate --sudo
 ```
 
-This will upgrade all your casks and formulae every 12 hours and on every system boot.  
-If a sudo password is required for an upgrade, a GUI to enter your password will be displayed.  
+This will upgrade all your casks and formulae every 12 hours and on every system boot.
+If a sudo password is required for an upgrade, a GUI to enter your password will be displayed.
 Also, it will clean up every old version and left-over files.
 
 Casks that have built-in auto-updates enabled by default will not be upgraded.
@@ -113,6 +113,16 @@ export HOMEBREW_NO_AUTO_UPDATE="1"
 
 Please note that Homebrew slightly frowns upon people disabling the built-in
 autoupdate mechanism.
+
+## Shell Completion
+
+This tap provides shell completion for the `brew autoupdate` command. To enable it, run:
+
+```sh
+brew completions link
+```
+
+This will link all external tap completions, including those for `brew autoupdate`. The completions support bash, zsh, and fish shells.
 
 ## TO-DO (PRs Welcome)
 
