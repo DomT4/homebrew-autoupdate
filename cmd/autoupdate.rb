@@ -58,7 +58,7 @@ module Homebrew
         switch "--leaves-only",
                description: "Only upgrade formulae that are not dependencies of another installed formula. " \
                             "This provides a safer upgrade strategy by only updating top-level packages. " \
-                            "Must be passed with `--upgrade`and `start`."
+                            "Must be passed with `--upgrade` and `start`."
 
         # Needs to be two as otherwise it breaks the passing of an interval
         # such as: start --immediate 3600. `Error: Invalid usage:`
