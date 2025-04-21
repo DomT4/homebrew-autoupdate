@@ -21,9 +21,15 @@ module Autoupdate
         # We create a temporary script to handle this safely
         temp_script = <<~SCRIPT
           #!/bin/bash
+          set -e
           LEAVES=$(#{Autoupdate::Core.brew} leaves)
           if [ -n "$LEAVES" ]; then
-            #{Autoupdate::Core.brew} upgrade --formula -v $(echo "$LEAVES")
+            echo "Upgrading leaves packages only..."
+            #{Autoupdate::Core.brew} upgrade --formula -v $(echo "$LEAVES") || {
+              echo "Warning: Some leaves packages failed to upgrade."
+              # Return 0 to ensure the autoupdate process continues
+              exit 0
+            }
           else
             echo "No leaves packages to upgrade."
           fi
