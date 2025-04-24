@@ -18,7 +18,7 @@ Just `brew tap domt4/autoupdate`.
 
 Now run `brew autoupdate start [interval] [options]` to enable autoupdate.
 
-## Examples
+## Example
 
 ```sh
 brew autoupdate start 43200 --upgrade --cleanup --immediate --sudo
@@ -27,13 +27,6 @@ brew autoupdate start 43200 --upgrade --cleanup --immediate --sudo
 This will upgrade all your casks and formulae every 12 hours and on every system boot.
 If a sudo password is required for an upgrade, a GUI to enter your password will be displayed.
 Also, it will clean up every old version and left-over files.
-
-```sh
-brew autoupdate start 43200 --upgrade --leaves-only --cleanup
-```
-
-This will only upgrade formulae that are not dependencies of another installed formula (top-level packages).
-This provides a safer upgrade strategy by reducing the risk of compatibility issues from dependency updates.
 
 Casks that have built-in auto-updates enabled by default will not be upgraded.
 
