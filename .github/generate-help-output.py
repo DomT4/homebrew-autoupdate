@@ -51,6 +51,7 @@ if tag_section_content:
         print("No change detected. Content remains unchanged.")
 else:
     print(f"Error: Unable to find {start_comment_tag} and {stop_comment_tag} in {readme_file}.")
+    exit(1)
 
 with open(readme_file, "w") as f:
     f.write(readme_content)
