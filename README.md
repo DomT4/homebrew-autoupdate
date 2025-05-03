@@ -32,7 +32,7 @@ Casks that have built-in auto-updates enabled by default will not be upgraded.
 
 ## Usage
 
-[comment]: # (HELP-COMMAND-OUTPUT:START)
+<!-- HELP-COMMAND-OUTPUT:START -->
 
 ```help
 Usage: brew autoupdate subcommand [interval] [options]
@@ -85,7 +85,7 @@ brew autoupdate version:
   -h, --help                       Show this message.
 ```
 
-[comment]: # (HELP-COMMAND-OUTPUT:END)
+<!-- HELP-COMMAND-OUTPUT:END -->
 
 **Logs of the performed operations can be found at:** `~/Library/Logs/com.github.domt4.homebrew-autoupdate`
 
