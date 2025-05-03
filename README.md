@@ -20,18 +20,21 @@ Now run `brew autoupdate start [interval] [options]` to enable autoupdate.
 
 ## Example
 
-`brew autoupdate start 43200 --upgrade --cleanup --immediate --sudo`
+```sh
+brew autoupdate start 43200 --upgrade --cleanup --immediate --sudo
+```
 
-This will upgrade all your casks and formulae every 12 hours and on every system boot. <br>
-If a sudo password is required for an upgrade, a GUI to enter your password will be displayed. <br>
+This will upgrade all your casks and formulae every 12 hours and on every system boot.
+If a sudo password is required for an upgrade, a GUI to enter your password will be displayed.
 Also, it will clean up every old version and left-over files.
 
 Casks that have built-in auto-updates enabled by default will not be upgraded.
 
 ## Usage
 
-<!-- HELP-COMMAND-OUTPUT:START -->
-```shell
+[comment]: # (HELP-COMMAND-OUTPUT:START)
+
+```help
 Usage: brew autoupdate subcommand [interval] [options]
 
 An easy, convenient way to automatically update Homebrew.
@@ -83,7 +86,8 @@ brew autoupdate version:
   -v, --verbose                    Make some output more verbose.
   -h, --help                       Show this message.
 ```
-<!-- HELP-COMMAND-OUTPUT:END -->
+
+[comment]: # (HELP-COMMAND-OUTPUT:END)
 
 **Logs of the performed operations can be found at:** `~/Library/Logs/com.github.domt4.homebrew-autoupdate`
 
@@ -99,13 +103,13 @@ the built-in autoupdate mechanism, which can be instructed to autoupdate less
 often, or disabled entirely. If you wish to update every 24 hours using the
 built-in autoupdate mechanism set this in your environment:
 
-```bash
+```sh
 export HOMEBREW_AUTO_UPDATE_SECS="86400"
 ```
 
 or if you wish to disable the built-in autoupdate mechanism entirely:
 
-```bash
+```sh
 export HOMEBREW_NO_AUTO_UPDATE="1"
 ```
 

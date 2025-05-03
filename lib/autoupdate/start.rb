@@ -13,10 +13,49 @@ module Autoupdate
       EOS
     end
 
+    # Validate that --leaves-only is only used with --upgrade
+    if args.leaves_only? && !args.upgrade?
+      odie <<~EOS
+        The `--leaves-only` option must be used with `--upgrade`.
+        Please run with both options: `brew autoupdate start --upgrade --leaves-only`
+      EOS
+    end
+
     auto_args = "update"
     # Spacing at start of lines is deliberate. Don't undo.
     if args.upgrade?
-      auto_args << " && #{Autoupdate::Core.brew} upgrade --formula -v"
+      if args.leaves_only?
+        # For --leaves-only, we need to get the list of leaves and upgrade only those
+        # We create a temporary script to handle this safely
+        temp_script = <<~SCRIPT
+          #!/bin/bash
+          set -e
+          LEAVES=$(#{Autoupdate::Core.brew} leaves)
+          if [ -n "$LEAVES" ]; then
+            echo "Upgrading leaves packages only..."
+            #{Autoupdate::Core.brew} upgrade --formula -v $(echo "$LEAVES") || {
+              echo "Warning: Some leaves packages failed to upgrade."
+              # Return 0 to ensure the autoupdate process continues
+              exit 0
+            }
+          else
+            echo "No leaves packages to upgrade."
+          fi
+        SCRIPT
+
+        # Create a temporary script file
+        script_path = Autoupdate::Core.location/"brew_autoupdate_leaves"
+        # Ensure the directory exists
+        FileUtils.mkpath(Autoupdate::Core.location)
+        File.open(script_path, "w") { |f| f << temp_script }
+        FileUtils.chmod 0555, script_path
+
+        # Add the script to the auto_args
+        # Use quotes around the script path to handle spaces
+        auto_args << " && \"#{script_path}\""
+      else
+        auto_args << " && #{Autoupdate::Core.brew} upgrade --formula -v"
+      end
 
       if (HOMEBREW_PREFIX/"Caskroom").exist?
         if ENV["SUDO_ASKPASS"].nil? && !args.sudo?
