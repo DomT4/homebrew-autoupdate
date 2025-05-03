@@ -6,54 +6,70 @@ module Homebrew
       SUBCOMMANDS = %w[start stop delete status version].freeze
 
       cmd_args do
-        usage_banner "`autoupdate` <subcommand> [<interval>] [<options>]"
+        usage_banner "`autoupdate` <subcommand> [<schedule>/<interval>] [<options>]"
 
         description <<~EOS
           An easy, convenient way to automatically update Homebrew.
 
-          This script will run `brew update` in the background once every 24 hours (by default)
-          until explicitly told to stop, utilising `launchd`.
+          This script will run `brew update` in the background every day at noon (12:00) (by default)
+          until explicitly told to stop, utilizing `launchd`. If the computer is asleep at the
+        scheduled time, it will start as soon the computer is awake.
 
-          `brew autoupdate start` [<interval>] [<options>]:
-          Start autoupdating either once every `interval` hours or once every 24 hours.
-          Please note the interval has to be passed in seconds, so 12 hours would be
-          `brew autoupdate start 43200`. If you want to start the autoupdate immediately
-          and on system boot, pass `--immediate`. Pass `--upgrade` or `--cleanup`
-          to automatically run `brew upgrade` and/or `brew cleanup` respectively.
+        `brew autoupdate start` [<`schedule`>/<`interval`>] [<`options`>]
+        Start autoupdate either by defining a `schedule` or an `interval`.
 
-          `brew autoupdate stop`:
-          Stop autoupdating, but retain plist and logs.
+         `brew autoupdate start --upgrade --cleanup --immediate --sudo`
+        This will upgrade all your casks and formulae every day at noon (12:00) and on every system boot.
+        If a sudo password is required for an upgrade, a GUI to enter your password will be displayed.
+        Also, it will clean up every old version and left-over files.
+        Casks that have built-in auto-updates enabled by default will not be upgraded.
 
-          `brew autoupdate delete`:
-          Cancel the autoupdate, delete the plist and logs.
+        A `schedule` is a string of five hyphen-separated digits in a `cron` like format.
+        `Minute(0-59)-Hour(0-23)-Day(1-31)-Weekday(0-7)-Month(1-12)`
+        Missing values are considered wildcards.
+        For example: `brew autoupdate start 0-12---` would run autoupdate every day at noon (12:00).
+        For more information on `StartCalendarInterval`, see `man launchd.plist`.
 
-          `brew autoupdate status`:
-          Print the current status of this tool.
+        A `interval` has to be passed in seconds, so 12 hours would be
+        `brew autoupdate start 43200`.
+        The exact time of execution depends on the last system boot.
+        If the computer is asleep at the scheduled time, the interval will be skipped.
+        This could lead to skipped intervals and is therefor not a recommended option.
+        Use a `schedule` instead.
+
+        If you want to start the autoupdate immediately and on system boot,
+        pass `--immediate`. Pass `--upgrade` or `--cleanup`to automatically run `brew upgrade`
+        and/or `brew cleanup` respectively.
+
+      `brew autoupdate stop`:
+      Stop autoupdating, but retain plist and logs.
+
+      `brew autoupdate delete`:
+      Cancel the autoupdate, delete the plist and logs.
+
+      `brew autoupdate status`:
+      Print the current status of this tool.
 
           `brew autoupdate version`:
           Output this tool's current version, and a short changelog.
         EOS
-
-        # We want to add the -- versions of subcommands as valid arguments
-        # but only when executing the command, not when displaying the help text
-        SUBCOMMANDS.each do |subcommand|
-          switch "--#{subcommand}", hidden: true
-        end
-
         switch "--upgrade",
-               description: "Automatically upgrade your installed formulae. If the Caskroom exists locally " \
+              description: "Automatically upgrade your installed formulae. If the Caskroom exists locally " \
                             "then casks will be upgraded as well. Must be passed with `start`."
         switch "--greedy",
-               description: "Upgrade casks with `--greedy` (include auto-updating casks). " \
+              description: "Upgrade casks with `--greedy` (include auto-updating casks). " \
                             "Must be passed with `start`."
         switch "--cleanup",
-               description: "Automatically clean Homebrew's cache and logs. Must be passed with `start`."
+              description: "Automatically clean Homebrew's cache and logs. Must be passed with `start`."
+        switch "--enable-notification",
+              description: "Notifications are enabled by default on macOS Catalina and newer. This flag " \
+                            "is no longer required and can be safely dropped."
         switch "--immediate",
-               description: "Starts the autoupdate command immediately and on system boot, " \
+              description: "Starts the autoupdate command immediately and on system boot, " \
                             "instead of waiting for one interval (24 hours by default) to pass first. " \
                             "Must be passed with `start`."
         switch "--sudo",
-               description: "If a cask requires `sudo`, autoupdate will open a GUI to ask for the password. " \
+              description: "If a cask requires `sudo`, autoupdate will open a GUI to ask for the password. " \
                             "Requires https://formulae.brew.sh/formula/pinentry-mac to be installed."
         switch "--leaves-only",
                description: "Only upgrade formulae that are not dependencies of another installed formula. " \
@@ -72,14 +88,16 @@ module Homebrew
         raise UsageError, "`brew autoupdate` is supported only on macOS!" unless OS.mac?
 
         subcommand = subcommand_from_args(args:)
-        interval = interval_from_args(args:)
+        schedule_or_interval = schedule_or_interval_from_args(args:)
 
         raise UsageError, "This command requires a subcommand argument." if subcommand.nil?
-        if subcommand != :start && interval.present?
+        if subcommand != :start && schedule_or_interval.present?
           raise UsageError, "This command does not take a named argument without `start`."
         end
-        if interval.present? && !interval.match?(/^\d+$/)
-          raise UsageError, "This subcommand only accepts integer arguments."
+
+        if schedule_or_interval.present? && !(schedule_or_interval.match?(/^\d+$/) \
+      || schedule_or_interval.match?(/^.*-.*-.*-.*-.*$/))
+          raise UsageError, "This subcommand only accepts a schedule pattern or interval integer as argument."
         end
 
         # Don't require anything until this point to keep help speedy.
@@ -87,7 +105,7 @@ module Homebrew
 
         case subcommand
         when :start
-          ::Autoupdate.start(interval:, args:)
+          ::Autoupdate.start(schedule_or_interval:, args:)
         when :stop
           ::Autoupdate.stop
         when :delete
@@ -112,7 +130,7 @@ module Homebrew
         choice
       end
 
-      def interval_from_args(args:)
+      def schedule_or_interval_from_args(args:)
         possibilities = args.named.reject { |arg| SUBCOMMANDS.include? arg }
         raise UsageError, "This subcommand does not take more than 1 named argument." if possibilities.length > 1
 

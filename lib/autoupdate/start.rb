@@ -3,7 +3,7 @@
 module Autoupdate
   module_function
 
-  def start(interval:, args:)
+  def start(schedule_or_interval:, args:)
     # Method from Homebrew.
     # https://github.com/Homebrew/brew/blob/c9c7f4/Library/Homebrew/utils/popen.rb
     if Utils.popen_read("/bin/launchctl", "list").include?(Autoupdate::Core.name)
@@ -160,7 +160,30 @@ module Autoupdate
       FileUtils.chmod 0555, Autoupdate::Core.location/"brew_autoupdate_sudo_gui"
     end
 
-    interval ||= "86400"
+    # If "*-*-*-*-*" pattern detected, it's a schedule.
+    if schedule_or_interval.nil? || schedule_or_interval.match?(/^.*-.*-.*-.*-.*$/)
+      schedule = schedule_or_interval
+      schedule ||= "0-12---" # Default to once a day at noon.
+      schedule_parts = schedule.split("-")
+      validate_schedule_pattern(schedule_parts)
+    else
+      interval = schedule_or_interval
+    end
+
+    interval_definition = if interval
+      <<~EOS
+        <key>StartInterval</key>
+          <integer>#{interval}</integer>
+      EOS
+    else
+      ""
+    end
+
+    schedule_definition = if schedule
+      generate_schedule_plist(schedule_parts)
+    else
+      ""
+    end
 
     # This restores the "Run At Load" key removed in a7de771abcf6 when requested.
     launch_immediately = if args.immediate?
@@ -190,8 +213,8 @@ module Autoupdate
         <string>#{log_out}</string>
         <key>StandardOutPath</key>
         <string>#{log_out}</string>
-        <key>StartInterval</key>
-        <integer>#{interval}</integer>
+        #{interval_definition.chomp}
+        #{schedule_definition.chomp}
         <key>LowPriorityBackgroundIO</key>
         <true/>
         <key>LowPriorityIO</key>
@@ -215,15 +238,98 @@ module Autoupdate
     File.open(Autoupdate::Core.plist, "w") { |f| f << file }
     quiet_system "/bin/launchctl", "load", Autoupdate::Core.plist
 
-    # This should round to a whole number consistently.
-    # It'll behave strangely if someone wants autoupdate
-    # to run more than once an hour, but... surely not?
-    interval_to_hours = interval.to_i / 60 / 60
-    update_message = "Homebrew will now automatically update every #{interval_to_hours} hours"
+    update_message = "Homebrew will now automatically update"
+    if schedule
+      update_message += " with the schedule (#{describe_schedule(schedule_parts)})"
+    else
+      # This should round to a whole number consistently.
+      # It'll behave strangely if someone wants autoupdate
+      # to run more than once an hour, but... surely not?
+      interval_to_hours = interval.to_i / 60 / 60
+      update_message += " every #{interval_to_hours} hours"
+      # TODO: Add a message with the hint that execution during sleep whill be skipped.
+      # And recommend to use the schedule option.
+    end
     if args.immediate?
       puts "#{update_message}, now, and on system boot."
     else
       puts "#{update_message}."
     end
   end
+end
+
+def validate_schedule_pattern(schedule_parts)
+  position_ranges = [
+    ["Minute", (0..59)],
+    ["Hour", (0..23)],
+    ["Day", (1..31)],
+    ["Weekday", (0..7)],
+    ["Month", (1..12)],
+  ]
+
+  # Check for invalid characters.
+  unless schedule_parts.all? { |part| part.blank? || part =~ /^\d+$/ }
+    invalid_part_index = schedule_parts.index { |part| !(part.blank? || part =~ /^\d+$/) }
+    odie "Error: Schedule (#{describe_schedule(schedule_parts)}) contains invalid character \
+'#{schedule_parts[invalid_part_index]}' in #{position_ranges[invalid_part_index][0]} at position \
+#{invalid_part_index + 1}. Must be a digit or empty."
+  end
+
+  # Check for values inside allowed range.
+  unless (invalid_position = schedule_parts.zip(position_ranges).map.with_index do |(part, (name, range)), i|
+    if part.blank? || range.cover?(part.to_i)
+      nil
+    else
+      "is outside the allowed range '#{part}' in #{name} \
+at position #{i + 1}. Allowed range #{name}: #{range.min}-#{range.max}"
+    end
+  end.compact.join(", ")).empty?
+    odie "Error: Schedule (#{describe_schedule(schedule_parts)}) #{invalid_position}."
+  end
+end
+
+def generate_schedule_plist(schedule_parts)
+  result = <<~EOS
+    <key>StartCalendarInterval</key>
+    <dict>
+  EOS
+
+  result += <<~EOS if /^\d+$/.match?(schedule_parts[0])
+    <key>Minute</key>
+    <integer>#{schedule_parts[0]}</integer>
+  EOS
+
+  result += <<~EOS if /^\d+$/.match?(schedule_parts[1])
+    <key>Hour</key>
+    <integer>#{schedule_parts[1]}</integer>
+  EOS
+
+  result += <<~EOS if /^\d+$/.match?(schedule_parts[2])
+    <key>Day</key>
+    <integer>#{schedule_parts[2]}</integer>
+  EOS
+
+  result += <<~EOS if /^\d+$/.match?(schedule_parts[3])
+    <key>Weekday</key>
+    <integer>#{schedule_parts[3]}</integer>
+  EOS
+
+  result += <<~EOS if /^\d+$/.match?(schedule_parts[4])
+    <key>Month</key>
+    <integer>#{schedule_parts[4]}</integer>
+  EOS
+
+  result += <<~EOS
+    </dict>
+  EOS
+
+  result
+end
+
+def describe_schedule(schedule_parts)
+  labels = %w[Minute Hour Day Weekday Month]
+  description = labels.map.with_index do |label, i|
+    "#{label}:#{schedule_parts[i].nil? ? "any" : schedule_parts[i]}"
+  end.join(", ")
+  description.to_s
 end
