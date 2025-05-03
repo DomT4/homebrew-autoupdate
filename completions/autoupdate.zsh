@@ -1,9 +1,11 @@
 #compdef brew
 
 # Zsh completion script for brew autoupdate command
-# To use these completions:
-# 1. Copy this file to $fpath/
-# 2. Or run `brew completions link` if you have Homebrew's completions enabled
+# To use these completions, add the following to your ~/.zshrc:
+#
+# if [ -f "$(brew --prefix)/Library/Taps/domt4/homebrew-autoupdate/completions/autoupdate.zsh" ]; then
+#     source "$(brew --prefix)/Library/Taps/domt4/homebrew-autoupdate/completions/autoupdate.zsh"
+# fi
 
 _brew_autoupdate() {
     local -a subcommands

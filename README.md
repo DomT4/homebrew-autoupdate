@@ -118,13 +118,39 @@ autoupdate mechanism.
 
 This tap provides shell completion for the `brew autoupdate` command. The completions support bash, zsh, and fish shells.
 
-To enable completions for external commands (including `brew autoupdate`), run:
+Since `autoupdate` is a Homebrew tap command (not a standalone command), you need to manually source the completion files in your shell configuration:
 
-```sh
-brew completions link
+### For Fish Shell
+
+Add the following to your `~/.config/fish/config.fish`:
+
+```fish
+if test -f (brew --prefix)/Library/Taps/domt4/homebrew-autoupdate/completions/autoupdate.fish
+    source (brew --prefix)/Library/Taps/domt4/homebrew-autoupdate/completions/autoupdate.fish
+end
 ```
 
-This will link all external tap completions to the appropriate locations. You may need to restart your shell or run `compinit` (for zsh) after linking completions.
+### For Bash
+
+Add the following to your `~/.bash_profile` or `~/.bashrc`:
+
+```bash
+if [ -f "$(brew --prefix)/Library/Taps/domt4/homebrew-autoupdate/completions/autoupdate.bash" ]; then
+    source "$(brew --prefix)/Library/Taps/domt4/homebrew-autoupdate/completions/autoupdate.bash"
+fi
+```
+
+### For Zsh
+
+Add the following to your `~/.zshrc`:
+
+```zsh
+if [ -f "$(brew --prefix)/Library/Taps/domt4/homebrew-autoupdate/completions/autoupdate.zsh" ]; then
+    source "$(brew --prefix)/Library/Taps/domt4/homebrew-autoupdate/completions/autoupdate.zsh"
+fi
+```
+
+After adding these lines, restart your shell or source your configuration file to enable the completions.
 
 ## TO-DO (PRs Welcome)
 

@@ -1,7 +1,9 @@
 # Completions for brew autoupdate command
-# To use these completions:
-# 1. Copy this file to ~/.config/fish/completions/
-# 2. Or run `brew completions link` if you have Homebrew's completions enabled
+# To use these completions, add the following to your ~/.config/fish/config.fish:
+#
+# if test -f (brew --prefix)/Library/Taps/domt4/homebrew-autoupdate/completions/autoupdate.fish
+#     source (brew --prefix)/Library/Taps/domt4/homebrew-autoupdate/completions/autoupdate.fish
+# end
 
 # Define the main autoupdate command completions
 complete -c brew -f -n "__fish_brew_command autoupdate" -a "start" -d "Start autoupdating"
