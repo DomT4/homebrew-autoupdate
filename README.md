@@ -79,6 +79,11 @@ brew autoupdate version:
                                    open a GUI to ask for the password. Requires
                                    https://formulae.brew.sh/formula/pinentry-mac
                                    to be installed.
+      --leaves-only                Only upgrade formulae that are not
+                                   dependencies of another installed formula.
+                                   This provides a safer upgrade strategy by
+                                   only updating top-level packages. Must be
+                                   passed with --upgrade and start.
   -d, --debug                      Display any debugging information.
   -q, --quiet                      Make some output more quiet.
   -v, --verbose                    Make some output more verbose.
