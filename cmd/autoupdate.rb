@@ -59,6 +59,9 @@ module Homebrew
                description: "Only upgrade formulae that are not dependencies of another installed formula. " \
                             "This provides a safer upgrade strategy by only updating top-level packages. " \
                             "Must be passed with `--upgrade` and `start`."
+        switch "--preserve-dock",
+               description: "Restores the Dock to the state it was in before autoupdate ran. " \
+                            "Must be passed with `start`."
 
         # Needs to be two as otherwise it breaks the passing of an interval
         # such as: start --immediate 3600. `Error: Invalid usage:`
