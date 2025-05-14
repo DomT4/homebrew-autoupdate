@@ -126,7 +126,7 @@ module Autoupdate
       #!/bin/sh
       #{set_env}
       #{pre_steps}
-      /bin/date && #{Autoupdate::Core.brew} #{auto_args} 
+      /bin/date && #{Autoupdate::Core.brew} #{auto_args}
       #{post_steps}
     EOS
     FileUtils.mkpath(Autoupdate::Core.logs)
