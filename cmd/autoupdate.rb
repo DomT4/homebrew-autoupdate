@@ -127,18 +127,20 @@ module Homebrew
 
       def interval_from_args(args:)
         # Only allow a named argument for the 'start' subcommand
-        if args.named.empty? || args.named.first == 'start'
+        if args.named.empty? || args.named.first == "start"
           return args.named[1] if args.named.size > 1
-          return nil
+
+          return
         end
         nil
       end
 
       def lines_from_args(args:)
         # Only allow a named argument for the 'logs' subcommand
-        if args.named.empty? || args.named.first == 'logs'
-          return args.named[1].to_i if args.named.size > 1 && args.named[1].to_i > 0
+        if (args.named.empty? || args.named.first == "logs") && args.named.size > 1 && args.named[1].to_i.positive?
+          return args.named[1].to_i
         end
+
         10
       end
     end
