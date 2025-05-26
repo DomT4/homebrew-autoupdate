@@ -4,7 +4,7 @@ module Autoupdate
   module_function
 
   def log(follow: false)
-    log_file = File.expand_path("~/Library/Logs/Homebrew/autoupdate.log")
+    log_file = Autoupdate::Core.logs
     unless File.exist?(log_file)
       puts "No autoupdate log file found at #{log_file}."
       return
