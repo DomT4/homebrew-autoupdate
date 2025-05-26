@@ -22,6 +22,8 @@ module Autoupdate
     end
 
     auto_args = "update"
+    pre_steps = ""
+    post_steps = ""
     # Spacing at start of lines is deliberate. Don't undo.
     if args.upgrade?
       if args.leaves_only?
@@ -115,10 +117,17 @@ module Autoupdate
       set_env << "\nexport SUDO_ASKPASS=#{env_sudo}"
     end
 
+    if args.preserve_dock?
+      pre_steps << "defaults export com.apple.dock \"/tmp/brew-autoupdate-dock-layout.plist\""
+      post_steps << "defaults import com.apple.dock \"/tmp/brew-autoupdate-dock-layout.plist\" && killall Dock"
+    end
+
     script_contents = <<~EOS
       #!/bin/sh
       #{set_env}
+      #{pre_steps}
       /bin/date && #{Autoupdate::Core.brew} #{auto_args}
+      #{post_steps}
     EOS
     FileUtils.mkpath(Autoupdate::Core.logs)
     FileUtils.mkpath(Autoupdate::Core.location)
