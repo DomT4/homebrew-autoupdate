@@ -3,7 +3,7 @@
 module Homebrew
   module Cmd
     class Autoupdate < AbstractCommand
-      SUBCOMMANDS = %w[start stop delete status version].freeze
+      SUBCOMMANDS = %w[start stop delete status version log].freeze
 
       cmd_args do
         usage_banner "`autoupdate` <subcommand> [<interval>] [<options>]"
@@ -32,6 +32,10 @@ module Homebrew
 
           `brew autoupdate version`:
           Output this tool's current version, and a short changelog.
+
+          `brew autoupdate log`:
+          Output the log file, which contains all the output from `brew upgrade` runs.
+          This is useful for debugging issues with the autoupdate process.
         EOS
 
         # We want to add the -- versions of subcommands as valid arguments
@@ -59,6 +63,9 @@ module Homebrew
                description: "Only upgrade formulae that are not dependencies of another installed formula. " \
                             "This provides a safer upgrade strategy by only updating top-level packages. " \
                             "Must be passed with `--upgrade` and `start`."
+        switch "--follow",
+               description: "Follow the log output (like `tail -f`)." \
+                            "Must be passed with `log`."
 
         # Needs to be two as otherwise it breaks the passing of an interval
         # such as: start --immediate 3600. `Error: Invalid usage:`
@@ -96,6 +103,8 @@ module Homebrew
           ::Autoupdate.status
         when :version
           ::Autoupdate.version
+        when :log
+          ::Autoupdate.log(follow: args.follow?)
         else
           raise UsageError, "Unknown subcommand: #{args.named.first}"
         end
