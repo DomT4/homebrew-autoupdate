@@ -15,8 +15,8 @@ if not os.path.exists(readme_file):
 with open(readme_file, "r") as f:
     readme_content = f.read()
 
-start_comment_tag = "[comment]: # (HELP-COMMAND-OUTPUT:START)"
-stop_comment_tag = "[comment]: # (HELP-COMMAND-OUTPUT:END)"
+start_comment_tag = "<!-- HELP-COMMAND-OUTPUT:START -->"
+stop_comment_tag = "<!-- HELP-COMMAND-OUTPUT:END -->"
 
 comment_tag_pattern = rf"{start_comment_tag}(.*?){stop_comment_tag}"
 tag_section_content = re.search(comment_tag_pattern, readme_content, re.DOTALL)
@@ -51,6 +51,7 @@ if tag_section_content:
         print("No change detected. Content remains unchanged.")
 else:
     print(f"Error: Unable to find {start_comment_tag} and {stop_comment_tag} in {readme_file}.")
+    exit(1)
 
 with open(readme_file, "w") as f:
     f.write(readme_content)
