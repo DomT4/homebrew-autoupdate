@@ -64,10 +64,10 @@ module Homebrew
                             "This provides a safer upgrade strategy by only updating top-level packages. " \
                             "Must be passed with `--upgrade` and `start`."
         switch "-f", "--follow",
-               description: "Follow the logs output (like `tail -f`). " \
+               description: "Follow the logs output. " \
                             "Must be passed with `logs`."
         switch "-n", "--lines",
-               description: "Number of lines to show from the end of the logs file (like `tail -n <number>`). " \
+               description: "Number of lines to show from the end of the logs file `-n` [<number>]. " \
                             "Defaults to 10. Must be passed with `logs`."
 
         # Needs to be two as otherwise it breaks the passing of an interval
