@@ -3,7 +3,7 @@
 module Homebrew
   module Cmd
     class Autoupdate < AbstractCommand
-      SUBCOMMANDS = %w[start stop delete status version].freeze
+      SUBCOMMANDS = %w[start stop delete status version logs].freeze
 
       cmd_args do
         usage_banner "`autoupdate` <subcommand> [<interval>] [<options>]"
@@ -32,6 +32,10 @@ module Homebrew
 
           `brew autoupdate version`:
           Output this tool's current version, and a short changelog.
+
+          `brew autoupdate logs`:
+          Output the logs file, which contains all the output from `brew upgrade` runs.
+          This is useful for debugging issues with the autoupdate process.
         EOS
 
         # We want to add the -- versions of subcommands as valid arguments
@@ -59,6 +63,12 @@ module Homebrew
                description: "Only upgrade formulae that are not dependencies of another installed formula. " \
                             "This provides a safer upgrade strategy by only updating top-level packages. " \
                             "Must be passed with `--upgrade` and `start`."
+        switch "-f", "--follow",
+               description: "Follow the logs output. " \
+                            "Must be passed with `logs`."
+        switch "-n", "--lines",
+               description: "Number of lines to show from the end of the logs file `-n` [<number>]. " \
+                            "Defaults to 10. Must be passed with `logs`."
 
         # Needs to be two as otherwise it breaks the passing of an interval
         # such as: start --immediate 3600. `Error: Invalid usage:`
@@ -96,6 +106,9 @@ module Homebrew
           ::Autoupdate.status
         when :version
           ::Autoupdate.version
+        when :logs
+          lines = lines_from_args(args: args)
+          ::Autoupdate.logs(follow: args.follow?, lines: lines)
         else
           raise UsageError, "Unknown subcommand: #{args.named.first}"
         end
@@ -113,10 +126,22 @@ module Homebrew
       end
 
       def interval_from_args(args:)
-        possibilities = args.named.reject { |arg| SUBCOMMANDS.include? arg }
-        raise UsageError, "This subcommand does not take more than 1 named argument." if possibilities.length > 1
+        # Only allow a named argument for the 'start' subcommand
+        if args.named.empty? || args.named.first == "start"
+          return args.named[1] if args.named.size > 1
 
-        possibilities.first
+          return
+        end
+        nil
+      end
+
+      def lines_from_args(args:)
+        # Only allow a named argument for the 'logs' subcommand
+        if (args.named.empty? || args.named.first == "logs") && args.named.size > 1 && args.named[1].to_i.positive?
+          return args.named[1].to_i
+        end
+
+        10
       end
     end
   end
