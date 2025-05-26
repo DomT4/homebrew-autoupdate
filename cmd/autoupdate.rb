@@ -138,7 +138,6 @@ module Homebrew
         # Only allow a named argument for the 'logs' subcommand
         if args.named.empty? || args.named.first == 'logs'
           return args.named[1].to_i if args.named.size > 1 && args.named[1].to_i > 0
-          return 10
         end
         10
       end
