@@ -62,6 +62,10 @@ brew autoupdate status:
 brew autoupdate version:
     Output this tool's current version, and a short changelog.
 
+brew autoupdate logs:
+    Output the logs file, which contains all the output from brew upgrade
+runs. This is useful for debugging issues with the autoupdate process.
+
       --upgrade                    Automatically upgrade your installed
                                    formulae. If the Caskroom exists locally then
                                    casks will be upgraded as well. Must be
@@ -84,6 +88,11 @@ brew autoupdate version:
                                    This provides a safer upgrade strategy by
                                    only updating top-level packages. Must be
                                    passed with --upgrade and start.
+  -f, --follow                     Follow the logs output. Must be passed with
+                                   logs.
+  -n, --lines                      Number of lines to show from the end of the
+                                   logs file -n [number]. Defaults to 10.
+                                   Must be passed with logs.
   -d, --debug                      Display any debugging information.
   -q, --quiet                      Make some output more quiet.
   -v, --verbose                    Make some output more verbose.
