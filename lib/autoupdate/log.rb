@@ -4,14 +4,20 @@ module Autoupdate
   module_function
 
   def log(follow: false)
-    log_file = Autoupdate::Core.logs
-    unless File.exist?(log_file)
-      puts "No autoupdate log file found at #{log_file}."
+    log_file = "#{Autoupdate::Core.logs}/#{Autoupdate::Core.name}.log"
+    fallback_log_file = "#{Autoupdate::Core.fallback_logs}/#{Autoupdate::Core.name}.log"
+
+    if File.exist?(log_file)
+      file_to_read = log_file
+    elsif File.exist?(fallback_log_file)
+      file_to_read = fallback_log_file
+    else
+      puts "No autoupdate log file found at #{log_file} or fallback #{fallback_log_file}."
       return
     end
 
     if follow
-      File.open(log_file) do |file|
+      File.open(file_to_read) do |file|
         file.seek(0, IO::SEEK_END)
         loop do
           changes = file.read
@@ -23,7 +29,7 @@ module Autoupdate
         end
       end
     else
-      puts File.read(log_file)
+      puts File.read(file_to_read)
     end
   end
 end
