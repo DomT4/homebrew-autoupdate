@@ -63,7 +63,7 @@ module Homebrew
                description: "Only upgrade formulae that are not dependencies of another installed formula. " \
                             "This provides a safer upgrade strategy by only updating top-level packages. " \
                             "Must be passed with `--upgrade` and `start`."
-        switch "--follow",
+        switch "-f", "--follow",
                description: "Follow the log output (like `tail -f`)." \
                             "Must be passed with `log`."
 
