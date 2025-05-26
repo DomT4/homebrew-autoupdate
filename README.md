@@ -32,7 +32,7 @@ Casks that have built-in auto-updates enabled by default will not be upgraded.
 
 ## Usage
 
-[comment]: # (HELP-COMMAND-OUTPUT:START)
+<!-- HELP-COMMAND-OUTPUT:START -->
 
 ```help
 Usage: brew autoupdate subcommand [interval] [options]
@@ -79,13 +79,18 @@ brew autoupdate version:
                                    open a GUI to ask for the password. Requires
                                    https://formulae.brew.sh/formula/pinentry-mac
                                    to be installed.
+      --leaves-only                Only upgrade formulae that are not
+                                   dependencies of another installed formula.
+                                   This provides a safer upgrade strategy by
+                                   only updating top-level packages. Must be
+                                   passed with --upgrade and start.
   -d, --debug                      Display any debugging information.
   -q, --quiet                      Make some output more quiet.
   -v, --verbose                    Make some output more verbose.
   -h, --help                       Show this message.
 ```
 
-[comment]: # (HELP-COMMAND-OUTPUT:END)
+<!-- HELP-COMMAND-OUTPUT:END -->
 
 **Logs of the performed operations can be found at:** `~/Library/Logs/com.github.domt4.homebrew-autoupdate`
 
