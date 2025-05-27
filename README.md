@@ -128,6 +128,44 @@ export HOMEBREW_NO_AUTO_UPDATE="1"
 Please note that Homebrew slightly frowns upon people disabling the built-in
 autoupdate mechanism.
 
+## Shell Completion
+
+This tap provides shell completion for the `brew autoupdate` command. The completions support bash, zsh, and fish shells.
+
+Since `autoupdate` is a Homebrew tap command (not a standalone command), you need to manually source the completion files in your shell configuration:
+
+### For Fish Shell
+
+Add the following to your `~/.config/fish/config.fish`:
+
+```fish
+if test -f (brew --prefix)/Library/Taps/domt4/homebrew-autoupdate/completions/autoupdate.fish
+    source (brew --prefix)/Library/Taps/domt4/homebrew-autoupdate/completions/autoupdate.fish
+end
+```
+
+### For Bash
+
+Add the following to your `~/.bash_profile` or `~/.bashrc`:
+
+```bash
+if [ -f "$(brew --prefix)/Library/Taps/domt4/homebrew-autoupdate/completions/autoupdate.bash" ]; then
+    source "$(brew --prefix)/Library/Taps/domt4/homebrew-autoupdate/completions/autoupdate.bash"
+fi
+```
+
+### For Zsh
+
+Add the following to your `~/.zshrc`:
+
+```zsh
+if [ -f "$(brew --prefix)/Library/Taps/domt4/homebrew-autoupdate/completions/autoupdate.zsh" ]; then
+    source "$(brew --prefix)/Library/Taps/domt4/homebrew-autoupdate/completions/autoupdate.zsh"
+fi
+```
+
+After adding these lines, restart your shell or source your configuration file to enable the completions.
+
 ## TO-DO (PRs Welcome)
 
 ## History
