@@ -1,3 +1,4 @@
+# typed: strict
 # frozen_string_literal: true
 
 module Homebrew
@@ -63,6 +64,8 @@ module Homebrew
                description: "Only upgrade formulae that are not dependencies of another installed formula. " \
                             "This provides a safer upgrade strategy by only updating top-level packages. " \
                             "Must be passed with `--upgrade` and `start`."
+        switch "--ac-only",
+               description: "Only run autoupdate when on AC power. Must be passed with `start`."
         switch "-f", "--follow",
                description: "Follow the logs output. " \
                             "Must be passed with `logs`."
