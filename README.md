@@ -83,13 +83,13 @@ runs. This is useful for debugging issues with the autoupdate process.
                                    open a GUI to ask for the password. Requires
                                    https://formulae.brew.sh/formula/pinentry-mac
                                    to be installed.
-      --ac-only                    Only run autoupdate when on AC power. Must be
-                                   passed with start.
       --leaves-only                Only upgrade formulae that are not
                                    dependencies of another installed formula.
                                    This provides a safer upgrade strategy by
                                    only updating top-level packages. Must be
                                    passed with --upgrade and start.
+      --ac-only                    Only run autoupdate when on AC power. Must be
+                                   passed with start.
   -f, --follow                     Follow the logs output. Must be passed with
                                    logs.
   -n, --lines                      Number of lines to show from the end of the
