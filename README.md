@@ -32,7 +32,7 @@ Casks that have built-in auto-updates enabled by default will not be upgraded.
 
 ## Usage
 
-[comment]: # (HELP-COMMAND-OUTPUT:START)
+<!-- HELP-COMMAND-OUTPUT:START -->
 
 ```help
 Usage: brew autoupdate subcommand [interval] [options]
@@ -62,6 +62,10 @@ brew autoupdate status:
 brew autoupdate version:
     Output this tool's current version, and a short changelog.
 
+brew autoupdate logs:
+    Output the logs file, which contains all the output from brew upgrade
+runs. This is useful for debugging issues with the autoupdate process.
+
       --upgrade                    Automatically upgrade your installed
                                    formulae. If the Caskroom exists locally then
                                    casks will be upgraded as well. Must be
@@ -81,13 +85,23 @@ brew autoupdate version:
                                    to be installed.
       --ac-only                    Only run autoupdate when on AC power. Must be
                                    passed with start.
+      --leaves-only                Only upgrade formulae that are not
+                                   dependencies of another installed formula.
+                                   This provides a safer upgrade strategy by
+                                   only updating top-level packages. Must be
+                                   passed with --upgrade and start.
+  -f, --follow                     Follow the logs output. Must be passed with
+                                   logs.
+  -n, --lines                      Number of lines to show from the end of the
+                                   logs file -n [number]. Defaults to 10.
+                                   Must be passed with logs.
   -d, --debug                      Display any debugging information.
   -q, --quiet                      Make some output more quiet.
   -v, --verbose                    Make some output more verbose.
   -h, --help                       Show this message.
 ```
 
-[comment]: # (HELP-COMMAND-OUTPUT:END)
+<!-- HELP-COMMAND-OUTPUT:END -->
 
 **Logs of the performed operations can be found at:** `~/Library/Logs/com.github.domt4.homebrew-autoupdate`
 
