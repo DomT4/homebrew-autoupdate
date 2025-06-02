@@ -117,8 +117,10 @@ module Autoupdate
 
     ac_only = if args.ac_only?
       <<~EOS
-        if [[ $(pmset -g ps | head -1) =~ "Battery Power" ]]; then
-          echo "Not starting autoupdate, because device is running on Battery"
+        if ! output=$(LC_ALL=C /usr/bin/pmset -g ps 2>/dev/null); then
+          echo "Warning: Unable to determine power source; proceeding anyway" >&2
+        elif ! echo "$output" | /usr/bin/grep --quiet "'AC Power'"; then
+          echo "Skipping homebrew-autoupdate: device not on AC power" >&2
           exit
         fi
       EOS
