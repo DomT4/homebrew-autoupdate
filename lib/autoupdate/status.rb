@@ -19,9 +19,8 @@ module Autoupdate
 
   def date_of_last_modification
     if File.exist?(Autoupdate::Core.location/"brew_autoupdate")
-      birth = File.birthtime(Autoupdate::Core.location/"brew_autoupdate").to_s
-      date = Date.parse(birth)
-      formatted_string = date.strftime("%D")
+      birth = File.birthtime(Autoupdate::Core.location/"brew_autoupdate")
+      formatted_string = birth.strftime("%v")
     else
       formatted_string = "Unable to determine date of command invocation. Please report this."
     end
