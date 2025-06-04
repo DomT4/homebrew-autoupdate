@@ -115,8 +115,22 @@ module Autoupdate
       set_env << "\nexport SUDO_ASKPASS=#{env_sudo}"
     end
 
+    ac_only = if args.ac_only?
+      <<~EOS
+        if ! output=$(LC_ALL=C /usr/bin/pmset -g ps 2>/dev/null); then
+          echo "Warning: Unable to determine power source; proceeding anyway" >&2
+        elif ! echo "$output" | /usr/bin/grep --quiet "'AC Power'"; then
+          echo "Skipping homebrew-autoupdate: device not on AC power" >&2
+          exit
+        fi
+      EOS
+    else
+      ""
+    end
+
     script_contents = <<~EOS
       #!/bin/sh
+      #{ac_only.chomp}
       #{set_env}
       /bin/date && #{Autoupdate::Core.brew} #{auto_args}
     EOS
