@@ -59,7 +59,7 @@ module Autoupdate
 
       if (HOMEBREW_PREFIX/"Caskroom").exist?
         if ENV["SUDO_ASKPASS"].nil? && !args.sudo?
-          opoo <<~EOS
+          warn <<~EOS
             Please note if you use Casks that require `sudo` to upgrade,
             you need to use `--sudo` or define a custom `SUDO_ASKPASS`
             environment variable.
