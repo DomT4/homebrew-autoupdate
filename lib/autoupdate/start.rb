@@ -1,6 +1,9 @@
 # frozen_string_literal: false
 
+require "utils/output"
+
 module Autoupdate
+  extend Utils::Output::Mixin
   module_function
 
   def start(interval:, args:)
