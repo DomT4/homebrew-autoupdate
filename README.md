@@ -18,6 +18,9 @@ Just `brew tap domt4/autoupdate`.
 
 Now run `brew autoupdate start [interval] [options]` to enable autoupdate.
 
+_Note:_
+_To ensure that auto-updated cask-based apps are updated in place (so they stay on your Dock), add `~/Library/Application Support/com.github.domt4.homebrew-autoupdate/brew_autoupdate` to System Settings / Privacy and Security / App Management. (Also allow ruby and Terminal.app)_
+
 ## Example
 
 ```sh
