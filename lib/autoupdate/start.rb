@@ -25,10 +25,41 @@ module Autoupdate
       EOS
     end
 
+    # Validate that --only is only used with --upgrade
+    if args.only && !args.upgrade?
+      odie <<~EOS
+        The `--only` option must be used with `--upgrade`.
+        Please run with both options: `brew autoupdate start --upgrade --only=<packages>`
+      EOS
+    end
+
+    # Validate that --leaves-only and --only are not used together
+    if args.leaves_only? && args.only
+      odie <<~EOS
+        The `--leaves-only` and `--only` options cannot be used together.
+        Please choose one upgrade strategy.
+      EOS
+    end
+
     auto_args = "update"
     # Spacing at start of lines is deliberate. Don't undo.
     if args.upgrade?
-      if args.leaves_only?
+      if args.only
+        # Parse comma-separated package list
+        packages = args.only.split(",").map(&:strip).reject(&:empty?)
+
+        if packages.empty?
+          odie <<~EOS
+            The `--only` option requires at least one package name.
+            Example: `brew autoupdate start --upgrade --only=gh,claude-code`
+          EOS
+        end
+
+        # For --only, we upgrade the specific packages provided
+        # brew upgrade will automatically determine if they're formulae or casks
+        packages_str = packages.join(" ")
+        auto_args << " && #{Autoupdate::Core.brew} upgrade -v #{packages_str}"
+      elsif args.leaves_only?
         # For --leaves-only, we need to get the list of leaves and upgrade only those
         # We create a temporary script to handle this safely
         temp_script = <<~SCRIPT
@@ -61,7 +92,8 @@ module Autoupdate
         auto_args << " && #{Autoupdate::Core.brew} upgrade --formula -v"
       end
 
-      if (HOMEBREW_PREFIX/"Caskroom").exist?
+      # Only run cask upgrades if --only is NOT specified (since --only handles both)
+      if (HOMEBREW_PREFIX/"Caskroom").exist? && !args.only
         if ENV["SUDO_ASKPASS"].nil? && !args.sudo?
           opoo <<~EOS
             Please note if you use Casks that require `sudo` to upgrade,

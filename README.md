@@ -21,7 +21,9 @@ Now run `brew autoupdate start [interval] [options]` to enable autoupdate.
 _Note:_
 _To ensure that auto-updated cask-based apps are updated in place (so they stay on your Dock), add `~/Library/Application Support/com.github.domt4.homebrew-autoupdate/brew_autoupdate` to System Settings / Privacy and Security / App Management. (Also allow ruby and Terminal.app)_
 
-## Example
+## Examples
+
+### Upgrade everything
 
 ```sh
 brew autoupdate start 43200 --upgrade --cleanup --immediate --sudo
@@ -32,6 +34,15 @@ If a sudo password is required for an upgrade, a GUI to enter your password will
 Also, it will clean up every old version and left-over files.
 
 Casks that have built-in auto-updates enabled by default will not be upgraded.
+
+### Upgrade specific packages only
+
+```sh
+brew autoupdate start --upgrade --only=gh,claude-code
+```
+
+This will only upgrade `gh` and `claude-code` every 24 hours, leaving all other packages at their current versions.
+This is useful when you want to keep most packages stable but automatically update specific tools.
 
 ## Usage
 
