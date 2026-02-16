@@ -66,7 +66,7 @@ module Homebrew
                             "This provides a safer upgrade strategy by only updating top-level packages. " \
                             "Must be passed with `--upgrade` and `start`."
         flag   "--only=",
-               description: "Comma-separated list of specific formulae and/or casks to upgrade (e.g., `--only=gh,claude-code`). " \
+               description: "Comma-separated list of packages to upgrade (e.g., `--only=gh,claude-code`). " \
                             "Only these packages will be upgraded. Must be passed with `--upgrade` and `start`."
         switch "--ac-only",
                description: "Only run autoupdate when on AC power. Must be passed with `start`."
