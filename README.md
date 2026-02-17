@@ -33,6 +33,20 @@ Also, it will clean up every old version and left-over files.
 
 Casks that have built-in auto-updates enabled by default will not be upgraded.
 
+### Upgrade Only Specific Packages
+
+```sh
+brew autoupdate start 43200 --upgrade --only=wget,node,firefox
+```
+
+This will only auto-upgrade `wget`, `node`, and `firefox` every 12 hours,
+leaving all other installed packages untouched. Both formulae and casks are
+supported, including tap-qualified names (`homebrew/cask/firefox`) and
+versioned formulae (`node@20`).
+
+Cannot be combined with `--leaves-only`. To change which packages are
+auto-upgraded, run `brew autoupdate delete` then start again with the new list.
+
 ## Usage
 
 <!-- HELP-COMMAND-OUTPUT:START -->
