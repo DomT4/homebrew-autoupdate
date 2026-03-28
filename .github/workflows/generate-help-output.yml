@@ -37,5 +37,6 @@ jobs:
         run: |
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
+          git checkout -b update-readme-with-help-output
           git commit -am "Update README.md with --help output"
-          git push
+          git push origin update-readme-with-help-output
