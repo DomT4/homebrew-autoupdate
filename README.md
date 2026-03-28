@@ -65,7 +65,8 @@ hours. Please note the interval has to be passed in seconds, so 12 hours would
 be brew autoupdate start 43200. If you want to start the autoupdate
 immediately and on system boot, pass --immediate. Pass --upgrade or
 --cleanup to automatically run brew upgrade and/or brew cleanup
-respectively.
+respectively. Pass --only with a comma-separated list of formulae and/or casks
+to only upgrade those specific packages.
 
 brew autoupdate stop:
     Stop autoupdating, but retain plist and logs.
@@ -105,6 +106,10 @@ runs. This is useful for debugging issues with the autoupdate process.
                                    This provides a safer upgrade strategy by
                                    only updating top-level packages. Must be
                                    passed with --upgrade and start.
+      --only                       Only upgrade the specified formulae and/or
+                                   casks (comma-separated). Must be passed with
+                                   --upgrade and start. Cannot be combined
+                                   with --leaves-only.
       --ac-only                    Only run autoupdate when on AC power. Must be
                                    passed with start.
   -f, --follow                     Follow the logs output. Must be passed with
