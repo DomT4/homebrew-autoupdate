@@ -3,7 +3,6 @@
 require "date"
 require "fileutils"
 require "formula"
-require "pathname"
 require "tap"
 require_relative "autoupdate/cleanup"
 require_relative "autoupdate/core"
