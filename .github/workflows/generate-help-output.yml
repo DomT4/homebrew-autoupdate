@@ -16,7 +16,6 @@ jobs:
         uses: Homebrew/actions/setup-homebrew@master
         with:
           debug: false
-          test-bot: false
 
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -39,4 +38,4 @@ jobs:
           git config user.name "github-actions[bot]"
           git checkout -b update-readme-with-help-output
           git commit -am "Update README.md with --help output"
-          git push origin update-readme-with-help-output
+          git push origin update-readme-with-help-output --force
