@@ -25,6 +25,35 @@ module Autoupdate
       EOS
     end
 
+    # Validate that --only is only used with --upgrade
+    if args.only && !args.upgrade?
+      odie <<~EOS
+        The `--only` option must be used with `--upgrade`.
+        Please run with both options: `brew autoupdate start --upgrade --only=pkg1,pkg2`
+      EOS
+    end
+
+    # Validate that --only and --leaves-only are not combined
+    if args.only && args.leaves_only?
+      odie <<~EOS
+        The `--only` and `--leaves-only` options cannot be combined.
+        Please use one or the other.
+      EOS
+    end
+
+    # Validate --only package names to prevent shell injection
+    if args.only
+      odie "`--only` requires at least one package name." if args.only.empty?
+
+      invalid_names = args.only.grep_v(%r{\A[a-zA-Z0-9\-_.@/]+\z})
+      if invalid_names.any?
+        odie <<~EOS
+          Invalid package name(s): #{invalid_names.join(", ")}
+          Package names may only contain letters, digits, hyphens, underscores, dots, @ signs, and slashes.
+        EOS
+      end
+    end
+
     auto_args = "update"
     # Spacing at start of lines is deliberate. Don't undo.
     if args.upgrade?
@@ -57,11 +86,15 @@ module Autoupdate
         # Add the script to the auto_args
         # Use quotes around the script path to handle spaces
         auto_args << " && \"#{script_path}\""
+      elsif args.only
+        greedy = args.greedy? ? " --greedy" : ""
+        package_list = args.only.join(" ")
+        auto_args << " && #{Autoupdate::Core.brew} upgrade -v#{greedy} #{package_list}"
       else
         auto_args << " && #{Autoupdate::Core.brew} upgrade --formula -v"
       end
 
-      if (HOMEBREW_PREFIX/"Caskroom").exist?
+      if !args.only && (HOMEBREW_PREFIX/"Caskroom").exist?
         if ENV["SUDO_ASKPASS"].nil? && !args.sudo?
           opoo <<~EOS
             Please note if you use Casks that require `sudo` to upgrade,

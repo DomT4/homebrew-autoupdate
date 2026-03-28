@@ -21,6 +21,8 @@ module Homebrew
           `brew autoupdate start 43200`. If you want to start the autoupdate immediately
           and on system boot, pass `--immediate`. Pass `--upgrade` or `--cleanup`
           to automatically run `brew upgrade` and/or `brew cleanup` respectively.
+          Pass `--only` with a comma-separated list of formulae and/or casks to only upgrade
+          those specific packages.
 
           `brew autoupdate stop`:
           Stop autoupdating, but retain plist and logs.
@@ -64,6 +66,10 @@ module Homebrew
                description: "Only upgrade formulae that are not dependencies of another installed formula. " \
                             "This provides a safer upgrade strategy by only updating top-level packages. " \
                             "Must be passed with `--upgrade` and `start`."
+        comma_array "--only=",
+                    description: "Only upgrade the specified formulae and/or casks (comma-separated). " \
+                                 "Must be passed with `--upgrade` and `start`. " \
+                                 "Cannot be combined with `--leaves-only`."
         switch "--ac-only",
                description: "Only run autoupdate when on AC power. Must be passed with `start`."
         switch "-f", "--follow",
