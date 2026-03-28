@@ -19,7 +19,7 @@ jobs:
           test-bot: false
 
       - name: Checkout repository
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           ref: ${{ github.ref_name }}
 
@@ -37,5 +37,6 @@ jobs:
         run: |
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
+          git checkout -b update-readme-with-help-output
           git commit -am "Update README.md with --help output"
-          git push
+          git push origin update-readme-with-help-output
