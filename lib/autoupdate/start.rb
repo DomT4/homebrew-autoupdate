@@ -80,6 +80,7 @@ module Autoupdate
         script_path = Autoupdate::Core.location/"brew_autoupdate_leaves"
         # Ensure the directory exists
         FileUtils.mkpath(Autoupdate::Core.location)
+        script_path.unlink if script_path.exist? # Remove existing script if it exists to prevent error on recreation.
         File.open(script_path, "w") { |f| f << temp_script }
         FileUtils.chmod 0555, script_path
 
