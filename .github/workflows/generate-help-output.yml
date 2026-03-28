@@ -38,4 +38,4 @@ jobs:
           git config user.name "github-actions[bot]"
           git checkout -b update-readme-with-help-output
           git commit -am "Update README.md with --help output"
-          git push origin update-readme-with-help-output
+          git push origin update-readme-with-help-output --force
