@@ -14,7 +14,9 @@ Notifications are enabled by default using a new, code-signed, universal AppleSc
 
 ## Installing this command
 
-Just `brew tap domt4/autoupdate`.
+First tap the repository: `brew tap domt4/autoupdate`.
+
+Then trust the command: `brew trust --command domt4/autoupdate/autoupdate`.
 
 Now run `brew autoupdate start [interval] [options]` to enable autoupdate.
 
