@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "shellwords"
+
 module Autoupdate
   module Notify
     module_function
@@ -12,7 +14,7 @@ module Autoupdate
       # The `-g` flag causes the app to launch in the background,
       # so that the focus is not removed from the current window.
       # https://github.com/Homebrew/homebrew-autoupdate/issues/71
-      "/usr/bin/open -g #{notifier_app}"
+      "/usr/bin/open -g #{Shellwords.escape(notifier_app)}"
     end
   end
 end

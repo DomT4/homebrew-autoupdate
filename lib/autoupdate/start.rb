@@ -1,5 +1,7 @@
 # frozen_string_literal: false
 
+require "cgi"
+require "shellwords"
 require "utils/output"
 
 module Autoupdate
@@ -105,15 +107,15 @@ module Autoupdate
     # suddenly being worked hard.
     set_env = "export HOMEBREW_NO_BOTTLE_SOURCE_FALLBACK=1"
 
-    set_env << "\nexport PATH='#{env_path}'"
-    set_env << "\nexport HOMEBREW_CACHE='#{env_cache}'" if env_cache
-    set_env << "\nexport HOMEBREW_LOGS='#{env_logs}'" if env_logs
-    set_env << "\nexport HOMEBREW_DEVELOPER=#{env_dev}" if env_dev
-    set_env << "\nexport HOMEBREW_NO_ANALYTICS=#{env_stats}" if env_stats
-    set_env << "\nexport HOMEBREW_CASK_OPTS=#{env_cask}" if env_cask
+    set_env << "\n#{shell_export("PATH", env_path)}"
+    set_env << "\n#{shell_export("HOMEBREW_CACHE", env_cache)}" if env_cache
+    set_env << "\n#{shell_export("HOMEBREW_LOGS", env_logs)}" if env_logs
+    set_env << "\n#{shell_export("HOMEBREW_DEVELOPER", env_dev)}" if env_dev
+    set_env << "\n#{shell_export("HOMEBREW_NO_ANALYTICS", env_stats)}" if env_stats
+    set_env << "\n#{shell_export("HOMEBREW_CASK_OPTS", env_cask)}" if env_cask
 
     if args.sudo?
-      unless Formula["pinentry-mac"].any_version_installed?
+      unless Utils::Path.formula_any_version_installed?("pinentry-mac")
         odie <<~EOS
           `--sudo` requires https://formulae.brew.sh/formula/pinentry-mac to be installed.
           Please run `brew install pinentry-mac` and try again.
@@ -126,7 +128,7 @@ module Autoupdate
         printf "%s\n" "OPTION allow-external-cache" "SETOK OK" "SETCANCEL Cancel" "SETDESC homebrew-autoupdate needs your admin password to complete the upgrade" "SETPROMPT Enter Password:" "SETTITLE homebrew-autoupdate Password Request" "GETPIN" | pinentry-mac --no-global-grab --timeout 60 | /usr/bin/awk '/^D / {print substr($0, index($0, $2))}'
       EOS
     elsif env_sudo
-      set_env << "\nexport SUDO_ASKPASS=#{env_sudo}"
+      set_env << "\n#{shell_export("SUDO_ASKPASS", env_sudo)}"
     end
 
     ac_only = if args.ac_only?
@@ -160,7 +162,7 @@ module Autoupdate
     elsif File.writable?(Autoupdate::Core.fallback_logs)
       log_out = "#{Autoupdate::Core.fallback_logs}/#{Autoupdate::Core.name}.out"
     else
-      puts <<~EOS
+      odie <<~EOS
         #{Autoupdate::Core.logs} does not seem to be writable.
         You may wish to `chown` it back to your user.
       EOS
@@ -204,18 +206,18 @@ module Autoupdate
       <plist version="1.0">
       <dict>
         <key>Label</key>
-        <string>#{Autoupdate::Core.name}</string>
+        <string>#{CGI.escapeHTML(Autoupdate::Core.name)}</string>
         <key>Program</key>
-        <string>#{Autoupdate::Core.location}/brew_autoupdate</string>
+        <string>#{CGI.escapeHTML("#{Autoupdate::Core.location}/brew_autoupdate")}</string>
         <key>ProgramArguments</key>
         <array>
-            <string>#{Autoupdate::Core.location}/brew_autoupdate</string>
+            <string>#{CGI.escapeHTML("#{Autoupdate::Core.location}/brew_autoupdate")}</string>
         </array>
         #{launch_immediately.chomp}
         <key>StandardErrorPath</key>
-        <string>#{log_out}</string>
+        <string>#{CGI.escapeHTML(log_out)}</string>
         <key>StandardOutPath</key>
-        <string>#{log_out}</string>
+        <string>#{CGI.escapeHTML(log_out)}</string>
         <key>StartInterval</key>
         <integer>#{interval}</integer>
         <key>LowPriorityBackgroundIO</key>
@@ -247,5 +249,9 @@ module Autoupdate
     else
       puts "#{update_message}."
     end
+  end
+
+  def shell_export(name, value)
+    "export #{name}=#{Shellwords.escape(value)}"
   end
 end

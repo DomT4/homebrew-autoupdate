@@ -2,8 +2,8 @@
 
 require "date"
 require "fileutils"
-require "formula"
 require "tap"
+require "utils/path"
 require_relative "autoupdate/cleanup"
 require_relative "autoupdate/core"
 require_relative "autoupdate/delete"
