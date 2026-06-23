@@ -5,8 +5,9 @@ set -eu
 script_dir="$(cd -- "$(dirname -- "$0")" && pwd)"
 source_file="${script_dir}/notifier.applescript"
 output_app="${script_dir}/brew-autoupdate.app"
+version_file="${script_dir}/../VERSION"
 identity=${CODESIGN_IDENTITY:-}
-version=${NOTIFIER_VERSION:-3.4.1}
+version=$(<"${version_file}")
 build_dir=$(/usr/bin/mktemp -d "${TMPDIR:-/tmp}/brew-autoupdate-notifier.XXXXXX")
 build_app="${build_dir}/brew-autoupdate.app"
 backup_app="${build_dir}/previous.app"
@@ -16,6 +17,12 @@ trap '/bin/rm -rf "$build_dir"' EXIT
 if [[ -z "${identity}" ]]
 then
   echo "Set CODESIGN_IDENTITY to a local Apple code-signing identity." >&2
+  exit 1
+fi
+
+if [[ ! "${version}" =~ ^[0-9]+(\.[0-9]+){2}$ ]]
+then
+  echo "Invalid version in ${version_file}: ${version}" >&2
   exit 1
 fi
 

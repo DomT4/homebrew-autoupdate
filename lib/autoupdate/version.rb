@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 module Autoupdate
+  VERSION_FILE = File.expand_path("../../VERSION", __dir__).freeze
+  VERSION = File.read(VERSION_FILE).strip.freeze
+
   module_function
 
   def generate_version_notes
@@ -33,7 +36,7 @@ module Autoupdate
 
   def version
     puts <<~EOS
-      Version 3.4.1. Last Changed: March 2026
+      Version #{VERSION}
 
     EOS
     generate_version_notes

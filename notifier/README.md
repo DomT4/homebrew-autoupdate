@@ -19,10 +19,11 @@ CI performs these checks but does not sign or replace the committed app.
 Set the identity exactly as shown by `security find-identity -v -p codesigning`:
 
 ```sh
-CODESIGN_IDENTITY="Developer ID Application: Example (TEAMID)" \
-  NOTIFIER_VERSION="3.4.1" \
-  notifier/build.sh
+CODESIGN_IDENTITY="Developer ID Application: Example (TEAMID)" notifier/build.sh
 ```
+
+The app version is read from the repository's `VERSION` file, which is also
+used by `brew autoupdate --version`.
 
 The build happens in a temporary directory. The committed app is replaced only
 after signing and strict verification succeed.

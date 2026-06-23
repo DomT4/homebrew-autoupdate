@@ -13,6 +13,7 @@ class CommandTest < Minitest::Test
     "HOMEBREW_NO_COLOR"            => "1",
     "LC_ALL"                       => "C",
   }.freeze
+  VERSION = File.read(File.join(ROOT, "VERSION")).strip.freeze
 
   def test_root_help_lists_subcommands
     stdout, stderr, status = brew_autoupdate("--help")
@@ -98,6 +99,14 @@ class CommandTest < Minitest::Test
 
     assert_predicate status, :success?, stderr
     assert_match(/Autoupdate is (?:installed|not configured)/, stdout)
+  end
+
+  def test_version_uses_the_shared_version_file
+    stdout, stderr, status = brew_autoupdate("version")
+
+    assert_predicate status, :success?, stderr
+    assert_match(/\AVersion #{Regexp.escape(VERSION)}\n/o, stdout)
+    refute_includes stdout, "Last Changed"
   end
 
   private

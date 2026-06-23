@@ -5,7 +5,9 @@ require "open3"
 require "tempfile"
 
 class NotifierTest < Minitest::Test
+  ROOT = File.expand_path("..", __dir__).freeze
   SCRIPT = File.expand_path("../notifier/notify.sh", __dir__).freeze
+  VERSION = File.read(File.join(ROOT, "VERSION")).strip.freeze
 
   def test_reports_an_up_to_date_run
     output, status = summarize(0, "==> Updating Homebrew...\nAlready up-to-date.\n")
@@ -45,6 +47,20 @@ class NotifierTest < Minitest::Test
 
     assert_predicate status, :success?
     assert_empty output
+  end
+
+  def test_committed_app_matches_the_shared_version
+    plist = File.join(ROOT, "notifier/brew-autoupdate.app/Contents/Info.plist")
+    output, status = Open3.capture2(
+      "/usr/bin/plutil",
+      "-extract",
+      "CFBundleShortVersionString",
+      "raw",
+      plist,
+    )
+
+    assert_predicate status, :success?
+    assert_equal VERSION, output.strip
   end
 
   private

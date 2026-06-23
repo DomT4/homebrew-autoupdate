@@ -30,5 +30,7 @@ jobs:
         run: |
           bash -n notifier/notify.sh notifier/build.sh
           osacompile -o "$RUNNER_TEMP/notifier.scpt" notifier/notifier.applescript
+          test "$(cat VERSION)" = \
+            "$(plutil -extract CFBundleShortVersionString raw notifier/brew-autoupdate.app/Contents/Info.plist)"
 
       - run: brew style "$GITHUB_REPOSITORY"
