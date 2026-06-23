@@ -17,6 +17,10 @@ jobs:
         id: set-up-homebrew
         uses: Homebrew/actions/setup-homebrew@main
 
-      - run: ruby test/interval_test.rb
+      - name: Run tests
+        run: |
+          for test in test/*_test.rb; do
+            ruby "$test"
+          done
 
       - run: brew style "$GITHUB_REPOSITORY"
