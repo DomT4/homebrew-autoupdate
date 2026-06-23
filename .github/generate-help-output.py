@@ -23,7 +23,15 @@ tag_section_content = re.search(comment_tag_pattern, readme_content, re.DOTALL)
 
 if tag_section_content:
     try:
-        help_command_output_new = subprocess.check_output(["brew", "autoupdate", "--help"], text=True)
+        help_commands = [
+            ["brew", "autoupdate", "--help"],
+            ["brew", "autoupdate", "start", "--help"],
+            ["brew", "autoupdate", "logs", "--help"],
+        ]
+        help_command_output_new = "\n\n".join(
+            subprocess.check_output(command, text=True).strip()
+            for command in help_commands
+        )
     except subprocess.CalledProcessError as e:
         print(f"Error running command: {e}")
         exit()

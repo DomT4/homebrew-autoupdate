@@ -4,8 +4,10 @@ permissions:
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
+    branches:
+      - main
 
 jobs:
   tests:
@@ -13,6 +15,22 @@ jobs:
     steps:
       - name: Set up Homebrew
         id: set-up-homebrew
-        uses: Homebrew/actions/setup-homebrew@master
+        uses: Homebrew/actions/setup-homebrew@main
+
+      - name: Trust preinstalled external taps
+        run: brew trust aws/tap azure/bicep
+
+      - name: Run tests
+        run: |
+          for test in test/*_test.rb; do
+            ruby "$test"
+          done
+
+      - name: Validate notifier sources
+        run: |
+          bash -n notifier/notify.sh notifier/build.sh
+          xcrun swiftc -swift-version 5 -typecheck notifier/notifier.swift
+          test "$(cat VERSION)" = \
+            "$(plutil -extract CFBundleShortVersionString raw notifier/brew-autoupdate.app/Contents/Info.plist)"
 
       - run: brew style "$GITHUB_REPOSITORY"

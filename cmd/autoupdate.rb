@@ -7,7 +7,7 @@ module Homebrew
       SUBCOMMANDS = %w[start stop delete status version logs].freeze
 
       cmd_args do
-        usage_banner "`autoupdate` <subcommand> [<interval>] [<options>]"
+        usage_banner "`autoupdate` <subcommand> [<options>]"
 
         description <<~EOS
           An easy, convenient way to automatically update Homebrew.
@@ -15,73 +15,123 @@ module Homebrew
           This script will run `brew update` in the background once every 24 hours (by default)
           until explicitly told to stop, utilising `launchd`.
 
-          `brew autoupdate start` [<interval>] [<options>]:
-          Start autoupdating either once every `interval` hours or once every 24 hours.
-          Please note the interval has to be passed in seconds, so 12 hours would be
-          `brew autoupdate start 43200`. If you want to start the autoupdate immediately
-          and on system boot, pass `--immediate`. Pass `--upgrade` or `--cleanup`
-          to automatically run `brew upgrade` and/or `brew cleanup` respectively.
-          Pass `--only` with a comma-separated list of formulae and/or casks to only upgrade
-          those specific packages.
+          Start autoupdating with:
+            `brew autoupdate start [<interval>] [<options>]`
 
-          `brew autoupdate stop`:
-          Stop autoupdating, but retain plist and logs.
+          The interval defaults to 24 hours. It can be provided as seconds or as a duration
+          such as `30m`, `12h`, `1d`, or `1w`.
 
-          `brew autoupdate delete`:
-          Cancel the autoupdate, delete the plist and logs.
+          Common start options:
+            `--upgrade` upgrades installed formulae and casks.
+            `--cleanup` cleans Homebrew's cache and logs after a successful run.
+            `--immediate` runs immediately and whenever the launch agent is loaded.
+            `--only=wget,node,firefox` upgrades only the listed packages.
+            `--leaves-only` upgrades only top-level formulae.
+            `--greedy` includes auto-updating casks.
+            `--sudo` enables a GUI password prompt for cask upgrades.
+            `--ac-only` skips runs while the Mac is on battery power.
+            `--notify-on-error` shows notifications only for failed runs.
+            `--no-notify` disables notifications.
 
-          `brew autoupdate status`:
-          Print the current status of this tool.
+          Examples:
+            `brew autoupdate start`
+            `brew autoupdate start 12h --upgrade --cleanup --immediate`
+            `brew autoupdate start 1d --upgrade --only=wget,node,firefox`
+            `brew autoupdate logs --lines=50`
+            `brew autoupdate logs --follow`
 
-          `brew autoupdate version`:
-          Output this tool's current version, and a short changelog.
-
-          `brew autoupdate logs`:
-          Output the logs file, which contains all the output from `brew upgrade` runs.
-          This is useful for debugging issues with the autoupdate process.
+          Run `brew autoupdate start --help` or `brew autoupdate logs --help` for
+          complete options for those subcommands.
         EOS
 
-        # We want to add the -- versions of subcommands as valid arguments
-        # but only when executing the command, not when displaying the help text
+        # Preserve the original, undocumented `--start`-style invocations.
         SUBCOMMANDS.each do |subcommand|
           switch "--#{subcommand}", hidden: true
         end
 
-        switch "--upgrade",
-               description: "Automatically upgrade your installed formulae. If the Caskroom exists locally " \
-                            "then casks will be upgraded as well. Must be passed with `start`."
-        switch "--greedy",
-               description: "Upgrade casks with `--greedy` (include auto-updating casks). " \
-                            "Must be passed with `start`."
-        switch "--cleanup",
-               description: "Automatically clean Homebrew's cache and logs. Must be passed with `start`."
-        switch "--immediate",
-               description: "Starts the autoupdate command immediately and on system boot, " \
-                            "instead of waiting for one interval (24 hours by default) to pass first. " \
-                            "Must be passed with `start`."
-        switch "--sudo",
-               description: "If a cask requires `sudo`, autoupdate will open a GUI to ask for the password. " \
-                            "Requires https://formulae.brew.sh/formula/pinentry-mac to be installed."
-        switch "--leaves-only",
-               description: "Only upgrade formulae that are not dependencies of another installed formula. " \
-                            "This provides a safer upgrade strategy by only updating top-level packages. " \
-                            "Must be passed with `--upgrade` and `start`."
-        comma_array "--only=",
-                    description: "Only upgrade the specified formulae and/or casks (comma-separated). " \
-                                 "Must be passed with `--upgrade` and `start`. " \
-                                 "Cannot be combined with `--leaves-only`."
-        switch "--ac-only",
-               description: "Only run autoupdate when on AC power. Must be passed with `start`."
-        switch "-f", "--follow",
-               description: "Follow the logs output. " \
-                            "Must be passed with `logs`."
-        switch "-n", "--lines",
-               description: "Number of lines to show from the end of the logs file `-n` [<number>]. " \
-                            "Defaults to 10. Must be passed with `logs`."
+        subcommand "start" do
+          usage_banner <<~EOS
+            `autoupdate start` [<interval>] [<options>]:
+            Start autoupdating in the background.
+            The interval defaults to 24 hours and accepts seconds or a suffix such as
+            `30m`, `12h`, or `1d`.
+          EOS
 
-        # Needs to be two as otherwise it breaks the passing of an interval
-        # such as: start --immediate 3600. `Error: Invalid usage:`
-        named_args SUBCOMMANDS, max: 2
+          switch "--upgrade",
+                 description: "Automatically upgrade installed formulae and casks."
+          switch "--greedy",
+                 depends_on:  "--upgrade",
+                 description: "Include auto-updating casks when upgrading."
+          switch "--cleanup",
+                 description: "Automatically clean Homebrew's cache and logs."
+          switch "--immediate",
+                 description: "Run immediately and on login instead of waiting for the first interval."
+          switch "--sudo",
+                 depends_on:  "--upgrade",
+                 description: "Open a GUI password prompt when a cask upgrade requires `sudo`. " \
+                              "Requires `pinentry-mac` to be installed."
+          switch "--leaves-only",
+                 depends_on:  "--upgrade",
+                 description: "Upgrade only top-level formulae that are not dependencies."
+          comma_array "--only=",
+                      description: "Upgrade only these formulae and/or casks (comma-separated). " \
+                                   "Requires `--upgrade`."
+          switch "--ac-only",
+                 description: "Run only while the Mac is connected to AC power."
+          switch "--notify-on-error",
+                 description: "Notify only when an autoupdate run fails."
+          switch "--no-notify",
+                 description: "Disable autoupdate notifications."
+
+          conflicts "--only", "--leaves-only"
+          conflicts "--notify-on-error", "--no-notify"
+          named_args max: 1
+        end
+
+        subcommand "stop" do
+          usage_banner <<~EOS
+            `autoupdate stop`:
+            Stop autoupdating while retaining the launch agent, configuration, and logs.
+          EOS
+          named_args :none
+        end
+
+        subcommand "delete" do
+          usage_banner <<~EOS
+            `autoupdate delete`:
+            Stop autoupdating and delete its launch agent, configuration, and logs.
+          EOS
+          named_args :none
+        end
+
+        subcommand "status" do
+          usage_banner <<~EOS
+            `autoupdate status`:
+            Show whether autoupdate is running and describe its installed configuration.
+          EOS
+          named_args :none
+        end
+
+        subcommand "version" do
+          usage_banner <<~EOS
+            `autoupdate version`:
+            Show this tool's current version and a short changelog.
+          EOS
+          named_args :none
+        end
+
+        subcommand "logs" do
+          usage_banner <<~EOS
+            `autoupdate logs` [<options>]:
+            Show output from autoupdate runs.
+          EOS
+
+          switch "-f", "--follow",
+                 description: "Follow the log as new output is written."
+          flag "-n=", "--lines=",
+               description: "Show this many lines from the end of the log. Defaults to 10."
+          named_args :none
+        end
       end
 
       def run
@@ -91,21 +141,21 @@ module Homebrew
         raise UsageError, "`brew autoupdate` is supported only on macOS!" unless OS.mac?
 
         subcommand = subcommand_from_args(args:)
-        interval = interval_from_args(args:)
 
         raise UsageError, "This command requires a subcommand argument." if subcommand.nil?
-        if subcommand != :start && interval.present?
-          raise UsageError, "This command does not take a named argument without `start`."
-        end
-        if interval.present? && !interval.match?(/^\d+$/)
-          raise UsageError, "This subcommand only accepts integer arguments."
-        end
 
         # Don't require anything until this point to keep help speedy.
         require_relative "../lib/autoupdate"
 
         case subcommand
         when :start
+          raise UsageError, "`--only` cannot be passed without `--upgrade`." if args.only && !args.upgrade?
+
+          interval = begin
+            ::Autoupdate::Interval.parse(args.named.first)
+          rescue ::Autoupdate::Interval::InvalidIntervalError => e
+            raise UsageError, e.message
+          end
           ::Autoupdate.start(interval:, args:)
         when :stop
           ::Autoupdate.stop
@@ -116,7 +166,7 @@ module Homebrew
         when :version
           ::Autoupdate.version
         when :logs
-          lines = lines_from_args(args: args)
+          lines = lines_from_args(args:)
           ::Autoupdate.logs(follow: args.follow?, lines: lines)
         else
           raise UsageError, "Unknown subcommand: #{args.named.first}"
@@ -124,33 +174,24 @@ module Homebrew
       end
 
       def subcommand_from_args(args:)
-        choice = nil
+        choices = [args.subcommand]
         SUBCOMMANDS.each do |subcommand|
-          next if args.named.first != subcommand && !args.send(:"#{subcommand}?")
-          raise UsageError, "Conflicting subcommands specified." if choice.present?
-
-          choice = subcommand.to_sym
+          choices << subcommand if args.send(:"#{subcommand}?")
         end
-        choice
-      end
 
-      def interval_from_args(args:)
-        # Only allow a named argument for the 'start' subcommand
-        if args.named.empty? || args.named.first == "start"
-          return args.named[1] if args.named.size > 1
+        choices.compact!
+        raise UsageError, "Conflicting subcommands specified." if choices.uniq.length > 1
 
-          return
-        end
-        nil
+        choices.first&.to_sym
       end
 
       def lines_from_args(args:)
-        # Only allow a named argument for the 'logs' subcommand
-        if (args.named.empty? || args.named.first == "logs") && args.named.size > 1 && args.named[1].to_i.positive?
-          return args.named[1].to_i
-        end
+        return 10 if args.lines.blank?
 
-        10
+        lines = Integer(args.lines, exception: false)
+        raise UsageError, "`--lines` must be a positive integer." unless lines&.positive?
+
+        lines
       end
     end
   end

@@ -1,5 +1,7 @@
 # frozen_string_literal: false
 
+require "cgi"
+require "shellwords"
 require "utils/output"
 
 module Autoupdate
@@ -14,30 +16,6 @@ module Autoupdate
       odie <<~EOS
         The command already appears to have been started.
         Please run `brew autoupdate delete` and try again.
-      EOS
-    end
-
-    # Validate that --leaves-only is only used with --upgrade
-    if args.leaves_only? && !args.upgrade?
-      odie <<~EOS
-        The `--leaves-only` option must be used with `--upgrade`.
-        Please run with both options: `brew autoupdate start --upgrade --leaves-only`
-      EOS
-    end
-
-    # Validate that --only is only used with --upgrade
-    if args.only && !args.upgrade?
-      odie <<~EOS
-        The `--only` option must be used with `--upgrade`.
-        Please run with both options: `brew autoupdate start --upgrade --only=pkg1,pkg2`
-      EOS
-    end
-
-    # Validate that --only and --leaves-only are not combined
-    if args.only && args.leaves_only?
-      odie <<~EOS
-        The `--only` and `--leaves-only` options cannot be combined.
-        Please use one or the other.
       EOS
     end
 
@@ -109,11 +87,8 @@ module Autoupdate
         auto_args << " && #{Autoupdate::Core.brew} upgrade --cask -v#{greedy}"
       end
 
-      auto_args << " && #{Autoupdate::Core.brew} cleanup" if args.cleanup?
     end
-
-    # Enable the new AppleScript applet by default on Catalina and above.
-    auto_args << " && #{Autoupdate::Notify.new_notify}" if MacOS.version >= :catalina
+    auto_args << " && #{Autoupdate::Core.brew} cleanup" if args.cleanup?
 
     # Try to respect user choice as much as possible.
     env_cache = ENV.fetch("HOMEBREW_CACHE") if ENV["HOMEBREW_CACHE"]
@@ -129,15 +104,15 @@ module Autoupdate
     # suddenly being worked hard.
     set_env = "export HOMEBREW_NO_BOTTLE_SOURCE_FALLBACK=1"
 
-    set_env << "\nexport PATH='#{env_path}'"
-    set_env << "\nexport HOMEBREW_CACHE='#{env_cache}'" if env_cache
-    set_env << "\nexport HOMEBREW_LOGS='#{env_logs}'" if env_logs
-    set_env << "\nexport HOMEBREW_DEVELOPER=#{env_dev}" if env_dev
-    set_env << "\nexport HOMEBREW_NO_ANALYTICS=#{env_stats}" if env_stats
-    set_env << "\nexport HOMEBREW_CASK_OPTS=#{env_cask}" if env_cask
+    set_env << "\n#{shell_export("PATH", env_path)}"
+    set_env << "\n#{shell_export("HOMEBREW_CACHE", env_cache)}" if env_cache
+    set_env << "\n#{shell_export("HOMEBREW_LOGS", env_logs)}" if env_logs
+    set_env << "\n#{shell_export("HOMEBREW_DEVELOPER", env_dev)}" if env_dev
+    set_env << "\n#{shell_export("HOMEBREW_NO_ANALYTICS", env_stats)}" if env_stats
+    set_env << "\n#{shell_export("HOMEBREW_CASK_OPTS", env_cask)}" if env_cask
 
     if args.sudo?
-      unless Formula["pinentry-mac"].any_version_installed?
+      unless Utils::Path.formula_any_version_installed?("pinentry-mac")
         odie <<~EOS
           `--sudo` requires https://formulae.brew.sh/formula/pinentry-mac to be installed.
           Please run `brew install pinentry-mac` and try again.
@@ -150,7 +125,7 @@ module Autoupdate
         printf "%s\n" "OPTION allow-external-cache" "SETOK OK" "SETCANCEL Cancel" "SETDESC homebrew-autoupdate needs your admin password to complete the upgrade" "SETPROMPT Enter Password:" "SETTITLE homebrew-autoupdate Password Request" "GETPIN" | pinentry-mac --no-global-grab --timeout 60 | /usr/bin/awk '/^D / {print substr($0, index($0, $2))}'
       EOS
     elsif env_sudo
-      set_env << "\nexport SUDO_ASKPASS=#{env_sudo}"
+      set_env << "\n#{shell_export("SUDO_ASKPASS", env_sudo)}"
     end
 
     ac_only = if args.ac_only?
@@ -166,11 +141,27 @@ module Autoupdate
       ""
     end
 
+    notify_mode = if args.no_notify? || MacOS.version < :catalina
+      "never"
+    elsif args.notify_on_error?
+      "error"
+    else
+      "always"
+    end
+
     script_contents = <<~EOS
       #!/bin/sh
       #{ac_only.chomp}
       #{set_env}
-      /bin/date && #{Autoupdate::Core.brew} #{auto_args}
+      run_log=$(/usr/bin/mktemp "${TMPDIR:-/tmp}/brew-autoupdate.XXXXXX") || exit 1
+      trap '/bin/rm -f "$run_log"' EXIT
+
+      /bin/date
+      (#{Autoupdate::Core.brew} #{auto_args}) >"$run_log" 2>&1
+      status=$?
+      /bin/cat "$run_log"
+      #{Autoupdate::Notify.command(mode: notify_mode)}
+      exit "$status"
     EOS
     FileUtils.mkpath(Autoupdate::Core.logs)
     FileUtils.mkpath(Autoupdate::Core.location)
@@ -184,7 +175,7 @@ module Autoupdate
     elsif File.writable?(Autoupdate::Core.fallback_logs)
       log_out = "#{Autoupdate::Core.fallback_logs}/#{Autoupdate::Core.name}.out"
     else
-      puts <<~EOS
+      odie <<~EOS
         #{Autoupdate::Core.logs} does not seem to be writable.
         You may wish to `chown` it back to your user.
       EOS
@@ -212,8 +203,6 @@ module Autoupdate
       FileUtils.chmod 0555, Autoupdate::Core.location/"brew_autoupdate_sudo_gui"
     end
 
-    interval ||= "86400"
-
     # This restores the "Run At Load" key removed in a7de771abcf6 when requested.
     launch_immediately = if args.immediate?
       <<~EOS
@@ -230,18 +219,18 @@ module Autoupdate
       <plist version="1.0">
       <dict>
         <key>Label</key>
-        <string>#{Autoupdate::Core.name}</string>
+        <string>#{CGI.escapeHTML(Autoupdate::Core.name)}</string>
         <key>Program</key>
-        <string>#{Autoupdate::Core.location}/brew_autoupdate</string>
+        <string>#{CGI.escapeHTML("#{Autoupdate::Core.location}/brew_autoupdate")}</string>
         <key>ProgramArguments</key>
         <array>
-            <string>#{Autoupdate::Core.location}/brew_autoupdate</string>
+            <string>#{CGI.escapeHTML("#{Autoupdate::Core.location}/brew_autoupdate")}</string>
         </array>
         #{launch_immediately.chomp}
         <key>StandardErrorPath</key>
-        <string>#{log_out}</string>
+        <string>#{CGI.escapeHTML(log_out)}</string>
         <key>StandardOutPath</key>
-        <string>#{log_out}</string>
+        <string>#{CGI.escapeHTML(log_out)}</string>
         <key>StartInterval</key>
         <integer>#{interval}</integer>
         <key>LowPriorityBackgroundIO</key>
@@ -267,15 +256,15 @@ module Autoupdate
     File.open(Autoupdate::Core.plist, "w") { |f| f << file }
     quiet_system "/bin/launchctl", "load", Autoupdate::Core.plist
 
-    # This should round to a whole number consistently.
-    # It'll behave strangely if someone wants autoupdate
-    # to run more than once an hour, but... surely not?
-    interval_to_hours = interval.to_i / 60 / 60
-    update_message = "Homebrew will now automatically update every #{interval_to_hours} hours"
+    update_message = "Homebrew will now automatically update every #{Autoupdate::Interval.describe(interval)}"
     if args.immediate?
       puts "#{update_message}, now, and on system boot."
     else
       puts "#{update_message}."
     end
+  end
+
+  def shell_export(name, value)
+    "export #{name}=#{Shellwords.escape(value)}"
   end
 end
