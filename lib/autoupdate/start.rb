@@ -17,30 +17,6 @@ module Autoupdate
       EOS
     end
 
-    # Validate that --leaves-only is only used with --upgrade
-    if args.leaves_only? && !args.upgrade?
-      odie <<~EOS
-        The `--leaves-only` option must be used with `--upgrade`.
-        Please run with both options: `brew autoupdate start --upgrade --leaves-only`
-      EOS
-    end
-
-    # Validate that --only is only used with --upgrade
-    if args.only && !args.upgrade?
-      odie <<~EOS
-        The `--only` option must be used with `--upgrade`.
-        Please run with both options: `brew autoupdate start --upgrade --only=pkg1,pkg2`
-      EOS
-    end
-
-    # Validate that --only and --leaves-only are not combined
-    if args.only && args.leaves_only?
-      odie <<~EOS
-        The `--only` and `--leaves-only` options cannot be combined.
-        Please use one or the other.
-      EOS
-    end
-
     # Validate --only package names to prevent shell injection
     if args.only
       odie "`--only` requires at least one package name." if args.only.empty?
