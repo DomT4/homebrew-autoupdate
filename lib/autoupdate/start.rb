@@ -44,7 +44,7 @@ module Autoupdate
           LEAVES=$(#{Autoupdate::Core.brew} leaves)
           if [ -n "$LEAVES" ]; then
             echo "Upgrading leaves packages only..."
-            #{Autoupdate::Core.brew} upgrade --formula -v $(echo "$LEAVES") || {
+            #{Autoupdate::Core.brew} upgrade --no-ask --formula -v $(echo "$LEAVES") || {
               echo "Warning: Some leaves packages failed to upgrade."
               # Return 0 to ensure the autoupdate process continues
               exit 0
@@ -68,9 +68,9 @@ module Autoupdate
       elsif args.only
         greedy = args.greedy? ? " --greedy" : ""
         package_list = args.only.join(" ")
-        auto_args << " && #{Autoupdate::Core.brew} upgrade -v#{greedy} #{package_list}"
+        auto_args << " && #{Autoupdate::Core.brew} upgrade --no-ask -v#{greedy} #{package_list}"
       else
-        auto_args << " && #{Autoupdate::Core.brew} upgrade --formula -v"
+        auto_args << " && #{Autoupdate::Core.brew} upgrade --no-ask --formula -v"
       end
 
       if !args.only && (HOMEBREW_PREFIX/"Caskroom").exist?
@@ -84,7 +84,7 @@ module Autoupdate
         end
 
         greedy = args.greedy? ? " --greedy" : ""
-        auto_args << " && #{Autoupdate::Core.brew} upgrade --cask -v#{greedy}"
+        auto_args << " && #{Autoupdate::Core.brew} upgrade --no-ask --cask -v#{greedy}"
       end
 
     end

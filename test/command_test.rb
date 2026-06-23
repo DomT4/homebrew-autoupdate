@@ -109,6 +109,16 @@ class CommandTest < Minitest::Test
     refute_includes stdout, "Last Changed"
   end
 
+  def test_generated_upgrade_commands_disable_confirmation
+    source = File.read(File.join(ROOT, "lib/autoupdate/start.rb"))
+    upgrade_lines = source.lines.grep(/Autoupdate::Core\.brew\} upgrade /)
+
+    assert_equal 4, upgrade_lines.length
+    upgrade_lines.each do |line|
+      assert_includes line, "upgrade --no-ask"
+    end
+  end
+
   private
 
   def brew_autoupdate(*arguments)
