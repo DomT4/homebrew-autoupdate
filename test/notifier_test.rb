@@ -152,7 +152,7 @@ class NotifierTest < Minitest::Test
           exit #{helper_status}
         SH
       )
-      FileUtils.chmod(0o755, executable)
+      FileUtils.chmod(0755, executable)
 
       Tempfile.create("autoupdate-notifier") do |log|
         log.write(contents)
