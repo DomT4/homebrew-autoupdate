@@ -188,8 +188,6 @@ module Autoupdate
       FileUtils.chmod 0555, Autoupdate::Core.location/"brew_autoupdate_sudo_gui"
     end
 
-    interval ||= "86400"
-
     # This restores the "Run At Load" key removed in a7de771abcf6 when requested.
     launch_immediately = if args.immediate?
       <<~EOS
@@ -243,11 +241,7 @@ module Autoupdate
     File.open(Autoupdate::Core.plist, "w") { |f| f << file }
     quiet_system "/bin/launchctl", "load", Autoupdate::Core.plist
 
-    # This should round to a whole number consistently.
-    # It'll behave strangely if someone wants autoupdate
-    # to run more than once an hour, but... surely not?
-    interval_to_hours = interval.to_i / 60 / 60
-    update_message = "Homebrew will now automatically update every #{interval_to_hours} hours"
+    update_message = "Homebrew will now automatically update every #{Autoupdate::Interval.describe(interval)}"
     if args.immediate?
       puts "#{update_message}, now, and on system boot."
     else
