@@ -9,6 +9,8 @@ default) until explicitly told to stop, utilising `launchd`.
 are optional flags.
 
 Notifications are enabled by default using a new, code-signed, universal AppleScript applet.
+Pass `--notify-on-error` to suppress successful-run notifications, or
+`--no-notify` to disable notifications entirely.
 
 ![A comic highlighting humanity's habit of skipping important updates](https://imgs.xkcd.com/comics/update.png)
 
@@ -19,6 +21,8 @@ First tap the repository: `brew tap domt4/autoupdate`.
 Then trust the command: `brew trust --command domt4/autoupdate/autoupdate`.
 
 Now run `brew autoupdate start [interval] [options]` to enable autoupdate.
+The interval defaults to 24 hours and accepts seconds or a short duration such
+as `30m`, `12h`, or `1d`.
 
 _Note:_
 _To ensure that auto-updated cask-based apps are updated in place (so they stay on your Dock), add `~/Library/Application Support/com.github.domt4.homebrew-autoupdate/brew_autoupdate` to System Settings / Privacy and Security / App Management. (Also allow ruby and Terminal.app)_
@@ -26,7 +30,7 @@ _To ensure that auto-updated cask-based apps are updated in place (so they stay 
 ## Example
 
 ```sh
-brew autoupdate start 43200 --upgrade --cleanup --immediate --sudo
+brew autoupdate start 12h --upgrade --cleanup --immediate --sudo
 ```
 
 This will upgrade all your casks and formulae every 12 hours and on every system boot.
@@ -38,7 +42,7 @@ Casks that have built-in auto-updates enabled by default will not be upgraded.
 ### Upgrade Only Specific Packages
 
 ```sh
-brew autoupdate start 43200 --upgrade --only=wget,node,firefox
+brew autoupdate start 12h --upgrade --only=wget,node,firefox
 ```
 
 This will only auto-upgrade `wget`, `node`, and `firefox` every 12 hours,
@@ -54,75 +58,100 @@ auto-upgraded, run `brew autoupdate delete` then start again with the new list.
 <!-- HELP-COMMAND-OUTPUT:START -->
 
 ```help
-Usage: brew autoupdate subcommand [interval] [options]
+From tap: domt4/autoupdate
+Usage: brew autoupdate subcommand [options]
 
 An easy, convenient way to automatically update Homebrew.
 
 This script will run brew update in the background once every 24 hours (by
 default) until explicitly told to stop, utilising launchd.
 
-brew autoupdate start [interval] [options]:
-    Start autoupdating either once every interval hours or once every 24
-hours. Please note the interval has to be passed in seconds, so 12 hours would
-be brew autoupdate start 43200. If you want to start the autoupdate
-immediately and on system boot, pass --immediate. Pass --upgrade or
---cleanup to automatically run brew upgrade and/or brew cleanup
-respectively. Pass --only with a comma-separated list of formulae and/or casks
-to only upgrade those specific packages.
+Start autoupdating with:
+  brew autoupdate start [interval] [options]
 
-brew autoupdate stop:
-    Stop autoupdating, but retain plist and logs.
+The interval defaults to 24 hours. It can be provided as seconds or as a
+duration such as 30m, 12h, 1d, or 1w.
 
-brew autoupdate delete:
-    Cancel the autoupdate, delete the plist and logs.
+Common start options:
+  --upgrade upgrades installed formulae and casks.
+  --cleanup cleans Homebrew's cache and logs after a successful run.
+  --immediate runs immediately and whenever the launch agent is loaded.
+  --only=wget,node,firefox upgrades only the listed packages.
+  --leaves-only upgrades only top-level formulae.
+  --greedy includes auto-updating casks.
+  --sudo enables a GUI password prompt for cask upgrades.
+  --ac-only skips runs while the Mac is on battery power.
+  --notify-on-error shows notifications only for failed runs.
+  --no-notify disables notifications.
 
-brew autoupdate status:
-    Print the current status of this tool.
+Examples:
+  brew autoupdate start
+  brew autoupdate start 12h --upgrade --cleanup --immediate
+  brew autoupdate start 1d --upgrade --only=wget,node,firefox
+  brew autoupdate logs --lines=50
+  brew autoupdate logs --follow
 
-brew autoupdate version:
-    Output this tool's current version, and a short changelog.
+Run brew autoupdate start --help or brew autoupdate logs --help for complete
+options for those subcommands.
 
-brew autoupdate logs:
-    Output the logs file, which contains all the output from brew upgrade
-runs. This is useful for debugging issues with the autoupdate process.
+Subcommands:
+  start:
+    Start autoupdating in the background.
+  stop:
+    Stop autoupdating while retaining the launch agent, configuration, and logs.
+  delete:
+    Stop autoupdating and delete its launch agent, configuration, and logs.
+  status:
+    Show whether autoupdate is running and describe its installed configuration.
+  version:
+    Show this tool's current version and a short changelog.
+  logs:
+    Show output from autoupdate runs.
 
-      --upgrade                    Automatically upgrade your installed
-                                   formulae. If the Caskroom exists locally then
-                                   casks will be upgraded as well. Must be
-                                   passed with start.
-      --greedy                     Upgrade casks with --greedy (include
-                                   auto-updating casks). Must be passed with
-                                   start.
-      --cleanup                    Automatically clean Homebrew's cache and
-                                   logs. Must be passed with start.
-      --immediate                  Starts the autoupdate command immediately and
-                                   on system boot, instead of waiting for one
-                                   interval (24 hours by default) to pass first.
-                                   Must be passed with start.
-      --sudo                       If a cask requires sudo, autoupdate will
-                                   open a GUI to ask for the password. Requires
-                                   https://formulae.brew.sh/formula/pinentry-mac
-                                   to be installed.
-      --leaves-only                Only upgrade formulae that are not
-                                   dependencies of another installed formula.
-                                   This provides a safer upgrade strategy by
-                                   only updating top-level packages. Must be
-                                   passed with --upgrade and start.
-      --only                       Only upgrade the specified formulae and/or
-                                   casks (comma-separated). Must be passed with
-                                   --upgrade and start. Cannot be combined
-                                   with --leaves-only.
-      --ac-only                    Only run autoupdate when on AC power. Must be
-                                   passed with start.
-  -f, --follow                     Follow the logs output. Must be passed with
-                                   logs.
-  -n, --lines                      Number of lines to show from the end of the
-                                   logs file -n [number]. Defaults to 10.
-                                   Must be passed with logs.
   -d, --debug                      Display any debugging information.
   -q, --quiet                      Make some output more quiet.
   -v, --verbose                    Make some output more verbose.
   -h, --help                       Show this message.
+
+From tap: domt4/autoupdate
+Usage: brew autoupdate start [interval] [options]:
+    Start autoupdating in the background. The interval defaults to 24 hours and
+accepts seconds or a suffix such as 30m, 12h, or 1d.
+
+  -d, --debug                      Display any debugging information.
+  -q, --quiet                      Make some output more quiet.
+  -v, --verbose                    Make some output more verbose.
+  -h, --help                       Show this message.
+      --upgrade                    Automatically upgrade installed formulae and
+                                   casks.
+      --greedy                     Include auto-updating casks when upgrading.
+      --cleanup                    Automatically clean Homebrew's cache and
+                                   logs.
+      --immediate                  Run immediately and on login instead of
+                                   waiting for the first interval.
+      --sudo                       Open a GUI password prompt when a cask
+                                   upgrade requires sudo. Requires
+                                   pinentry-mac to be installed.
+      --leaves-only                Upgrade only top-level formulae that are not
+                                   dependencies.
+      --only                       Upgrade only these formulae and/or casks
+                                   (comma-separated). Requires --upgrade.
+      --ac-only                    Run only while the Mac is connected to AC
+                                   power.
+      --notify-on-error            Notify only when an autoupdate run fails.
+      --no-notify                  Disable autoupdate notifications.
+
+From tap: domt4/autoupdate
+Usage: brew autoupdate logs [options]:
+    Show output from autoupdate runs.
+
+  -d, --debug                      Display any debugging information.
+  -q, --quiet                      Make some output more quiet.
+  -v, --verbose                    Make some output more verbose.
+  -h, --help                       Show this message.
+  -f, --follow                     Follow the log as new output is written.
+  -n, --lines                      Show this many lines from the end of the log.
+                                   Defaults to 10.
 ```
 
 <!-- HELP-COMMAND-OUTPUT:END -->

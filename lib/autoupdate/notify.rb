@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "shellwords"
+
 module Autoupdate
   module Notify
     module_function
@@ -8,11 +10,18 @@ module Autoupdate
       File.join(Autoupdate::Core.tap_dir, "notifier", "brew-autoupdate.app")
     end
 
-    def new_notify
-      # The `-g` flag causes the app to launch in the background,
-      # so that the focus is not removed from the current window.
-      # https://github.com/Homebrew/homebrew-autoupdate/issues/71
-      "/usr/bin/open -g #{notifier_app}"
+    def notifier_script
+      File.join(Autoupdate::Core.tap_dir, "notifier", "notify.sh")
+    end
+
+    def command(mode:)
+      [
+        Shellwords.escape(notifier_script),
+        "\"$status\"",
+        "\"$run_log\"",
+        Shellwords.escape(mode),
+        Shellwords.escape(notifier_app),
+      ].join(" ")
     end
   end
 end
