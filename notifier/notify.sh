@@ -51,11 +51,14 @@ then
   exit 0
 fi
 
-if [[ -z "${notifier_app}" ]] || [[ ! -d "${notifier_app}" ]]
+notifier_executable="${notifier_app}/Contents/MacOS/brew-autoupdate-notifier"
+if [[ -z "${notifier_app}" ]] || [[ ! -x "${notifier_executable}" ]]
 then
   /usr/bin/printf "Warning: notifier app not found: %s\n" "${notifier_app}" >&2
   exit 0
 fi
 
-# `-g` keeps the app in the background; `--args` passes only display content.
-/usr/bin/open -g "${notifier_app}" --args "${title}" "${subtitle}" "${message}"
+if ! "${notifier_executable}" "${title}" "${subtitle}" "${message}"
+then
+  /usr/bin/printf "Warning: notifier failed to display the update result.\n" >&2
+fi

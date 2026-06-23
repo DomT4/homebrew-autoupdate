@@ -1,14 +1,16 @@
 # Notifier maintenance
 
-`notifier.applescript` is the reviewable source for the notification app.
+`notifier.swift` is the reviewable source for the notification app.
 `notify.sh` summarizes only the output from the current autoupdate run and
-passes the resulting title, subtitle, and message to the app.
+passes the resulting title, subtitle, and message to the app as arguments.
+The native helper uses macOS's UserNotifications framework and runs as a
+background UI app, so it does not appear in the Dock.
 
 ## Validate without signing
 
 ```sh
 bash -n notifier/notify.sh notifier/build.sh
-osacompile -o /tmp/brew-autoupdate-notifier.scpt notifier/notifier.applescript
+xcrun swiftc -swift-version 5 -typecheck notifier/notifier.swift
 ruby test/notifier_test.rb
 ```
 
