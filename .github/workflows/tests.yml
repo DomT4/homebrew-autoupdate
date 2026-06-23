@@ -17,6 +17,9 @@ jobs:
         id: set-up-homebrew
         uses: Homebrew/actions/setup-homebrew@main
 
+      - name: Trust preinstalled external taps
+        run: brew trust aws/tap azure/bicep
+
       - name: Run tests
         run: |
           for test in test/*_test.rb; do
