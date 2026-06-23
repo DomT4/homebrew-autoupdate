@@ -10,6 +10,7 @@ class CommandTest < Minitest::Test
     "HOMEBREW_NO_ANALYTICS"        => "1",
     "HOMEBREW_NO_AUTO_UPDATE"      => "1",
     "HOMEBREW_NO_INSTALL_FROM_API" => "1",
+    "HOMEBREW_NO_COLOR".           => "1",
     "LC_ALL"                       => "C",
   }.freeze
 
