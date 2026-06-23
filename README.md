@@ -9,6 +9,8 @@ default) until explicitly told to stop, utilising `launchd`.
 are optional flags.
 
 Notifications are enabled by default using a new, code-signed, universal AppleScript applet.
+Pass `--notify-on-error` to suppress successful-run notifications, or
+`--no-notify` to disable notifications entirely.
 
 ![A comic highlighting humanity's habit of skipping important updates](https://imgs.xkcd.com/comics/update.png)
 
@@ -106,6 +108,8 @@ accepts seconds or a suffix such as 30m, 12h, or 1d.
                                    (comma-separated). Requires --upgrade.
       --ac-only                    Run only while the Mac is connected to AC
                                    power.
+      --notify-on-error            Notify only when an autoupdate run fails.
+      --no-notify                  Disable autoupdate notifications.
 
 From tap: domt4/autoupdate
 Usage: brew autoupdate logs [options]:
