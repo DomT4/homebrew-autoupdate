@@ -74,7 +74,13 @@ module Autoupdate
     details << "AC power only: #{script.include?("/usr/bin/pmset -g ps") ? "yes" : "no"}"
     details << "Greedy cask upgrades: yes" if script.include?("upgrade --cask -v --greedy")
     details << "GUI sudo prompt: yes" if script.include?("brew_autoupdate_sudo_gui")
-    details << "Notifications: #{script.include?("/usr/bin/open -g") ? "yes" : "no"}"
+    notification_mode = case script[%r{notifier/notify\.sh "\$status" "\$run_log" (\w+)}, 1]
+    when "always" then "yes"
+    when "error" then "failures only"
+    else
+      script.include?("/usr/bin/open -g") ? "yes (legacy)" : "no"
+    end
+    details << "Notifications: #{notification_mode}"
     details << "Logs: #{plist["StandardOutPath"]}" if plist["StandardOutPath"]
 
     details.join("\n")

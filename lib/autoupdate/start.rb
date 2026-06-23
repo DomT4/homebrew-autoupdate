@@ -90,9 +90,6 @@ module Autoupdate
     end
     auto_args << " && #{Autoupdate::Core.brew} cleanup" if args.cleanup?
 
-    # Enable the new AppleScript applet by default on Catalina and above.
-    auto_args << " && #{Autoupdate::Notify.new_notify}" if MacOS.version >= :catalina
-
     # Try to respect user choice as much as possible.
     env_cache = ENV.fetch("HOMEBREW_CACHE") if ENV["HOMEBREW_CACHE"]
     env_logs = ENV.fetch("HOMEBREW_LOGS") if ENV["HOMEBREW_LOGS"]
@@ -144,11 +141,27 @@ module Autoupdate
       ""
     end
 
+    notify_mode = if args.no_notify? || MacOS.version < :catalina
+      "never"
+    elsif args.notify_on_error?
+      "error"
+    else
+      "always"
+    end
+
     script_contents = <<~EOS
       #!/bin/sh
       #{ac_only.chomp}
       #{set_env}
-      /bin/date && #{Autoupdate::Core.brew} #{auto_args}
+      run_log=$(/usr/bin/mktemp "${TMPDIR:-/tmp}/brew-autoupdate.XXXXXX") || exit 1
+      trap '/bin/rm -f "$run_log"' EXIT
+
+      /bin/date
+      (#{Autoupdate::Core.brew} #{auto_args}) >"$run_log" 2>&1
+      status=$?
+      /bin/cat "$run_log"
+      #{Autoupdate::Notify.command(mode: notify_mode)}
+      exit "$status"
     EOS
     FileUtils.mkpath(Autoupdate::Core.logs)
     FileUtils.mkpath(Autoupdate::Core.location)

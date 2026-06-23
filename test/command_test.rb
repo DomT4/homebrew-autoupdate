@@ -30,6 +30,8 @@ class CommandTest < Minitest::Test
     assert_includes stdout, "Usage: brew autoupdate start"
     assert_includes stdout, "--upgrade"
     assert_includes stdout, "--cleanup"
+    assert_includes stdout, "--notify-on-error"
+    assert_includes stdout, "--no-notify"
     refute_includes stdout, "--follow"
     refute_includes stdout, "--lines"
   end
@@ -63,6 +65,13 @@ class CommandTest < Minitest::Test
     output, status = brew_autoupdate_error("start", "--upgrade", "--only=wget", "--leaves-only")
     refute_predicate status, :success?
     assert_includes output, "Options --only and --leaves-only are mutually exclusive."
+  end
+
+  def test_notification_modes_are_mutually_exclusive
+    output, status = brew_autoupdate_error("start", "--notify-on-error", "--no-notify")
+
+    refute_predicate status, :success?
+    assert_includes output, "Options --notify-on-error and --no-notify are mutually exclusive."
   end
 
   def test_invalid_intervals_are_rejected_before_starting

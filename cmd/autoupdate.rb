@@ -50,8 +50,13 @@ module Homebrew
                                    "Requires `--upgrade`."
           switch "--ac-only",
                  description: "Run only while the Mac is connected to AC power."
+          switch "--notify-on-error",
+                 description: "Notify only when an autoupdate run fails."
+          switch "--no-notify",
+                 description: "Disable autoupdate notifications."
 
           conflicts "--only", "--leaves-only"
+          conflicts "--notify-on-error", "--no-notify"
           named_args max: 1
         end
 
