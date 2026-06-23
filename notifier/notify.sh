@@ -21,7 +21,9 @@ then
   then
     message="Homebrew is already up-to-date."
   else
-    upgrade_line=$(/usr/bin/grep -E "==> Upgrading [0-9]+ outdated packages?" "${run_log}" | /usr/bin/tail -n 1)
+    upgrade_line=$(
+      /usr/bin/awk '/==> Upgrading [0-9]+ outdated packages?:/ { line = $0 } END { print line }' "${run_log}"
+    )
   fi
 
   if [[ -n "${upgrade_line:-}" ]]
