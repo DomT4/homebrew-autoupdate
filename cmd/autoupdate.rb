@@ -14,6 +14,34 @@ module Homebrew
 
           This script will run `brew update` in the background once every 24 hours (by default)
           until explicitly told to stop, utilising `launchd`.
+
+          Start autoupdating with:
+            `brew autoupdate start [<interval>] [<options>]`
+
+          The interval defaults to 24 hours. It can be provided as seconds or as a duration
+          such as `30m`, `12h`, `1d`, or `1w`.
+
+          Common start options:
+            `--upgrade` upgrades installed formulae and casks.
+            `--cleanup` cleans Homebrew's cache and logs after a successful run.
+            `--immediate` runs immediately and whenever the launch agent is loaded.
+            `--only=wget,node,firefox` upgrades only the listed packages.
+            `--leaves-only` upgrades only top-level formulae.
+            `--greedy` includes auto-updating casks.
+            `--sudo` enables a GUI password prompt for cask upgrades.
+            `--ac-only` skips runs while the Mac is on battery power.
+            `--notify-on-error` shows notifications only for failed runs.
+            `--no-notify` disables notifications.
+
+          Examples:
+            `brew autoupdate start`
+            `brew autoupdate start 12h --upgrade --cleanup --immediate`
+            `brew autoupdate start 1d --upgrade --only=wget,node,firefox`
+            `brew autoupdate logs --lines=50`
+            `brew autoupdate logs --follow`
+
+          Run `brew autoupdate start --help` or `brew autoupdate logs --help` for
+          complete options for those subcommands.
         EOS
 
         # Preserve the original, undocumented `--start`-style invocations.

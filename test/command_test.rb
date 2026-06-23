@@ -22,6 +22,10 @@ class CommandTest < Minitest::Test
     assert_includes stdout, "start:"
     assert_includes stdout, "status:"
     assert_includes stdout, "logs:"
+    assert_includes stdout, "brew autoupdate start 12h --upgrade --cleanup --immediate"
+    assert_includes stdout, "--only=wget,node,firefox"
+    assert_includes stdout, "brew autoupdate logs --follow"
+    assert_includes stdout, "brew autoupdate start --help"
   end
 
   def test_start_help_lists_only_start_options
