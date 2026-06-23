@@ -23,4 +23,9 @@ jobs:
             ruby "$test"
           done
 
+      - name: Validate notifier sources
+        run: |
+          bash -n notifier/notify.sh notifier/build.sh
+          osacompile -o "$RUNNER_TEMP/notifier.scpt" notifier/notifier.applescript
+
       - run: brew style "$GITHUB_REPOSITORY"
