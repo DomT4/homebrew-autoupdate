@@ -130,6 +130,46 @@ Subcommands:
   -q, --quiet                      Make some output more quiet.
   -v, --verbose                    Make some output more verbose.
   -h, --help                       Show this message.
+
+From tap: domt4/autoupdate
+Usage: brew autoupdate start [interval] [options]:
+    Start autoupdating in the background. The interval defaults to 24 hours and
+accepts seconds or a suffix such as 30m, 12h, or 1d.
+
+  -d, --debug                      Display any debugging information.
+  -q, --quiet                      Make some output more quiet.
+  -v, --verbose                    Make some output more verbose.
+  -h, --help                       Show this message.
+      --upgrade                    Automatically upgrade installed formulae and
+                                   casks.
+      --greedy                     Include auto-updating casks when upgrading.
+      --cleanup                    Automatically clean Homebrew's cache and
+                                   logs.
+      --immediate                  Run immediately and on login instead of
+                                   waiting for the first interval.
+      --sudo                       Open a GUI password prompt when a cask
+                                   upgrade requires sudo. Requires
+                                   pinentry-mac to be installed.
+      --leaves-only                Upgrade only top-level formulae that are not
+                                   dependencies.
+      --only                       Upgrade only these formulae and/or casks
+                                   (comma-separated). Requires --upgrade.
+      --ac-only                    Run only while the Mac is connected to AC
+                                   power.
+      --notify-on-error            Notify only when an autoupdate run fails.
+      --no-notify                  Disable autoupdate notifications.
+
+From tap: domt4/autoupdate
+Usage: brew autoupdate logs [options]:
+    Show output from autoupdate runs.
+
+  -d, --debug                      Display any debugging information.
+  -q, --quiet                      Make some output more quiet.
+  -v, --verbose                    Make some output more verbose.
+  -h, --help                       Show this message.
+  -f, --follow                     Follow the log as new output is written.
+  -n, --lines                      Show this many lines from the end of the log.
+                                   Defaults to 10.
 ```
 
 <!-- HELP-COMMAND-OUTPUT:END -->
