@@ -29,7 +29,7 @@ jobs:
       - name: Validate notifier sources
         run: |
           bash -n notifier/notify.sh notifier/build.sh
-          xcrun swiftc -swift-version 5 -typecheck notifier/notifier.swift
+          swift build
           test "$(cat VERSION)" = \
             "$(plutil -extract CFBundleShortVersionString raw notifier/brew-autoupdate.app/Contents/Info.plist)"
 
