@@ -8,7 +8,7 @@ default) until explicitly told to stop, utilising `launchd`.
 `brew upgrade` and `brew cleanup` can also be handled automatically, but
 are optional flags.
 
-Notifications are enabled by default using a new, code-signed, universal AppleScript applet.
+Notifications are enabled by default using a code-signed, universal macOS app.
 Pass `--notify-on-error` to suppress successful-run notifications, or
 `--no-notify` to disable notifications entirely.
 
@@ -16,9 +16,27 @@ Pass `--notify-on-error` to suppress successful-run notifications, or
 
 ## Installing this command
 
-First tap the repository: `brew tap domt4/autoupdate`.
+Tap the repository and trust its external command:
 
-Then trust the command: `brew trust --command domt4/autoupdate/autoupdate`.
+```sh
+brew tap domt4/autoupdate
+brew trust --command domt4/autoupdate/autoupdate
+```
+
+Homebrew is moving towards requiring explicit trust before loading commands
+from non-official taps. Command-scoped trust is recommended here because it
+permits only `brew autoupdate`; it does not trust every current or future
+formula, cask, or command in this tap.
+
+Existing users who see an untrusted tap warning can run the `brew trust`
+command above. When trust enforcement is enabled, an already installed launch
+agent will continue running its scheduled built-in `brew update`, `upgrade`,
+and `cleanup` commands. Management commands such as `brew autoupdate status`,
+`stop`, or `delete` will be unavailable until `autoupdate` is trusted.
+
+See [Homebrew's tap trust documentation](https://docs.brew.sh/Tap-Trust) and
+[issue #222](https://github.com/DomT4/homebrew-autoupdate/issues/222) for
+background.
 
 Now run `brew autoupdate start [interval] [options]` to enable autoupdate.
 The interval defaults to 24 hours and accepts seconds or a short duration such
