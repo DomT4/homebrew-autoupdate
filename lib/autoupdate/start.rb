@@ -85,8 +85,8 @@ module Autoupdate
         auto_args << " && #{Autoupdate::Core.brew} upgrade --cask -v#{greedy}"
       end
 
-      auto_args << " && #{Autoupdate::Core.brew} cleanup" if args.cleanup?
     end
+    auto_args << " && #{Autoupdate::Core.brew} cleanup" if args.cleanup?
 
     # Enable the new AppleScript applet by default on Catalina and above.
     auto_args << " && #{Autoupdate::Notify.new_notify}" if MacOS.version >= :catalina
