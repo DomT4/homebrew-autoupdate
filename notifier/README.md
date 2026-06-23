@@ -10,11 +10,13 @@ background UI app, so it does not appear in the Dock.
 
 ```sh
 bash -n notifier/notify.sh notifier/build.sh
-xcrun swiftc -swift-version 5 -typecheck notifier/notifier.swift
+swift build
 ruby test/notifier_test.rb
 ```
 
-CI performs these checks but does not sign or replace the committed app.
+The package manifest also allows CodeQL to compile and analyze the standalone
+Swift source. CI performs these checks but does not sign or replace the
+committed app.
 
 ## Rebuild and sign locally
 
