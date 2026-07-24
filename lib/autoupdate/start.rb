@@ -121,8 +121,19 @@ module Autoupdate
       set_env << "\nexport SUDO_ASKPASS='#{Autoupdate::Core.location/"brew_autoupdate_sudo_gui"}'"
       sudo_gui_script_contents = <<~EOS
         #!/bin/sh
-        PATH='#{HOMEBREW_PREFIX}/bin'
-        printf "%s\n" "OPTION allow-external-cache" "SETOK OK" "SETCANCEL Cancel" "SETDESC homebrew-autoupdate needs your admin password to complete the upgrade" "SETPROMPT Enter Password:" "SETTITLE homebrew-autoupdate Password Request" "GETPIN" | pinentry-mac --no-global-grab --timeout 60 | /usr/bin/awk '/^D / {print substr($0, index($0, $2))}'
+        PATH="#{HOMEBREW_PREFIX}/bin"
+        (
+          export PINENTRY_USER_DATA="ICON=#{Autoupdate::Core.location/"notifier/applet.icns"},"
+          printf "%s\n" \
+            "OPTION allow-external-cache" \
+            "SETOK OK" \
+            "SETCANCEL Cancel" \
+            "SETDESC homebrew-autoupdate needs your admin password to complete the upgrade" \
+            "SETPROMPT Enter Password:" \
+            "SETTITLE homebrew-autoupdate Password Request" \
+            "GETPIN" \
+            | pinentry-mac --no-global-grab --timeout 60
+        ) | /usr/bin/awk '/^D / {print substr($0, index($0, $2))}'
       EOS
     elsif env_sudo
       set_env << "\n#{shell_export("SUDO_ASKPASS", env_sudo)}"
