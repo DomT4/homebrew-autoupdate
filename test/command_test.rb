@@ -35,6 +35,7 @@ class CommandTest < Minitest::Test
     assert_predicate status, :success?, stderr
     assert_includes stdout, "Usage: brew autoupdate start"
     assert_includes stdout, "--upgrade"
+    assert_includes stdout, "--outdated"
     assert_includes stdout, "--cleanup"
     assert_includes stdout, "--notify-on-error"
     assert_includes stdout, "--no-notify"
@@ -57,6 +58,11 @@ class CommandTest < Minitest::Test
 
     refute_predicate status, :success?
     assert_includes output, "The `status` subcommand does not accept the `--upgrade` switch."
+
+    output, status = brew_autoupdate_error("status", "--outdated")
+
+    refute_predicate status, :success?
+    assert_includes output, "The `status` subcommand does not accept the `--outdated` switch."
   end
 
   def test_upgrade_options_enforce_dependencies_and_conflicts
@@ -117,6 +123,17 @@ class CommandTest < Minitest::Test
     upgrade_lines.each do |line|
       assert_includes line, "upgrade --no-ask"
     end
+  end
+
+  def test_outdated_flag_precedes_upgrade_and_uses_safe_exit
+    source = File.read(File.join(ROOT, "lib/autoupdate/start.rb"))
+    outdated_pos = source.index("outdated --quiet")
+    upgrade_pos = source.index("upgrade --no-ask")
+
+    assert outdated_pos, "--outdated must appear in start.rb"
+    assert upgrade_pos, "--upgrade must appear in start.rb"
+    assert_operator outdated_pos, :<, upgrade_pos, "--outdated must precede --upgrade in the generated script"
+    assert_includes source, "outdated --quiet || true"
   end
 
   private

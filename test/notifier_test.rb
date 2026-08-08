@@ -19,6 +19,32 @@ class NotifierTest < Minitest::Test
     assert_includes output, "Homebrew is already up-to-date."
   end
 
+  def test_reports_outdated_packages
+    output, status = summarize(0, "Already up-to-date.\nawscli\ngradle\n")
+
+    assert_predicate status, :success?
+    assert_includes output, "2 upgrades available"
+    assert_includes output, "awscli, gradle"
+  end
+
+  def test_reports_single_outdated_package
+    output, status = summarize(0, "Already up-to-date.\nawscli\n")
+
+    assert_predicate status, :success?
+    assert_includes output, "1 upgrade available"
+    assert_includes output, "awscli"
+  end
+
+  def test_truncates_long_outdated_list
+    packages = (1..6).map { |i| "pkg#{i}" }.join("\n")
+    output, status = summarize(0, "Already up-to-date.\n#{packages}\n")
+
+    assert_predicate status, :success?
+    assert_includes output, "6 upgrades available"
+    assert_includes output, "…"
+    refute_includes output, "pkg6"
+  end
+
   def test_reports_an_upgrade_count
     output, status = summarize(0, "==> Upgrading 3 outdated packages:\nfoo\nbar\n")
 

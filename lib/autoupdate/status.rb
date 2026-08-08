@@ -71,6 +71,7 @@ module Autoupdate
     details << "Schedule: every #{Autoupdate::Interval.describe(interval.to_i)} (#{interval} seconds)" if interval
     details << "Run at login: #{plist["RunAtLoad"] ? "yes" : "no"}"
     details << "Upgrade: #{upgrade_summary(status_script)}"
+    details << "Outdated: #{script.include?("#{Autoupdate::Core.brew} outdated") ? "yes" : "no"}"
     details << "Cleanup: #{script.include?("#{Autoupdate::Core.brew} cleanup") ? "yes" : "no"}"
     details << "AC power only: #{script.include?("/usr/bin/pmset -g ps") ? "yes" : "no"}"
     details << "Greedy cask upgrades: yes" if status_script.include?("upgrade --cask -v --greedy")

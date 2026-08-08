@@ -34,6 +34,8 @@ module Autoupdate
 
     auto_args = "update"
     # Spacing at start of lines is deliberate. Don't undo.
+    # brew outdated exits 1 when packages are outdated, so || true is required.
+    auto_args << " && { #{Autoupdate::Core.brew} outdated --quiet || true; }" if args.outdated?
     if args.upgrade?
       if args.leaves_only?
         # For --leaves-only, we need to get the list of leaves and upgrade only those
