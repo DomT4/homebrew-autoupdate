@@ -27,7 +27,7 @@ then
   elif /usr/bin/grep -q "Already up-to-date." "${run_log}"
   then
     outdated_packages=$(
-      /usr/bin/awk '/^[a-zA-Z0-9][a-zA-Z0-9@._-]*$/ { pkgs[NR]=$0 } !/^[a-zA-Z0-9][a-zA-Z0-9@._-]*$/ { delete pkgs; last_non_pkg=NR } END { for (i=last_non_pkg+1; i<=NR; i++) if (i in pkgs) print pkgs[i] }' "${run_log}"
+      /usr/bin/awk '/^[a-zA-Z0-9][a-zA-Z0-9@._-]*$/ { if (!done) pkgs = pkgs ? pkgs "\n" $0 : $0 } !/^[a-zA-Z0-9][a-zA-Z0-9@._-]*$/ { if (pkgs) done=1 } END { print pkgs }' "${run_log}"
     )
     outdated_count=$(echo "${outdated_packages}" | /usr/bin/grep -c . 2>/dev/null || true)
 
