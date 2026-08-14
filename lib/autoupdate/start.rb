@@ -34,8 +34,14 @@ module Autoupdate
 
     auto_args = "update"
     # Spacing at start of lines is deliberate. Don't undo.
+    # Sentinel markers allow notify.sh to extract the outdated list unambiguously,
+    # regardless of what brew update itself prints (e.g. "==> New Formulae" sections).
     # brew outdated exits 1 when packages are outdated, so || true is required.
-    auto_args << " && { #{Autoupdate::Core.brew} outdated --quiet || true; }" if args.outdated?
+    if args.outdated?
+      auto_args << " && { echo '==> autoupdate-outdated-begin'; " \
+                   "#{Autoupdate::Core.brew} outdated --quiet || true; " \
+                   "echo '==> autoupdate-outdated-end'; }"
+    end
     if args.upgrade?
       if args.leaves_only?
         # For --leaves-only, we need to get the list of leaves and upgrade only those
@@ -147,6 +153,8 @@ module Autoupdate
       "never"
     elsif args.notify_on_error?
       "error"
+    elsif args.no_notify_on_update?
+      "outdated"
     else
       "always"
     end

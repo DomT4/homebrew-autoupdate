@@ -79,6 +79,7 @@ module Autoupdate
     notification_mode = case script[%r{notifier/notify\.sh "\$status" "\$run_log" (\w+)}, 1]
     when "always" then "yes"
     when "error" then "failures only"
+    when "outdated" then "upgrades available and failures only"
     else
       script.include?("/usr/bin/open -g") ? "yes (legacy)" : "no"
     end

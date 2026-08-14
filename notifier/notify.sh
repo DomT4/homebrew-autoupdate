@@ -23,16 +23,22 @@ then
 
   if [[ -n "${upgrade_line:-}" ]]
   then
+    category="upgraded"
     message=${upgrade_line}
-  elif /usr/bin/grep -q "Already up-to-date." "${run_log}"
+  elif /usr/bin/grep -q "^==> autoupdate-outdated-begin$" "${run_log}"
   then
     outdated_packages=$(
-      /usr/bin/awk '/^[a-zA-Z0-9][a-zA-Z0-9@._-]*$/ { if (!done) pkgs = pkgs ? pkgs "\n" $0 : $0 } !/^[a-zA-Z0-9][a-zA-Z0-9@._-]*$/ { if (pkgs) done=1 } END { print pkgs }' "${run_log}"
+      /usr/bin/awk '
+        /^==> autoupdate-outdated-begin$/ { collecting = 1; next }
+        /^==> autoupdate-outdated-end$/   { collecting = 0; next }
+        collecting && NF                  { print }
+      ' "${run_log}"
     )
     outdated_count=$(echo "${outdated_packages}" | /usr/bin/grep -c . 2>/dev/null || true)
 
     if [[ "${outdated_count}" -gt 0 ]]
     then
+      category="outdated"
       if [[ "${outdated_count}" -eq 1 ]]
       then
         subtitle="1 upgrade available"
@@ -42,12 +48,19 @@ then
       # Truncate the list to fit comfortably in a banner notification.
       message=$(echo "${outdated_packages}" | /usr/bin/awk 'BEGIN { ORS=", " } { print } NR==5 { print "…"; exit }' | /usr/bin/sed 's/, $//')
     else
+      category="uptodate"
       message="Homebrew is already up-to-date."
     fi
+  elif /usr/bin/grep -q "Already up-to-date." "${run_log}"
+  then
+    category="uptodate"
+    message="Homebrew is already up-to-date."
   else
+    category="uptodate"
     message="Homebrew was updated successfully."
   fi
 else
+  category="failure"
   title="Homebrew autoupdate failed"
   subtitle="Exit status ${status}"
   message=$(
@@ -57,6 +70,11 @@ else
     }' "${run_log}"
   )
   message=${message:-"See the autoupdate log for details."}
+fi
+
+if [[ "${mode}" = "outdated" ]] && [[ "${category}" != "outdated" ]] && [[ "${category}" != "failure" ]]
+then
+  exit 0
 fi
 
 if [[ "${AUTUPDATE_NOTIFY_PRINT:-0}" = "1" ]]

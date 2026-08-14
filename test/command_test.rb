@@ -38,6 +38,7 @@ class CommandTest < Minitest::Test
     assert_includes stdout, "--outdated"
     assert_includes stdout, "--cleanup"
     assert_includes stdout, "--notify-on-error"
+    assert_includes stdout, "--no-notify-on-update"
     assert_includes stdout, "--no-notify"
     refute_includes stdout, "--follow"
     refute_includes stdout, "--lines"
@@ -83,7 +84,24 @@ class CommandTest < Minitest::Test
     output, status = brew_autoupdate_error("start", "--notify-on-error", "--no-notify")
 
     refute_predicate status, :success?
-    assert_includes output, "Options --notify-on-error and --no-notify are mutually exclusive."
+    assert_includes output, "mutually exclusive"
+
+    output, status = brew_autoupdate_error("start", "--outdated", "--no-notify-on-update", "--no-notify")
+
+    refute_predicate status, :success?
+    assert_includes output, "mutually exclusive"
+
+    output, status = brew_autoupdate_error("start", "--outdated", "--no-notify-on-update", "--notify-on-error")
+
+    refute_predicate status, :success?
+    assert_includes output, "mutually exclusive"
+  end
+
+  def test_no_notify_on_update_requires_outdated
+    output, status = brew_autoupdate_error("start", "--no-notify-on-update")
+
+    refute_predicate status, :success?
+    assert_includes output, "`--no-notify-on-update` cannot be passed without `--outdated`."
   end
 
   def test_invalid_intervals_are_rejected_before_starting
@@ -134,6 +152,8 @@ class CommandTest < Minitest::Test
     assert upgrade_pos, "--upgrade must appear in start.rb"
     assert_operator outdated_pos, :<, upgrade_pos, "--outdated must precede --upgrade in the generated script"
     assert_includes source, "outdated --quiet || true"
+    assert_includes source, "autoupdate-outdated-begin"
+    assert_includes source, "autoupdate-outdated-end"
   end
 
   private

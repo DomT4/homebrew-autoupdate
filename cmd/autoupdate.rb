@@ -32,6 +32,7 @@ module Homebrew
             `--sudo` enables a GUI password prompt for cask upgrades.
             `--ac-only` skips runs while the Mac is on battery power.
             `--notify-on-error` shows notifications only for failed runs.
+            `--no-notify-on-update` notifies only when upgrades are available or a run fails.
             `--no-notify` disables notifications.
 
           Examples:
@@ -83,11 +84,14 @@ module Homebrew
                  description: "Run only while the Mac is connected to AC power."
           switch "--notify-on-error",
                  description: "Notify only when an autoupdate run fails."
+          switch "--no-notify-on-update",
+                 depends_on:  "--outdated",
+                 description: "Notify only when upgrades are available or a run fails. Requires `--outdated`."
           switch "--no-notify",
                  description: "Disable autoupdate notifications."
 
           conflicts "--only", "--leaves-only"
-          conflicts "--notify-on-error", "--no-notify"
+          conflicts "--notify-on-error", "--no-notify-on-update", "--no-notify"
           named_args max: 1
         end
 
