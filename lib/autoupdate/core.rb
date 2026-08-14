@@ -36,7 +36,7 @@ module Autoupdate
       end
 
       path = Pathname.new(File.join(HOMEBREW_LIBRARY, "Taps", origin, "homebrew-autoupdate"))
-      path.exist? ? path : Pathname.new(File.expand_path("../../..", __FILE__))
+      path.exist? ? path : Pathname.new(File.expand_path("../..", __dir__))
     end
   end
 end
