@@ -46,7 +46,7 @@ then
         subtitle="${outdated_count} upgrades available"
       fi
       # Truncate the list to fit comfortably in a banner notification.
-      message=$(echo "${outdated_packages}" | /usr/bin/awk 'BEGIN { ORS=", " } { print } NR==5 { print "…"; exit }' | /usr/bin/sed 's/, $//')
+      message=$(echo "${outdated_packages}" | /usr/bin/awk 'BEGIN { ORS=", " } { print } NR==5 { print "…"; exit }' | /usr/bin/sed 's/, $//') || true
     else
       category="uptodate"
       message="Homebrew is already up-to-date."
