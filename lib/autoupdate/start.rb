@@ -213,6 +213,26 @@ module Autoupdate
       ""
     end
 
+    # A CalendarTime schedules a fixed wall-clock time daily via
+    # StartCalendarInterval; anything else is a relative StartInterval,
+    # measured in seconds from whenever launchd loads the job.
+    schedule_xml = if interval.is_a?(Autoupdate::Interval::CalendarTime)
+      <<~EOS.chomp
+        <key>StartCalendarInterval</key>
+        <dict>
+          <key>Hour</key>
+          <integer>#{interval.hour}</integer>
+          <key>Minute</key>
+          <integer>#{interval.minute}</integer>
+        </dict>
+      EOS
+    else
+      <<~EOS.chomp
+        <key>StartInterval</key>
+        <integer>#{interval}</integer>
+      EOS
+    end
+
     file = <<~EOS
       <?xml version="1.0" encoding="UTF-8"?>
       <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -231,8 +251,7 @@ module Autoupdate
         <string>#{CGI.escapeHTML(log_out)}</string>
         <key>StandardOutPath</key>
         <string>#{CGI.escapeHTML(log_out)}</string>
-        <key>StartInterval</key>
-        <integer>#{interval}</integer>
+        #{schedule_xml}
         <key>LowPriorityBackgroundIO</key>
         <true/>
         <key>LowPriorityIO</key>

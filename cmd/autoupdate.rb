@@ -19,7 +19,8 @@ module Homebrew
             `brew autoupdate start [<interval>] [<options>]`
 
           The interval defaults to 24 hours. It can be provided as seconds or as a duration
-          such as `30m`, `12h`, `1d`, or `1w`.
+          such as `30m`, `12h`, `1d`, or `1w`, or as a 24-hour clock time such as `00:00` to
+          run daily at that specific time instead of relative to when the command was run.
 
           Common start options:
             `--upgrade` upgrades installed formulae and casks.
@@ -37,6 +38,7 @@ module Homebrew
             `brew autoupdate start`
             `brew autoupdate start 12h --upgrade --cleanup --immediate`
             `brew autoupdate start 1d --upgrade --only=wget,node,firefox`
+            `brew autoupdate start 00:00 --upgrade --cleanup`
             `brew autoupdate logs --lines=50`
             `brew autoupdate logs --follow`
 
@@ -54,7 +56,8 @@ module Homebrew
             `autoupdate start` [<interval>] [<options>]:
             Start autoupdating in the background.
             The interval defaults to 24 hours and accepts seconds or a suffix such as
-            `30m`, `12h`, or `1d`.
+            `30m`, `12h`, or `1d`, or a 24-hour clock time such as `00:00` to run daily
+            at that specific time.
           EOS
 
           switch "--upgrade",
