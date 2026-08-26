@@ -71,6 +71,7 @@ module Autoupdate
     details << "Schedule: every #{Autoupdate::Interval.describe(interval.to_i)} (#{interval} seconds)" if interval
     details << "Run at login: #{plist["RunAtLoad"] ? "yes" : "no"}"
     details << "Upgrade: #{upgrade_summary(status_script)}"
+    details << "Outdated: #{script.include?("#{Autoupdate::Core.brew} outdated") ? "yes" : "no"}"
     details << "Cleanup: #{script.include?("#{Autoupdate::Core.brew} cleanup") ? "yes" : "no"}"
     details << "AC power only: #{script.include?("/usr/bin/pmset -g ps") ? "yes" : "no"}"
     details << "Greedy cask upgrades: yes" if status_script.include?("upgrade --cask -v --greedy")
@@ -78,6 +79,7 @@ module Autoupdate
     notification_mode = case script[%r{notifier/notify\.sh "\$status" "\$run_log" (\w+)}, 1]
     when "always" then "yes"
     when "error" then "failures only"
+    when "outdated" then "upgrades available and failures only"
     else
       script.include?("/usr/bin/open -g") ? "yes (legacy)" : "no"
     end

@@ -35,8 +35,10 @@ class CommandTest < Minitest::Test
     assert_predicate status, :success?, stderr
     assert_includes stdout, "Usage: brew autoupdate start"
     assert_includes stdout, "--upgrade"
+    assert_includes stdout, "--outdated"
     assert_includes stdout, "--cleanup"
     assert_includes stdout, "--notify-on-error"
+    assert_includes stdout, "--no-notify-on-update"
     assert_includes stdout, "--no-notify"
     refute_includes stdout, "--follow"
     refute_includes stdout, "--lines"
@@ -57,6 +59,11 @@ class CommandTest < Minitest::Test
 
     refute_predicate status, :success?
     assert_includes output, "The `status` subcommand does not accept the `--upgrade` switch."
+
+    output, status = brew_autoupdate_error("status", "--outdated")
+
+    refute_predicate status, :success?
+    assert_includes output, "The `status` subcommand does not accept the `--outdated` switch."
   end
 
   def test_upgrade_options_enforce_dependencies_and_conflicts
@@ -77,7 +84,24 @@ class CommandTest < Minitest::Test
     output, status = brew_autoupdate_error("start", "--notify-on-error", "--no-notify")
 
     refute_predicate status, :success?
-    assert_includes output, "Options --notify-on-error and --no-notify are mutually exclusive."
+    assert_includes output, "mutually exclusive"
+
+    output, status = brew_autoupdate_error("start", "--outdated", "--no-notify-on-update", "--no-notify")
+
+    refute_predicate status, :success?
+    assert_includes output, "mutually exclusive"
+
+    output, status = brew_autoupdate_error("start", "--outdated", "--no-notify-on-update", "--notify-on-error")
+
+    refute_predicate status, :success?
+    assert_includes output, "mutually exclusive"
+  end
+
+  def test_no_notify_on_update_requires_outdated
+    output, status = brew_autoupdate_error("start", "--no-notify-on-update")
+
+    refute_predicate status, :success?
+    assert_includes output, "`--no-notify-on-update` cannot be passed without `--outdated`."
   end
 
   def test_invalid_intervals_are_rejected_before_starting
@@ -117,6 +141,19 @@ class CommandTest < Minitest::Test
     upgrade_lines.each do |line|
       assert_includes line, "upgrade --no-ask"
     end
+  end
+
+  def test_outdated_flag_precedes_upgrade_and_uses_safe_exit
+    source = File.read(File.join(ROOT, "lib/autoupdate/start.rb"))
+    outdated_pos = source.index("outdated --quiet")
+    upgrade_pos = source.index("upgrade --no-ask")
+
+    assert outdated_pos, "--outdated must appear in start.rb"
+    assert upgrade_pos, "--upgrade must appear in start.rb"
+    assert_operator outdated_pos, :<, upgrade_pos, "--outdated must precede --upgrade in the generated script"
+    assert_includes source, "outdated --quiet || true"
+    assert_includes source, "autoupdate-outdated-begin"
+    assert_includes source, "autoupdate-outdated-end"
   end
 
   private

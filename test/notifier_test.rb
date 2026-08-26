@@ -19,6 +19,35 @@ class NotifierTest < Minitest::Test
     assert_includes output, "Homebrew is already up-to-date."
   end
 
+  def test_reports_outdated_packages
+    log = "Already up-to-date.\n==> autoupdate-outdated-begin\nawscli\ngradle\n==> autoupdate-outdated-end\n"
+    output, status = summarize(0, log)
+
+    assert_predicate status, :success?
+    assert_includes output, "2 upgrades available"
+    assert_includes output, "awscli, gradle"
+  end
+
+  def test_reports_single_outdated_package
+    log = "Already up-to-date.\n==> autoupdate-outdated-begin\nawscli\n==> autoupdate-outdated-end\n"
+    output, status = summarize(0, log)
+
+    assert_predicate status, :success?
+    assert_includes output, "1 upgrade available"
+    assert_includes output, "awscli"
+  end
+
+  def test_truncates_long_outdated_list
+    packages = (1..6).map { |i| "pkg#{i}" }.join("\n")
+    log = "Already up-to-date.\n==> autoupdate-outdated-begin\n#{packages}\n==> autoupdate-outdated-end\n"
+    output, status = summarize(0, log)
+
+    assert_predicate status, :success?
+    assert_includes output, "6 upgrades available"
+    assert_includes output, "…"
+    refute_includes output, "pkg6"
+  end
+
   def test_reports_an_upgrade_count
     output, status = summarize(0, "==> Upgrading 3 outdated packages:\nfoo\nbar\n")
 
@@ -49,6 +78,62 @@ class NotifierTest < Minitest::Test
 
     assert_predicate status, :success?
     assert_empty output
+  end
+
+  def test_outdated_mode_suppresses_uptodate_notifications
+    log = "Already up-to-date.\n==> autoupdate-outdated-begin\n==> autoupdate-outdated-end\n"
+    output, status = summarize(0, log, mode: "outdated")
+
+    assert_predicate status, :success?
+    assert_empty output
+  end
+
+  def test_outdated_mode_suppresses_upgraded_notifications
+    output, status = summarize(0, "==> Upgrading 2 outdated packages:\nfoo bar\n", mode: "outdated")
+
+    assert_predicate status, :success?
+    assert_empty output
+  end
+
+  def test_outdated_mode_emits_when_packages_are_available
+    log = "Already up-to-date.\n==> autoupdate-outdated-begin\nawscli\ngradle\n==> autoupdate-outdated-end\n"
+    output, status = summarize(0, log, mode: "outdated")
+
+    assert_predicate status, :success?
+    assert_includes output, "2 upgrades available"
+    assert_includes output, "awscli, gradle"
+  end
+
+  def test_outdated_mode_emits_on_failure
+    output, status = summarize(2, "fatal error\n", mode: "outdated")
+
+    assert_predicate status, :success?
+    assert_includes output, "Homebrew autoupdate failed"
+  end
+
+  def test_sentinel_markers_take_precedence_over_brew_update_name_blocks
+    # brew update prints its own bare-name lists (e.g. "==> New Formulae"); the
+    # markers must select only the brew outdated output.
+    log = "==> Updating Homebrew...\nUpdated Homebrew from abc to def.\n==> New Formulae\nzigmod\nzls\n" \
+          "==> autoupdate-outdated-begin\nawscli\n==> autoupdate-outdated-end\n"
+    output, status = summarize(0, log)
+
+    assert_predicate status, :success?
+    assert_includes output, "1 upgrade available"
+    assert_includes output, "awscli"
+    refute_includes output, "zigmod"
+    refute_includes output, "zls"
+  end
+
+  def test_sentinel_markers_report_outdated_when_brew_update_pulled_commits
+    # brew update does not print "Already up-to-date." when it fetches new commits.
+    log = "==> Updating Homebrew...\nUpdated Homebrew from abc to def.\n" \
+          "==> autoupdate-outdated-begin\nawscli\n==> autoupdate-outdated-end\n"
+    output, status = summarize(0, log)
+
+    assert_predicate status, :success?
+    assert_includes output, "1 upgrade available"
+    assert_includes output, "awscli"
   end
 
   def test_committed_app_matches_the_shared_version
