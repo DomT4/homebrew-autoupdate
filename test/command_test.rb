@@ -42,6 +42,13 @@ class CommandTest < Minitest::Test
     refute_includes stdout, "--lines"
   end
 
+  def test_start_help_documents_the_clock_time_schedule
+    stdout, stderr, status = brew_autoupdate("start", "--help")
+
+    assert_predicate status, :success?, stderr
+    assert_includes stdout, "00:00"
+  end
+
   def test_logs_help_lists_only_log_options
     stdout, stderr, status = brew_autoupdate("logs", "--help")
 
@@ -84,7 +91,14 @@ class CommandTest < Minitest::Test
     output, status = brew_autoupdate_error("start", "tomorrow")
 
     refute_predicate status, :success?
-    assert_includes output, "The interval must be positive seconds or a duration"
+    assert_includes output, "The interval must be positive seconds"
+  end
+
+  def test_invalid_clock_times_are_rejected_before_starting
+    output, status = brew_autoupdate_error("start", "24:00")
+
+    refute_predicate status, :success?
+    assert_includes output, "The interval must be positive seconds"
   end
 
   def test_log_line_count_must_be_positive

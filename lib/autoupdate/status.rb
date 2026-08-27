@@ -64,11 +64,17 @@ module Autoupdate
   def configuration_summary
     plist = Plist.parse_xml(Autoupdate::Core.plist, marshal: false) || {}
     interval = plist["StartInterval"]
+    calendar = plist["StartCalendarInterval"]
     script = updater_script
     status_script = script.gsub(" upgrade --no-ask", " upgrade")
     details = []
 
-    details << "Schedule: every #{Autoupdate::Interval.describe(interval.to_i)} (#{interval} seconds)" if interval
+    if calendar
+      calendar_time = Autoupdate::Interval::CalendarTime.new(calendar["Hour"].to_i, calendar["Minute"].to_i)
+      details << "Schedule: every #{Autoupdate::Interval.describe(calendar_time)}"
+    elsif interval
+      details << "Schedule: every #{Autoupdate::Interval.describe(interval.to_i)} (#{interval} seconds)"
+    end
     details << "Run at login: #{plist["RunAtLoad"] ? "yes" : "no"}"
     details << "Upgrade: #{upgrade_summary(status_script)}"
     details << "Cleanup: #{script.include?("#{Autoupdate::Core.brew} cleanup") ? "yes" : "no"}"

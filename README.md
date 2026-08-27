@@ -40,7 +40,8 @@ background.
 
 Now run `brew autoupdate start [interval] [options]` to enable autoupdate.
 The interval defaults to 24 hours and accepts seconds or a short duration such
-as `30m`, `12h`, or `1d`.
+as `30m`, `12h`, or `1d`, or a 24-hour clock time such as `00:00` to run daily
+at that specific time instead of relative to when the command was run.
 
 _Note:_
 _To ensure that auto-updated cask-based apps are updated in place (so they stay on your Dock), add `~/Library/Application Support/com.github.domt4.homebrew-autoupdate/brew_autoupdate` to System Settings / Privacy and Security / App Management. (Also allow ruby and Terminal.app)_
@@ -71,6 +72,18 @@ versioned formulae (`node@20`).
 Cannot be combined with `--leaves-only`. To change which packages are
 auto-upgraded, run `brew autoupdate delete` then start again with the new list.
 
+### Run at a specific time every day
+
+```sh
+brew autoupdate start 00:00 --upgrade --cleanup
+```
+
+Instead of a duration, pass a 24-hour clock time (`HH:MM`) to schedule the run
+via `launchd`'s `StartCalendarInterval` at that exact wall-clock time every
+day, rather than a relative interval measured from whenever the command was
+run (which drifts and won't line up with midnight, or any other fixed time,
+over repeated runs).
+
 ## Usage
 
 <!-- HELP-COMMAND-OUTPUT:START -->
@@ -88,7 +101,9 @@ Start autoupdating with:
   brew autoupdate start [interval] [options]
 
 The interval defaults to 24 hours. It can be provided as seconds or as a
-duration such as 30m, 12h, 1d, or 1w.
+duration such as 30m, 12h, 1d, or 1w, or as a 24-hour clock time such as
+00:00 to run daily at that specific time instead of relative to when the
+command was run.
 
 Common start options:
   --upgrade upgrades installed formulae and casks.
@@ -106,6 +121,7 @@ Examples:
   brew autoupdate start
   brew autoupdate start 12h --upgrade --cleanup --immediate
   brew autoupdate start 1d --upgrade --only=wget,node,firefox
+  brew autoupdate start 00:00 --upgrade --cleanup
   brew autoupdate logs --lines=50
   brew autoupdate logs --follow
 
@@ -134,7 +150,8 @@ Subcommands:
 From tap: domt4/autoupdate
 Usage: brew autoupdate start [interval] [options]:
     Start autoupdating in the background. The interval defaults to 24 hours and
-accepts seconds or a suffix such as 30m, 12h, or 1d.
+accepts seconds or a suffix such as 30m, 12h, or 1d, or a 24-hour clock
+time such as 00:00 to run daily at that specific time.
 
   -d, --debug                      Display any debugging information.
   -q, --quiet                      Make some output more quiet.
