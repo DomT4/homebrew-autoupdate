@@ -119,12 +119,41 @@ module Autoupdate
         EOS
       end
       set_env << "\nexport SUDO_ASKPASS='#{Autoupdate::Core.location/"brew_autoupdate_sudo_gui"}'"
-      sudo_gui_script_contents = <<~EOS
+      sudo_gui_script_contents = <<~'EOS'
         #!/bin/sh
-        PATH="#{HOMEBREW_PREFIX}/bin"
+        PATH="@@HOMEBREW_PREFIX@@/bin"
+
+        # pinentry returns the passphrase on an Assuan "D" line with its bytes
+        # percent-encoded, so it has to be decoded before being handed to sudo.
+        assuan_decode() {
+          s=$1
+          while :; do
+            case $s in
+              *%*)
+                printf '%s' "${s%%\%*}"
+                s=${s#*%}
+                hex=${s%"${s#??}"}
+                s=${s#??}
+                case $hex in
+                  [0-9A-Fa-f][0-9A-Fa-f])
+                    printf "\\$(printf '%03o' "$((0x$hex))")"
+                    ;;
+                  *)
+                    printf '%%%s' "$hex"
+                    ;;
+                esac
+                ;;
+              *)
+                printf '%s' "$s"
+                return 0
+                ;;
+            esac
+          done
+        }
+
         (
-          export PINENTRY_USER_DATA="ICON=#{Autoupdate::Core.location/"notifier/applet.icns"},"
-          printf "%s\n" \
+          export PINENTRY_USER_DATA="ICON=@@ICON@@,"
+          printf '%s\n' \
             "OPTION allow-external-cache" \
             "SETOK OK" \
             "SETCANCEL Cancel" \
@@ -133,8 +162,18 @@ module Autoupdate
             "SETTITLE homebrew-autoupdate Password Request" \
             "GETPIN" \
             | pinentry-mac --no-global-grab --timeout 60
-        ) | /usr/bin/awk '/^D / {print substr($0, index($0, $2))}'
+        ) | while IFS= read -r line; do
+              case $line in
+                "D "*)
+                  assuan_decode "${line#D }"
+                  exit 0
+                  ;;
+              esac
+            done
       EOS
+      sudo_gui_script_contents = sudo_gui_script_contents
+                                 .gsub("@@HOMEBREW_PREFIX@@", HOMEBREW_PREFIX.to_s)
+                                 .gsub("@@ICON@@", (Autoupdate::Core.location/"notifier/applet.icns").to_s)
     elsif env_sudo
       set_env << "\n#{shell_export("SUDO_ASKPASS", env_sudo)}"
     end
