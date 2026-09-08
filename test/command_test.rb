@@ -36,6 +36,7 @@ class CommandTest < Minitest::Test
     assert_includes stdout, "Usage: brew autoupdate start"
     assert_includes stdout, "--upgrade"
     assert_includes stdout, "--cleanup"
+    assert_includes stdout, "--cleanup-args"
     assert_includes stdout, "--notify-on-error"
     assert_includes stdout, "--no-notify"
     refute_includes stdout, "--follow"
@@ -78,6 +79,16 @@ class CommandTest < Minitest::Test
     output, status = brew_autoupdate_error("start", "--upgrade", "--only=wget", "--leaves-only")
     refute_predicate status, :success?
     assert_includes output, "Options --only and --leaves-only are mutually exclusive."
+  end
+
+  def test_cleanup_args_requires_cleanup_and_rejects_unsafe_characters
+    output, status = brew_autoupdate_error("start", "--cleanup-args=--prune=all")
+    refute_predicate status, :success?
+    assert_includes output, "`--cleanup-args` cannot be passed without `--cleanup`."
+
+    output, status = brew_autoupdate_error("start", "--cleanup", "--cleanup-args=--prune=all; rm -rf /")
+    refute_predicate status, :success?
+    assert_includes output, "Invalid `--cleanup-args` value"
   end
 
   def test_notification_modes_are_mutually_exclusive

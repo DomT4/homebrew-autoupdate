@@ -10,6 +10,14 @@ module Autoupdate
   module_function
 
   def start(interval:, args:)
+    # Validate --cleanup-args to prevent shell injection into the generated script.
+    if args.cleanup_args && !args.cleanup_args.match?(%r{\A[a-zA-Z0-9\-_=. ]+\z})
+      odie <<~EOS
+        Invalid `--cleanup-args` value: #{args.cleanup_args}
+        Arguments may only contain letters, digits, hyphens, underscores, dots, equals signs, and spaces.
+      EOS
+    end
+
     # Method from Homebrew.
     # https://github.com/Homebrew/brew/blob/c9c7f4/Library/Homebrew/utils/popen.rb
     if Utils.popen_read("/bin/launchctl", "list").include?(Autoupdate::Core.name)
@@ -88,7 +96,10 @@ module Autoupdate
       end
 
     end
-    auto_args << " && #{Autoupdate::Core.brew} cleanup" if args.cleanup?
+    if args.cleanup?
+      auto_args << " && #{Autoupdate::Core.brew} cleanup"
+      auto_args << " #{args.cleanup_args}" if args.cleanup_args
+    end
 
     # Try to respect user choice as much as possible.
     env_cache = ENV.fetch("HOMEBREW_CACHE") if ENV["HOMEBREW_CACHE"]

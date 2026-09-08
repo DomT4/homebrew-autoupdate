@@ -25,6 +25,7 @@ module Homebrew
           Common start options:
             `--upgrade` upgrades installed formulae and casks.
             `--cleanup` cleans Homebrew's cache and logs after a successful run.
+            `--cleanup-args=--prune=all` passes extra arguments to `brew cleanup`.
             `--immediate` runs immediately and whenever the launch agent is loaded.
             `--only=wget,node,firefox` upgrades only the listed packages.
             `--leaves-only` upgrades only top-level formulae.
@@ -67,6 +68,9 @@ module Homebrew
                  description: "Include auto-updating casks when upgrading."
           switch "--cleanup",
                  description: "Automatically clean Homebrew's cache and logs."
+          flag "--cleanup-args=",
+               depends_on:  "--cleanup",
+               description: "Extra arguments to pass to `brew cleanup`, e.g. `--prune=all`."
           switch "--immediate",
                  description: "Run immediately and on login instead of waiting for the first interval."
           switch "--sudo",

@@ -108,6 +108,7 @@ command was run.
 Common start options:
   --upgrade upgrades installed formulae and casks.
   --cleanup cleans Homebrew's cache and logs after a successful run.
+  --cleanup-args=--prune=all passes extra arguments to brew cleanup.
   --immediate runs immediately and whenever the launch agent is loaded.
   --only=wget,node,firefox upgrades only the listed packages.
   --leaves-only upgrades only top-level formulae.
@@ -162,6 +163,8 @@ time such as 00:00 to run daily at that specific time.
       --greedy                     Include auto-updating casks when upgrading.
       --cleanup                    Automatically clean Homebrew's cache and
                                    logs.
+      --cleanup-args               Extra arguments to pass to brew cleanup,
+                                   e.g. --prune=all.
       --immediate                  Run immediately and on login instead of
                                    waiting for the first interval.
       --sudo                       Open a GUI password prompt when a cask
