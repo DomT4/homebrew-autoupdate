@@ -70,7 +70,8 @@ module Homebrew
                  description: "Automatically clean Homebrew's cache and logs."
           flag "--cleanup-args=",
                depends_on:  "--cleanup",
-               description: "Extra arguments to pass to `brew cleanup`, e.g. `--prune=all`."
+               description: "Extra arguments to pass to `brew cleanup`, e.g. `--prune=all`. " \
+                            "Dry-run flags (`-n`/`--dry-run`) are ignored."
           switch "--immediate",
                  description: "Run immediately and on login instead of waiting for the first interval."
           switch "--sudo",

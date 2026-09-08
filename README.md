@@ -164,7 +164,8 @@ time such as 00:00 to run daily at that specific time.
       --cleanup                    Automatically clean Homebrew's cache and
                                    logs.
       --cleanup-args               Extra arguments to pass to brew cleanup,
-                                   e.g. --prune=all.
+                                   e.g. --prune=all. Dry-run flags
+                                   (-n/--dry-run) are ignored.
       --immediate                  Run immediately and on login instead of
                                    waiting for the first interval.
       --sudo                       Open a GUI password prompt when a cask

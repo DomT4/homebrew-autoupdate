@@ -91,6 +91,21 @@ class CommandTest < Minitest::Test
     assert_includes output, "Invalid `--cleanup-args` value"
   end
 
+  def test_cleanup_args_dry_run_flags_are_stripped
+    script = <<~'RUBY'
+      $LOAD_PATH.unshift File.join(Dir.pwd, "lib")
+      require "autoupdate/start"
+      kept, dropped = Autoupdate.sanitize_cleanup_args("--prune=all --dry-run -s -n")
+      abort "kept=#{kept.inspect} dropped=#{dropped.inspect}" unless kept == %w[--prune=all -s] &&
+                                                                  dropped == %w[--dry-run -n]
+      kept, dropped = Autoupdate.sanitize_cleanup_args("--dry-run")
+      abort "dry-run-only not emptied: #{kept.inspect}" unless kept.empty? && dropped == %w[--dry-run]
+    RUBY
+    _, stderr, status = Open3.capture3(ENVIRONMENT, BREW, "ruby", "-e", script, chdir: ROOT)
+
+    assert_predicate status, :success?, stderr
+  end
+
   def test_notification_modes_are_mutually_exclusive
     output, status = brew_autoupdate_error("start", "--notify-on-error", "--no-notify")
 

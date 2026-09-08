@@ -9,13 +9,32 @@ module Autoupdate
 
   module_function
 
+  # Splits a --cleanup-args value into usable tokens, separating out dry-run
+  # flags (`-n`/`--dry-run`), which are meaningless for an unattended
+  # scheduled cleanup and must be ignored.
+  def sanitize_cleanup_args(value)
+    tokens = value.to_s.split
+    dry_run = tokens & ["-n", "--dry-run"]
+    [tokens - dry_run, dry_run]
+  end
+
   def start(interval:, args:)
-    # Validate --cleanup-args to prevent shell injection into the generated script.
-    if args.cleanup_args && !args.cleanup_args.match?(%r{\A[a-zA-Z0-9\-_=. ]+\z})
-      odie <<~EOS
-        Invalid `--cleanup-args` value: #{args.cleanup_args}
-        Arguments may only contain letters, digits, hyphens, underscores, dots, equals signs, and spaces.
-      EOS
+    cleanup_args = nil
+    if args.cleanup_args
+      # Validate --cleanup-args to prevent shell injection into the generated script.
+      unless args.cleanup_args.match?(/\A[a-zA-Z0-9\-_=. ]+\z/)
+        odie <<~EOS
+          Invalid `--cleanup-args` value: #{args.cleanup_args}
+          Arguments may only contain letters, digits, hyphens, underscores, dots, equals signs, and spaces.
+        EOS
+      end
+
+      kept, dropped = sanitize_cleanup_args(args.cleanup_args)
+      if dropped.any?
+        opoo "Ignoring #{dropped.join(" ")} in `--cleanup-args`: " \
+             "a dry run is pointless for a scheduled background cleanup."
+      end
+      cleanup_args = kept.join(" ")
     end
 
     # Method from Homebrew.
@@ -98,7 +117,7 @@ module Autoupdate
     end
     if args.cleanup?
       auto_args << " && #{Autoupdate::Core.brew} cleanup"
-      auto_args << " #{args.cleanup_args}" if args.cleanup_args
+      auto_args << " #{cleanup_args}" unless cleanup_args.to_s.empty?
     end
 
     # Try to respect user choice as much as possible.
