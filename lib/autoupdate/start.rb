@@ -284,7 +284,8 @@ module Autoupdate
     end
 
     File.open(Autoupdate::Core.plist, "w") { |f| f << file }
-    quiet_system "/bin/launchctl", "load", Autoupdate::Core.plist
+    # quiet_system "/bin/launchctl", "load", Autoupdate::Core.plist
+    system "/bin/launchctl", "load", Autoupdate::Core.plist
 
     update_message = "Homebrew will now automatically update every #{Autoupdate::Interval.describe(interval)}"
     if args.immediate?
