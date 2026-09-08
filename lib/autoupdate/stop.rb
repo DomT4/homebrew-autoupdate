@@ -14,8 +14,8 @@ module Autoupdate
   def stop
     check_is_not_already_stopped
 
-    # quiet_system "/bin/launchctl", "unload", Autoupdate::Core.plist
-    system "/bin/launchctl", "unload", Autoupdate::Core.plist
+    # quiet_system("/bin/launchctl", "unload", Autoupdate::Core.plist, out: File::NULL, err: File::NULL)
+    system("/bin/launchctl", "unload", Autoupdate::Core.plist, out: File::NULL, err: File::NULL)
     puts "Homebrew will no longer autoupdate."
   end
 end
