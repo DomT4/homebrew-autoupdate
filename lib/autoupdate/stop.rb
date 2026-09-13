@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "system_command"
+
 module Autoupdate
   module_function
 
@@ -14,7 +16,7 @@ module Autoupdate
   def stop
     check_is_not_already_stopped
 
-    quiet_system "/bin/launchctl", "unload", Autoupdate::Core.plist
+    SystemCommand.quiet_system "/bin/launchctl", "unload", Autoupdate::Core.plist
     puts "Homebrew will no longer autoupdate."
   end
 end
