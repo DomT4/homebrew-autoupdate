@@ -2,6 +2,7 @@
 
 require "cgi"
 require "shellwords"
+require "system_command"
 require "utils/output"
 
 module Autoupdate
@@ -284,7 +285,7 @@ module Autoupdate
     end
 
     File.open(Autoupdate::Core.plist, "w") { |f| f << file }
-    quiet_system "/bin/launchctl", "load", Autoupdate::Core.plist
+    SystemCommand.quiet_system "/bin/launchctl", "load", Autoupdate::Core.plist
 
     update_message = "Homebrew will now automatically update every #{Autoupdate::Interval.describe(interval)}"
     if args.immediate?
