@@ -17,23 +17,50 @@ then
   title="Homebrew autoupdate completed"
   subtitle="brew-autoupdate"
 
-  if /usr/bin/grep -q "Already up-to-date." "${run_log}"
-  then
-    message="Homebrew is already up-to-date."
-  else
-    upgrade_line=$(
-      /usr/bin/awk '/==> Upgrading [0-9]+ outdated packages?:/ { line = $0 } END { print line }' "${run_log}"
-    )
-  fi
+  upgrade_line=$(
+    /usr/bin/awk '/==> Upgrading [0-9]+ outdated packages?:/ { line = $0 } END { print line }' "${run_log}"
+  )
 
   if [[ -n "${upgrade_line:-}" ]]
   then
+    category="upgraded"
     message=${upgrade_line}
-  elif [[ -z "${message:-}" ]]
+  elif /usr/bin/grep -q "^==> autoupdate-outdated-begin$" "${run_log}"
   then
+    outdated_packages=$(
+      /usr/bin/awk '
+        /^==> autoupdate-outdated-begin$/ { collecting = 1; next }
+        /^==> autoupdate-outdated-end$/   { collecting = 0; next }
+        collecting && NF                  { print }
+      ' "${run_log}"
+    )
+    outdated_count=$(echo "${outdated_packages}" | /usr/bin/grep -c . 2>/dev/null || true)
+
+    if [[ "${outdated_count}" -gt 0 ]]
+    then
+      category="outdated"
+      if [[ "${outdated_count}" -eq 1 ]]
+      then
+        subtitle="1 upgrade available"
+      else
+        subtitle="${outdated_count} upgrades available"
+      fi
+      # Truncate the list to fit comfortably in a banner notification.
+      message=$(echo "${outdated_packages}" | /usr/bin/awk 'BEGIN { ORS=", " } { print } NR==5 { print "…"; exit }' | /usr/bin/sed 's/, $//') || true
+    else
+      category="uptodate"
+      message="Homebrew is already up-to-date."
+    fi
+  elif /usr/bin/grep -q "Already up-to-date." "${run_log}"
+  then
+    category="uptodate"
+    message="Homebrew is already up-to-date."
+  else
+    category="uptodate"
     message="Homebrew was updated successfully."
   fi
 else
+  category="failure"
   title="Homebrew autoupdate failed"
   subtitle="Exit status ${status}"
   message=$(
@@ -43,6 +70,11 @@ else
     }' "${run_log}"
   )
   message=${message:-"See the autoupdate log for details."}
+fi
+
+if [[ "${mode}" = "outdated" ]] && [[ "${category}" != "outdated" ]] && [[ "${category}" != "failure" ]]
+then
+  exit 0
 fi
 
 if [[ "${AUTUPDATE_NOTIFY_PRINT:-0}" = "1" ]]

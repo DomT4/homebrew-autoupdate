@@ -107,6 +107,7 @@ command was run.
 
 Common start options:
   --upgrade upgrades installed formulae and casks.
+  --outdated reports available upgrades.
   --cleanup cleans Homebrew's cache and logs after a successful run.
   --immediate runs immediately and whenever the launch agent is loaded.
   --only=wget,node,firefox upgrades only the listed packages.
@@ -115,6 +116,8 @@ Common start options:
   --sudo enables a GUI password prompt for cask upgrades.
   --ac-only skips runs while the Mac is on battery power.
   --notify-on-error shows notifications only for failed runs.
+  --no-notify-on-update notifies only when upgrades are available or a run
+fails.
   --no-notify disables notifications.
 
 Examples:
@@ -160,6 +163,7 @@ time such as 00:00 to run daily at that specific time.
       --upgrade                    Automatically upgrade installed formulae and
                                    casks.
       --greedy                     Include auto-updating casks when upgrading.
+      --outdated                   Report available upgrades.
       --cleanup                    Automatically clean Homebrew's cache and
                                    logs.
       --immediate                  Run immediately and on login instead of
@@ -174,6 +178,8 @@ time such as 00:00 to run daily at that specific time.
       --ac-only                    Run only while the Mac is connected to AC
                                    power.
       --notify-on-error            Notify only when an autoupdate run fails.
+      --no-notify-on-update        Notify only when upgrades are available or a
+                                   run fails. Requires --outdated.
       --no-notify                  Disable autoupdate notifications.
 
 From tap: domt4/autoupdate
