@@ -133,6 +133,26 @@ class CommandTest < Minitest::Test
     end
   end
 
+  def test_sudo_askpass_extracts_and_decodes_pinentry_data
+    source = File.read(File.join(ROOT, "lib/autoupdate/start.rb"))
+    awk_program = source.match(%r{/usr/bin/awk '([^']+)'})&.captures&.first
+
+    refute_nil awk_program
+
+    pinentry_output = "D p%25ss\nD  leading space\nD \tleading tab\nD D\nOK\n"
+    stdout, stderr, status = Open3.capture3("/usr/bin/awk", awk_program, stdin_data: pinentry_output)
+
+    assert_predicate status, :success?, stderr
+    assert_equal "p%ss\n leading space\n\tleading tab\nD\n", stdout
+  end
+
+  def test_sudo_askpass_is_refreshed_when_its_contents_change
+    source = File.read(File.join(ROOT, "lib/autoupdate/start.rb"))
+
+    assert_includes source, "!sudo_gui_script.exist? || sudo_gui_script.read != sudo_gui_script_contents"
+    assert_includes source, "sudo_gui_script.atomic_write(sudo_gui_script_contents)"
+  end
+
   private
 
   def brew_autoupdate(*arguments)

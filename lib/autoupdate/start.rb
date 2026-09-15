@@ -120,61 +120,22 @@ module Autoupdate
         EOS
       end
       set_env << "\nexport SUDO_ASKPASS='#{Autoupdate::Core.location/"brew_autoupdate_sudo_gui"}'"
-      sudo_gui_script_contents = <<~'EOS'
+      sudo_gui_script_contents = <<~EOS
         #!/bin/sh
-        PATH="@@HOMEBREW_PREFIX@@/bin"
-
-        # pinentry returns the passphrase on an Assuan "D" line with its bytes
-        # percent-encoded, so it has to be decoded before being handed to sudo.
-        assuan_decode() {
-          s=$1
-          while :; do
-            case $s in
-              *%*)
-                printf '%s' "${s%%\%*}"
-                s=${s#*%}
-                hex=${s%"${s#??}"}
-                s=${s#??}
-                case $hex in
-                  [0-9A-Fa-f][0-9A-Fa-f])
-                    printf "\\$(printf '%03o' "$((0x$hex))")"
-                    ;;
-                  *)
-                    printf '%%%s' "$hex"
-                    ;;
-                esac
-                ;;
-              *)
-                printf '%s' "$s"
-                return 0
-                ;;
-            esac
-          done
-        }
-
+        PATH="#{HOMEBREW_PREFIX}/bin"
         (
-          export PINENTRY_USER_DATA="ICON=@@ICON@@,"
-          printf '%s\n' \
-            "OPTION allow-external-cache" \
-            "SETOK OK" \
-            "SETCANCEL Cancel" \
-            "SETDESC homebrew-autoupdate needs your admin password to complete the upgrade" \
-            "SETPROMPT Enter Password:" \
-            "SETTITLE homebrew-autoupdate Password Request" \
-            "GETPIN" \
+          export PINENTRY_USER_DATA="ICON=#{Autoupdate::Core.location/"notifier/applet.icns"},"
+          printf '%s\\n' \\
+            "OPTION allow-external-cache" \\
+            "SETOK OK" \\
+            "SETCANCEL Cancel" \\
+            "SETDESC homebrew-autoupdate needs your admin password to complete the upgrade" \\
+            "SETPROMPT Enter Password:" \\
+            "SETTITLE homebrew-autoupdate Password Request" \\
+            "GETPIN" \\
             | pinentry-mac --no-global-grab --timeout 60
-        ) | while IFS= read -r line; do
-              case $line in
-                "D "*)
-                  assuan_decode "${line#D }"
-                  exit 0
-                  ;;
-              esac
-            done
+        ) | /usr/bin/awk '/^D / {gsub(/%25/, "%"); print substr($0, 3)}'
       EOS
-      sudo_gui_script_contents = sudo_gui_script_contents
-                                 .gsub("@@HOMEBREW_PREFIX@@", HOMEBREW_PREFIX.to_s)
-                                 .gsub("@@ICON@@", (Autoupdate::Core.location/"notifier/applet.icns").to_s)
     elsif env_sudo
       set_env << "\n#{shell_export("SUDO_ASKPASS", env_sudo)}"
     end
@@ -249,9 +210,12 @@ module Autoupdate
       FileUtils.chmod 0555, Autoupdate::Core.location/"brew_autoupdate"
     end
 
-    if args.sudo? && !File.exist?(Autoupdate::Core.location/"brew_autoupdate_sudo_gui")
-      File.open(Autoupdate::Core.location/"brew_autoupdate_sudo_gui", "w") { |sc| sc << sudo_gui_script_contents }
-      FileUtils.chmod 0555, Autoupdate::Core.location/"brew_autoupdate_sudo_gui"
+    if args.sudo?
+      sudo_gui_script = Autoupdate::Core.location/"brew_autoupdate_sudo_gui"
+      if !sudo_gui_script.exist? || sudo_gui_script.read != sudo_gui_script_contents
+        sudo_gui_script.atomic_write(sudo_gui_script_contents)
+        FileUtils.chmod 0555, sudo_gui_script
+      end
     end
 
     # This restores the "Run At Load" key removed in a7de771abcf6 when requested.
