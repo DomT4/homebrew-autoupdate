@@ -297,10 +297,15 @@ module Autoupdate
   def homebrew_environment
     # Use Homebrew's registry so newly documented preferences are included too.
     names = Homebrew::EnvConfig::ENVS.keys.map(&:to_s)
-    names.concat %w[
-      XDG_CONFIG_HOME HOMEBREW_XDG_CONFIG_HOME
-      all_proxy ftp_proxy http_proxy https_proxy no_proxy
-    ]
+    names.push(
+      "XDG_CONFIG_HOME",
+      "HOMEBREW_XDG_CONFIG_HOME",
+      "all_proxy",
+      "ftp_proxy",
+      "http_proxy",
+      "https_proxy",
+      "no_proxy",
+    )
     # Sudo identity depends on the invoking process; system env priority belongs
     # in /etc/homebrew/brew.env and must be evaluated again on each run.
     names -= %w[

@@ -3,7 +3,6 @@
 require "json"
 require "minitest/autorun"
 require "open3"
-require "pathname"
 require "shellwords"
 require "tmpdir"
 
@@ -351,7 +350,7 @@ class CommandTest < Minitest::Test
       },
       BREW, "ruby", "--", "-e", GENERATE_UPDATER, ROOT, directory.to_s, JSON.generate(environment),
       "start", "24h", *options,
-      chdir: ROOT,
+      chdir: ROOT
     )
   end
 
