@@ -3,7 +3,8 @@
 require "json"
 require "minitest/autorun"
 require "open3"
-require "pathname" # rubocop:disable Lint/RedundantRequireStatement -- Required for standalone tests on Ruby 3.4.
+# Required for standalone tests on Ruby 3.4.
+require "pathname" # rubocop:disable Lint/RedundantRequireStatement
 require "shellwords"
 require "tmpdir"
 
