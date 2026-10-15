@@ -1,6 +1,7 @@
 # frozen_string_literal: false
 
 require "cgi"
+require "env_config"
 require "shellwords"
 require "system_command"
 require "utils/output"
@@ -91,26 +92,17 @@ module Autoupdate
     end
     auto_args << " && #{Autoupdate::Core.brew} cleanup" if args.cleanup?
 
-    # Try to respect user choice as much as possible.
-    env_cache = ENV.fetch("HOMEBREW_CACHE") if ENV["HOMEBREW_CACHE"]
-    env_logs = ENV.fetch("HOMEBREW_LOGS") if ENV["HOMEBREW_LOGS"]
-    env_dev = ENV.fetch("HOMEBREW_DEVELOPER") if ENV["HOMEBREW_DEVELOPER"]
-    env_stats = ENV.fetch("HOMEBREW_NO_ANALYTICS") if ENV["HOMEBREW_NO_ANALYTICS"]
-    env_cask = ENV.fetch("HOMEBREW_CASK_OPTS") if ENV["HOMEBREW_CASK_OPTS"]
     env_sudo = ENV.fetch("SUDO_ASKPASS") if ENV["SUDO_ASKPASS"]
-    env_path = ENV.fetch("PATH")
+
+    set_env = shell_export("PATH", ENV.fetch("PATH"))
+    homebrew_environment.each do |name, value|
+      set_env << "\n#{shell_export(name, value)}"
+    end
 
     # We don't want a background task ramping up the user's CPU to build things
     # from source, especially since it'll be non-obvious why the CPU is
     # suddenly being worked hard.
-    set_env = "export HOMEBREW_NO_BOTTLE_SOURCE_FALLBACK=1"
-
-    set_env << "\n#{shell_export("PATH", env_path)}"
-    set_env << "\n#{shell_export("HOMEBREW_CACHE", env_cache)}" if env_cache
-    set_env << "\n#{shell_export("HOMEBREW_LOGS", env_logs)}" if env_logs
-    set_env << "\n#{shell_export("HOMEBREW_DEVELOPER", env_dev)}" if env_dev
-    set_env << "\n#{shell_export("HOMEBREW_NO_ANALYTICS", env_stats)}" if env_stats
-    set_env << "\n#{shell_export("HOMEBREW_CASK_OPTS", env_cask)}" if env_cask
+    set_env << "\nexport HOMEBREW_NO_BOTTLE_SOURCE_FALLBACK=1"
 
     if args.sudo?
       unless Utils::Path.formula_any_version_installed?("pinentry-mac")
@@ -300,5 +292,37 @@ module Autoupdate
 
   def shell_export(name, value)
     "export #{name}=#{Shellwords.escape(value)}"
+  end
+
+  def homebrew_environment
+    # Use Homebrew's registry so newly documented preferences are included too.
+    names = Homebrew::EnvConfig::ENVS.keys.map(&:to_s)
+    names.push(
+      "XDG_CONFIG_HOME",
+      "HOMEBREW_XDG_CONFIG_HOME",
+      "all_proxy",
+      "ftp_proxy",
+      "http_proxy",
+      "https_proxy",
+      "no_proxy",
+    )
+    # Sudo identity depends on the invoking process; system env priority belongs
+    # in /etc/homebrew/brew.env and must be evaluated again on each run.
+    names -= %w[
+      HOMEBREW_SUDO_THROUGH_SUDO_USER
+      HOMEBREW_SYSTEM_ENV_TAKES_PRIORITY
+    ]
+
+    names.sort.each_with_object({}) do |name, environment|
+      next unless ENV.key?(name)
+      # Match Homebrew's credential-name filtering, also excluding secret references.
+      next if name.match?(/cookie|key|token|password|passphrase|auth|secret/i)
+
+      value = ENV.fetch(name)
+      # Mirrors and proxies can carry credentials in URL userinfo too.
+      next if value.match?(%r{[a-z][a-z0-9+.-]*://[^\s/]*@}i)
+
+      environment[name] = value
+    end
   end
 end

@@ -193,6 +193,49 @@ Usage: brew autoupdate logs [options]:
 
 **Logs of the performed operations can be found at:** `~/Library/Logs/com.github.domt4.homebrew-autoupdate`
 
+### Homebrew environment preferences
+
+When starting a job, autoupdate saves exported preferences registered by the
+installed Homebrew version, rather than using a fixed list. This includes update
+intervals and reports, analytics, cleanup policies and exclusions, cask upgrade
+policies, download settings and mirrors, verification settings, and custom cache,
+log, and temporary directories. Newly registered Homebrew preferences are picked
+up the next time the job is created.
+
+It also saves `XDG_CONFIG_HOME`, `HOMEBREW_XDG_CONFIG_HOME`, and Homebrew's documented
+proxy variables (`all_proxy`, `ftp_proxy`, `http_proxy`, `https_proxy`, `no_proxy`).
+
+Credential names containing `cookie`, `key`, `token`, `password`, `passphrase`,
+`auth`, or `secret`, and values containing URL userinfo (`scheme://user:password@host`),
+are not copied into the generated script. Unknown/internal `HOMEBREW_*` variables
+are excluded. `HOMEBREW_SUDO_THROUGH_SUDO_USER` is not saved because it depends on
+the invoking process's `SUDO_USER`; `HOMEBREW_SYSTEM_ENV_TAKES_PRIORITY` belongs in
+the system environment file. The updater still enforces
+`HOMEBREW_NO_BOTTLE_SOURCE_FALLBACK=1` to avoid unexpected source builds, and handles
+`SUDO_ASKPASS` separately through the existing `--sudo` option or custom helper.
+
+The background job does not read your shell startup files. After changing these
+values, export them in your current shell, then delete and recreate the job to
+capture the new values. Deleting the job also removes its logs.
+
+For settings that should stay current without recreating the job, use Homebrew's
+own [environment files](https://docs.brew.sh/Manpage#environment). Homebrew reads
+`/etc/homebrew/brew.env`, `${HOMEBREW_PREFIX}/etc/homebrew/brew.env`, and
+`$XDG_CONFIG_HOME/homebrew/brew.env` (or `~/.homebrew/brew.env` without a custom
+config directory) on every invocation. Later files override earlier files and
+the saved script values; system settings win when system-file priority is enabled.
+These files contain `NAME=value` entries, without `export`, shell expansion, or
+command substitution. Keep credential settings in a file you manage with suitable
+permissions instead of relying on script snapshots. A changed custom config
+directory still requires recreating the job.
+
+`HOMEBREW_AUTO_UPDATE_SECS` controls Homebrew's automatic checks before other
+commands, not this job's schedule or its explicit `brew update` invocation.
+The interval passed to `autoupdate start` controls the job's schedule.
+`--greedy` overrides `HOMEBREW_NO_UPGRADE_AUTO_UPDATES_CASKS`.
+Likewise, `--cleanup` explicitly runs `brew cleanup`; `HOMEBREW_NO_INSTALL_CLEANUP`
+only disables Homebrew's automatic cleanup after installs and upgrades.
+
 ## This vs `brew`'s built-in autoupdate mechanism
 
 This command mostly exists to ensure Homebrew is updated regardless of whether
