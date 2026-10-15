@@ -112,7 +112,9 @@ module Autoupdate
     set_env << "\n#{shell_export("HOMEBREW_NO_ANALYTICS", env_stats)}" if env_stats
     set_env << "\n#{shell_export("HOMEBREW_CASK_OPTS", env_cask)}" if env_cask
 
-    if args.sudo?
+    if args.sudo? && args.pam?
+      set_env << "\nunset SUDO_ASKPASS"
+    elsif args.sudo?
       unless Utils::Path.formula_any_version_installed?("pinentry-mac")
         odie <<~EOS
           `--sudo` requires https://formulae.brew.sh/formula/pinentry-mac to be installed.
@@ -210,7 +212,7 @@ module Autoupdate
       FileUtils.chmod 0555, Autoupdate::Core.location/"brew_autoupdate"
     end
 
-    if args.sudo?
+    if args.sudo? && !args.pam?
       sudo_gui_script = Autoupdate::Core.location/"brew_autoupdate_sudo_gui"
       if !sudo_gui_script.exist? || sudo_gui_script.read != sudo_gui_script_contents
         sudo_gui_script.atomic_write(sudo_gui_script_contents)

@@ -2,6 +2,9 @@
 
 require "minitest/autorun"
 require "open3"
+# Required for standalone tests on Ruby 3.4.
+require "pathname" # rubocop:disable Lint/RedundantRequireStatement
+require "tmpdir"
 
 class CommandTest < Minitest::Test
   ROOT = File.expand_path("..", __dir__).freeze
@@ -14,6 +17,34 @@ class CommandTest < Minitest::Test
     "LC_ALL"                       => "C",
   }.freeze
   VERSION = File.read(File.join(ROOT, "VERSION")).strip.freeze
+
+  GENERATE_UPDATER = <<~'RUBY'
+    require "abstract_command"
+    root, temporary_directory, pinentry = ARGV.shift(3)
+    require File.join(root, "cmd/autoupdate")
+    require File.join(root, "lib/autoupdate")
+    directory = Pathname.new(temporary_directory)
+    ENV["SUDO_ASKPASS"] = "/custom/askpass"
+    Autoupdate::Core.define_singleton_method(:location) { directory/"config" }
+    Autoupdate::Core.define_singleton_method(:logs) { (directory/"logs").to_s }
+    Autoupdate::Core.define_singleton_method(:fallback_logs) { directory.to_s }
+    Autoupdate::Core.define_singleton_method(:plist) { (directory/"agent.plist").to_s }
+    Autoupdate::Core.define_singleton_method(:brew) { directory/"fake-brew" }
+    Autoupdate::Notify.define_singleton_method(:command) { |mode:| ":" }
+    Utils.define_singleton_method(:popen_read) { |*| "" }
+    Utils::Path.define_singleton_method(:formula_any_version_installed?) do |_name|
+      raise "Unexpected pinentry check" if pinentry == "forbidden"
+
+      pinentry == "installed"
+    end
+    SystemCommand.define_singleton_method(:quiet_system) do |*arguments|
+      raise "Unexpected command: #{arguments.inspect}" unless arguments == ["/bin/launchctl", "load", Autoupdate::Core.plist]
+
+      true
+    end
+    Homebrew::Cmd::Autoupdate.new(ARGV).run
+    puts Autoupdate.configuration_summary
+  RUBY
 
   def test_root_help_lists_subcommands
     stdout, stderr, status = brew_autoupdate("--help")
@@ -38,6 +69,7 @@ class CommandTest < Minitest::Test
     assert_includes stdout, "--cleanup"
     assert_includes stdout, "--notify-on-error"
     assert_includes stdout, "--no-notify"
+    assert_includes stdout, "--pam"
     refute_includes stdout, "--follow"
     refute_includes stdout, "--lines"
   end
@@ -85,6 +117,22 @@ class CommandTest < Minitest::Test
 
     refute_predicate status, :success?
     assert_includes output, "Options --notify-on-error and --no-notify are mutually exclusive."
+  end
+
+  def test_pam_requires_sudo_and_sudo_still_requires_upgrade
+    output, status = brew_autoupdate_error("start", "--upgrade", "--pam")
+    refute_predicate status, :success?
+    assert_includes output, "`--pam` cannot be passed without `--sudo`."
+
+    output, status = brew_autoupdate_error("start", "--sudo", "--pam")
+    refute_predicate status, :success?
+    assert_includes output, "`--sudo` cannot be passed without `--upgrade`."
+  end
+
+  def test_pam_with_sudo_and_upgrade_reaches_interval_validation
+    output, status = brew_autoupdate_error("start", "invalid", "--upgrade", "--sudo", "--pam")
+    refute_predicate status, :success?
+    assert_includes output, "The interval must be positive seconds"
   end
 
   def test_invalid_intervals_are_rejected_before_starting
@@ -153,7 +201,101 @@ class CommandTest < Minitest::Test
     assert_includes source, "sudo_gui_script.atomic_write(sudo_gui_script_contents)"
   end
 
+  def test_pam_unsets_inherited_askpass_without_pinentry
+    with_updater("--upgrade", "--sudo", "--pam", pinentry: "forbidden") do |directory, stdout|
+      script = (directory/"config/brew_autoupdate").read
+      assert_includes script, "unset SUDO_ASKPASS"
+      refute_includes script, "export SUDO_ASKPASS="
+      refute_path_exists directory/"config/brew_autoupdate_sudo_gui"
+      assert_includes stdout, "Sudo authentication: native PAM"
+      refute_includes stdout, "GUI sudo prompt: yes"
+      assert_run_askpass directory, "unset"
+    end
+  end
+
+  def test_sudo_without_pam_keeps_pinentry_helper
+    with_updater("--upgrade", "--sudo", pinentry: "installed") do |directory, stdout|
+      helper = directory/"config/brew_autoupdate_sudo_gui"
+      assert_path_exists helper
+      assert_includes helper.read, "pinentry-mac --no-global-grab --timeout 60"
+      assert_equal 0555, helper.stat.mode & 0777
+      assert_includes stdout, "GUI sudo prompt: yes"
+      refute_includes stdout, "Sudo authentication: native PAM"
+      assert_run_askpass directory, helper.to_s
+    end
+  end
+
+  def test_without_sudo_preserves_custom_askpass
+    with_updater(pinentry: "forbidden") do |directory, _|
+      refute_path_exists directory/"config/brew_autoupdate_sudo_gui"
+      assert_run_askpass directory, "/custom/askpass"
+    end
+  end
+
+  def test_password_mode_still_requires_pinentry
+    Dir.mktmpdir("autoupdate-start") do |directory|
+      _stdout, stderr, status = generate_updater(directory, "--upgrade", "--sudo", pinentry: "missing")
+      refute_predicate status, :success?
+      assert_includes stderr, "`--sudo` requires"
+      refute_path_exists Pathname.new(directory)/"config/brew_autoupdate"
+    end
+  end
+
+  def test_pam_does_not_retry_a_failed_upgrade
+    with_updater("--upgrade", "--sudo", "--pam", pinentry: "forbidden") do |directory, _|
+      fake_brew = directory/"fake-brew"
+      fake_brew.write <<~SH
+        #!/bin/sh
+        printf '%s\\n' "$*"
+        if [ "$1" = upgrade ]; then exit 42; fi
+      SH
+      stdout, stderr, status = Open3.capture3((directory/"config/brew_autoupdate").to_s)
+      assert_equal 42, status.exitstatus, stderr
+      calls = stdout.lines(chomp: true).drop(1)
+      assert_equal ["update", "upgrade --no-ask --formula -v"], calls
+    end
+  end
+
   private
+
+  def with_updater(*options, pinentry:)
+    Dir.mktmpdir("autoupdate-start") do |directory|
+      directory = Pathname.new(directory)
+      fake_brew = directory/"fake-brew"
+      fake_brew.write <<~SH
+        #!/bin/sh
+        printf '%s\\n' "${SUDO_ASKPASS-unset}"
+      SH
+      fake_brew.chmod 0755
+      stdout, stderr, status = generate_updater(directory, *options, pinentry:)
+      assert_predicate status, :success?, "#{stdout}\n#{stderr}"
+      yield directory, stdout
+    end
+  end
+
+  def generate_updater(directory, *options, pinentry:)
+    Open3.capture3(
+      {
+        "HOMEBREW_NO_ANALYTICS"   => "1",
+        "HOMEBREW_NO_AUTO_UPDATE" => "1",
+        "HOMEBREW_NO_COLOR"       => "1",
+      },
+      BREW, "ruby", "--", "-e", GENERATE_UPDATER, ROOT, directory.to_s, pinentry, "start", "24h", *options,
+      chdir: ROOT
+    )
+  end
+
+  def assert_run_askpass(directory, expected)
+    script = (directory/"config/brew_autoupdate").to_s
+    _stdout, stderr, status = Open3.capture3("/bin/sh", "-n", script)
+    assert_predicate status, :success?, stderr
+    stdout, stderr, status = Open3.capture3({ "SUDO_ASKPASS" => "/runtime/askpass" }, script)
+    assert_predicate status, :success?, stderr
+    # The first line is the date; every fake brew invocation reports its environment.
+    values = stdout.lines(chomp: true).drop(1)
+    refute_empty values
+    assert values.all?(expected), stdout
+  end
 
   def brew_autoupdate(*arguments)
     Open3.capture3(
