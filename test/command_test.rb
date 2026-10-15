@@ -2,7 +2,8 @@
 
 require "minitest/autorun"
 require "open3"
-require "pathname"
+# Required for standalone tests on Ruby 3.4.
+require "pathname" # rubocop:disable Lint/RedundantRequireStatement
 require "tmpdir"
 
 class CommandTest < Minitest::Test
@@ -280,7 +281,7 @@ class CommandTest < Minitest::Test
         "HOMEBREW_NO_COLOR"       => "1",
       },
       BREW, "ruby", "--", "-e", GENERATE_UPDATER, ROOT, directory.to_s, pinentry, "start", "24h", *options,
-      chdir: ROOT,
+      chdir: ROOT
     )
   end
 
@@ -293,7 +294,7 @@ class CommandTest < Minitest::Test
     # The first line is the date; every fake brew invocation reports its environment.
     values = stdout.lines(chomp: true).drop(1)
     refute_empty values
-    assert values.all? { |value| value == expected }, stdout
+    assert values.all?(expected), stdout
   end
 
   def brew_autoupdate(*arguments)
