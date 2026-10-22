@@ -238,6 +238,12 @@ class CommandTest < Minitest::Test
     end
   end
 
+  def test_greedy_without_type_selectors_preserves_default_upgrades
+    assert_updater_calls %w[--upgrade --greedy],
+                         ["update", "upgrade --no-ask --formula -v", "upgrade --no-ask --cask -v --greedy"],
+                         "formulae and casks"
+  end
+
   def test_greedy_conflicts_with_formula_selection
     [%w[--formula], %w[--formula --cask]].each do |options|
       output, status = brew_autoupdate_error("start", "--upgrade", "--greedy", *options)
