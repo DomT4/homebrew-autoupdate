@@ -24,6 +24,7 @@ module Homebrew
 
           Common start options:
             `--upgrade` upgrades installed formulae and casks.
+            `--formula` restricts upgrades to formulae; `--cask` restricts them to casks.
             `--cleanup` cleans Homebrew's cache and logs after a successful run.
             `--immediate` runs immediately and whenever the launch agent is loaded.
             `--only=wget,node,firefox` upgrades only the listed packages.
@@ -62,6 +63,12 @@ module Homebrew
 
           switch "--upgrade",
                  description: "Automatically upgrade installed formulae and casks."
+          switch "--formula",
+                 depends_on:  "--upgrade",
+                 description: "Upgrade formulae only, unless `--cask` is also passed. Defaults to both types."
+          switch "--cask",
+                 depends_on:  "--upgrade",
+                 description: "Upgrade casks only, unless `--formula` is also passed. Defaults to both types."
           switch "--greedy",
                  depends_on:  "--upgrade",
                  description: "Include auto-updating casks when upgrading."
@@ -153,6 +160,10 @@ module Homebrew
         case subcommand
         when :start
           raise UsageError, "`--only` cannot be passed without `--upgrade`." if args.only && !args.upgrade?
+
+          if args.cask? && !args.formula? && args.leaves_only?
+            raise UsageError, "`--leaves-only` requires formula upgrades; omit `--cask` or also pass `--formula`."
+          end
 
           interval = begin
             ::Autoupdate::Interval.parse(args.named.first)

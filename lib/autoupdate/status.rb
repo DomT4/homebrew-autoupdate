@@ -102,19 +102,24 @@ module Autoupdate
   end
 
   def upgrade_summary(script)
-    return "top-level formulae only" if script.include?("brew_autoupdate_leaves")
-
-    selected_upgrade = script.lines.find do |line|
-      line.include?("#{Autoupdate::Core.brew} upgrade -v")
-    end
-    if selected_upgrade
-      packages = selected_upgrade.split(/\s+upgrade\s+-v(?:\s+--greedy)?\s+/, 2).last&.strip
-      packages = packages&.split(" && ", 2)&.first
-      return "selected packages (#{packages})" if packages.present?
-    end
-
     formulae = script.include?("#{Autoupdate::Core.brew} upgrade --formula")
     casks = script.include?("#{Autoupdate::Core.brew} upgrade --cask")
+    if script.include?("brew_autoupdate_leaves")
+      return casks ? "top-level formulae and casks" : "top-level formulae only"
+    end
+
+    brew = Regexp.escape(Autoupdate::Core.brew.to_s)
+    package_names = %r{[a-zA-Z0-9_.@/-]+(?: [a-zA-Z0-9_.@/-]+)*}
+    selected_upgrade = script.match(/#{brew} upgrade(?: (--formula|--cask))? -v(?: --greedy)? (#{package_names})/)
+    if selected_upgrade && selected_upgrade[2] != "--greedy"
+      type = case selected_upgrade[1]
+      when "--formula" then "formulae"
+      when "--cask" then "casks"
+      else "packages"
+      end
+      return "selected #{type} (#{selected_upgrade[2].strip})"
+    end
+
     return "formulae and casks" if formulae && casks
     return "formulae only" if formulae
     return "casks only" if casks
