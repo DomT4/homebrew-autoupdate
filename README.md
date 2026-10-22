@@ -69,6 +69,10 @@ brew autoupdate start 24h --upgrade --formula
 brew autoupdate start 24h --upgrade --cask
 ```
 
+`--greedy` targets casks and cannot be combined with `--formula`, including
+when both `--formula` and `--cask` are passed. It remains available with
+`--cask` or the default package selection.
+
 Passing both flags explicitly selects both types. Both flags require
 `--upgrade`; plain `brew autoupdate start` still only runs `brew update`.
 The type selection also restricts `--only` package lists. `--leaves-only` can
@@ -186,6 +190,7 @@ time such as 00:00 to run daily at that specific time.
       --cask                       Upgrade casks only, unless --formula is
                                    also passed. Defaults to both types.
       --greedy                     Include auto-updating casks when upgrading.
+                                   Cannot be combined with --formula.
       --cleanup                    Automatically clean Homebrew's cache and
                                    logs.
       --immediate                  Run immediately and on login instead of

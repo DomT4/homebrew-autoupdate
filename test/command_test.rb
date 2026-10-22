@@ -232,9 +232,27 @@ class CommandTest < Minitest::Test
       [%w[--formula --cask], "", "packages"],
       [[], "", "packages"],
     ].each do |options, flag, type|
-      assert_updater_calls ["--upgrade", "--only=wget,firefox", "--greedy", *options],
-                           ["update", "upgrade --no-ask#{flag} -v --greedy wget firefox"],
+      assert_updater_calls ["--upgrade", "--only=wget,firefox", *options],
+                           ["update", "upgrade --no-ask#{flag} -v wget firefox"],
                            "selected #{type} (wget firefox)"
+    end
+  end
+
+  def test_greedy_conflicts_with_formula_selection
+    [%w[--formula], %w[--formula --cask]].each do |options|
+      output, status = brew_autoupdate_error("start", "--upgrade", "--greedy", *options)
+      refute_predicate status, :success?
+      assert_includes output, "Options --formula and --greedy are mutually exclusive."
+    end
+  end
+
+  def test_greedy_remains_supported_for_default_and_cask_package_lists
+    [[], %w[--cask]].each do |options|
+      flag = options.empty? ? "" : " --cask"
+      type = options.empty? ? "packages" : "casks"
+      assert_updater_calls ["--upgrade", "--only=firefox", "--greedy", *options],
+                           ["update", "upgrade --no-ask#{flag} -v --greedy firefox"],
+                           "selected #{type} (firefox)"
     end
   end
 

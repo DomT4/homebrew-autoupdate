@@ -71,7 +71,7 @@ module Homebrew
                  description: "Upgrade casks only, unless `--formula` is also passed. Defaults to both types."
           switch "--greedy",
                  depends_on:  "--upgrade",
-                 description: "Include auto-updating casks when upgrading."
+                 description: "Include auto-updating casks when upgrading. Cannot be combined with `--formula`."
           switch "--cleanup",
                  description: "Automatically clean Homebrew's cache and logs."
           switch "--immediate",
@@ -93,6 +93,7 @@ module Homebrew
           switch "--no-notify",
                  description: "Disable autoupdate notifications."
 
+          conflicts "--formula", "--greedy"
           conflicts "--only", "--leaves-only"
           conflicts "--notify-on-error", "--no-notify"
           named_args max: 1
