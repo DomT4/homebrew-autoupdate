@@ -2,6 +2,9 @@
 
 require "minitest/autorun"
 require "open3"
+# Required for standalone tests on Ruby 3.4.
+require "pathname" # rubocop:disable Lint/RedundantRequireStatement
+require "tmpdir"
 
 class CommandTest < Minitest::Test
   ROOT = File.expand_path("..", __dir__).freeze
@@ -14,6 +17,33 @@ class CommandTest < Minitest::Test
     "LC_ALL"                       => "C",
   }.freeze
   VERSION = File.read(File.join(ROOT, "VERSION")).strip.freeze
+
+  GENERATE_UPDATER = <<~'RUBY'
+    require "abstract_command"
+    root, temporary_directory, has_casks = ARGV.shift(3)
+    require File.join(root, "cmd/autoupdate")
+    require File.join(root, "lib/autoupdate")
+    directory = Pathname.new(temporary_directory)
+    caskroom = (HOMEBREW_PREFIX/"Caskroom").to_s
+    Pathname.prepend(Module.new do
+      define_method(:exist?) { to_s == caskroom ? has_casks == "true" : super() }
+    end)
+    ENV.delete("SUDO_ASKPASS")
+    Autoupdate::Core.define_singleton_method(:location) { directory/"config" }
+    Autoupdate::Core.define_singleton_method(:logs) { (directory/"logs").to_s }
+    Autoupdate::Core.define_singleton_method(:fallback_logs) { directory.to_s }
+    Autoupdate::Core.define_singleton_method(:plist) { (directory/"agent.plist").to_s }
+    Autoupdate::Core.define_singleton_method(:brew) { directory/"fake-brew" }
+    Autoupdate::Notify.define_singleton_method(:command) { |mode:| ":" }
+    Utils.define_singleton_method(:popen_read) { |*| "" }
+    SystemCommand.define_singleton_method(:quiet_system) do |*arguments|
+      raise "Unexpected command: #{arguments.inspect}" unless arguments == ["/bin/launchctl", "load", Autoupdate::Core.plist]
+
+      true
+    end
+    Homebrew::Cmd::Autoupdate.new(ARGV).run
+    puts Autoupdate.configuration_summary
+  RUBY
 
   def test_root_help_lists_subcommands
     stdout, stderr, status = brew_autoupdate("--help")
@@ -35,6 +65,8 @@ class CommandTest < Minitest::Test
     assert_predicate status, :success?, stderr
     assert_includes stdout, "Usage: brew autoupdate start"
     assert_includes stdout, "--upgrade"
+    assert_includes stdout, "--formula"
+    assert_includes stdout, "--cask"
     assert_includes stdout, "--cleanup"
     assert_includes stdout, "--notify-on-error"
     assert_includes stdout, "--no-notify"
@@ -153,15 +185,136 @@ class CommandTest < Minitest::Test
     assert_includes source, "sudo_gui_script.atomic_write(sudo_gui_script_contents)"
   end
 
+  def test_package_type_options_require_upgrade
+    %w[--formula --cask].each do |option|
+      output, status = brew_autoupdate_error("start", option)
+      refute_predicate status, :success?
+      assert_includes output, "`#{option}` cannot be passed without `--upgrade`."
+
+      output, status = brew_autoupdate_error("status", option)
+      refute_predicate status, :success?
+      assert_includes output, "The `status` subcommand does not accept the `#{option}` switch."
+    end
+  end
+
+  def test_start_without_upgrade_remains_update_only
+    assert_updater_calls [], ["update"], "no"
+  end
+
+  def test_default_and_explicit_both_upgrade_formulae_and_casks
+    [[], %w[--formula --cask], %w[--cask --formula]].each do |options|
+      assert_updater_calls ["--upgrade", *options],
+                           ["update", "upgrade --no-ask --formula -v", "upgrade --no-ask --cask -v"],
+                           "formulae and casks"
+    end
+  end
+
+  def test_formula_only_does_not_upgrade_or_warn_about_casks
+    assert_updater_calls %w[--upgrade --formula --cleanup],
+                         ["update", "upgrade --no-ask --formula -v", "cleanup"], "formulae only"
+  end
+
+  def test_cask_only_does_not_upgrade_formulae
+    assert_updater_calls %w[--upgrade --cask --greedy],
+                         ["update", "upgrade --no-ask --cask -v --greedy"], "casks only"
+  end
+
+  def test_missing_caskroom_skips_cask_upgrades
+    assert_updater_calls %w[--upgrade --cask], ["update"], "no", has_casks: false
+    assert_updater_calls %w[--upgrade], ["update", "upgrade --no-ask --formula -v"],
+                         "formulae only", has_casks: false
+  end
+
+  def test_package_selection_is_restricted_to_the_selected_type
+    [
+      [%w[--formula], " --formula", "formulae"],
+      [%w[--cask], " --cask", "casks"],
+      [%w[--formula --cask], "", "packages"],
+      [[], "", "packages"],
+    ].each do |options, flag, type|
+      assert_updater_calls ["--upgrade", "--only=wget,firefox", *options],
+                           ["update", "upgrade --no-ask#{flag} -v wget firefox"],
+                           "selected #{type} (wget firefox)"
+    end
+  end
+
+  def test_greedy_without_type_selectors_preserves_default_upgrades
+    assert_updater_calls %w[--upgrade --greedy],
+                         ["update", "upgrade --no-ask --formula -v", "upgrade --no-ask --cask -v --greedy"],
+                         "formulae and casks"
+  end
+
+  def test_greedy_conflicts_with_formula_selection
+    [%w[--formula], %w[--formula --cask]].each do |options|
+      output, status = brew_autoupdate_error("start", "--upgrade", "--greedy", *options)
+      refute_predicate status, :success?
+      assert_includes output, "Options --formula and --greedy are mutually exclusive."
+    end
+  end
+
+  def test_greedy_remains_supported_for_default_and_cask_package_lists
+    [[], %w[--cask]].each do |options|
+      flag = options.empty? ? "" : " --cask"
+      type = options.empty? ? "packages" : "casks"
+      assert_updater_calls ["--upgrade", "--only=firefox", "--greedy", *options],
+                           ["update", "upgrade --no-ask#{flag} -v --greedy firefox"],
+                           "selected #{type} (firefox)"
+    end
+  end
+
+  def test_leaves_selection_with_formula_only_skips_casks
+    assert_updater_calls %w[--upgrade --formula --leaves-only],
+                         ["update", "leaves", "upgrade --no-ask --formula -v wget"], "top-level formulae only"
+    assert_updater_calls %w[--upgrade --formula --cask --leaves-only],
+                         ["update", "leaves", "upgrade --no-ask --formula -v wget", "upgrade --no-ask --cask -v"],
+                         "top-level formulae and casks"
+  end
+
+  def test_cask_only_rejects_leaves_selection_before_starting
+    output, status = brew_autoupdate_error("start", "--upgrade", "--cask", "--leaves-only")
+    refute_predicate status, :success?
+    assert_includes output, "`--leaves-only` requires formula upgrades"
+  end
+
   private
+
+  def assert_updater_calls(options, expected, summary, has_casks: true)
+    Dir.mktmpdir("autoupdate-types") do |temporary_directory|
+      directory = Pathname.new(temporary_directory)
+      fake_brew = directory/"fake-brew"
+      calls = directory/"calls"
+      fake_brew.write <<~SH
+        #!/bin/sh
+        printf '%s\\n' "$*" >> "#{calls}"
+        if [ "$1" = leaves ]; then printf '%s\\n' wget; fi
+      SH
+      fake_brew.chmod 0755
+      stdout, stderr, status = Open3.capture3(
+        ENVIRONMENT, BREW, "ruby", "--", "-e", GENERATE_UPDATER, ROOT,
+        directory.to_s, has_casks.to_s, "start", "24h", *options
+      )
+      assert_predicate status, :success?, "#{stdout}\n#{stderr}"
+      assert_includes stdout, "Upgrade: #{summary}\n"
+      if summary.end_with?("formulae only")
+        refute_includes stderr, "Casks that require"
+      end
+      script = (directory/"config/brew_autoupdate").to_s
+      _stdout, stderr, status = Open3.capture3("/bin/sh", "-n", script)
+      assert_predicate status, :success?, stderr
+      _stdout, stderr, status = Open3.capture3(script)
+      assert_predicate status, :success?, stderr
+      assert_equal expected, calls.readlines(chomp: true)
+    end
+  end
 
   def brew_autoupdate(*arguments)
     Open3.capture3(
       ENVIRONMENT,
       BREW,
-      "autoupdate",
-      *arguments,
-      chdir: ROOT,
+      "ruby", "--", "-e",
+      'require "abstract_command"; require File.join(ARGV.shift, "cmd/autoupdate"); Homebrew::Cmd::Autoupdate.new(ARGV).run',
+      ROOT, *arguments,
+      chdir: ROOT
     )
   end
 
