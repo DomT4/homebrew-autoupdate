@@ -30,6 +30,7 @@ module Homebrew
             `--leaves-only` upgrades only top-level formulae.
             `--greedy` includes auto-updating casks.
             `--sudo` enables a GUI password prompt for cask upgrades.
+            `--pam` uses native sudo/PAM authentication with `--sudo` instead of pinentry.
             `--ac-only` skips runs while the Mac is on battery power.
             `--notify-on-error` shows notifications only for failed runs.
             `--no-notify` disables notifications.
@@ -72,7 +73,11 @@ module Homebrew
           switch "--sudo",
                  depends_on:  "--upgrade",
                  description: "Open a GUI password prompt when a cask upgrade requires `sudo`. " \
-                              "Requires `pinentry-mac` to be installed."
+                              "Requires `pinentry-mac` unless `--pam` is passed."
+          switch "--pam",
+                 depends_on:  "--sudo",
+                 description: "Use native sudo/PAM authentication instead of the GUI password helper. " \
+                              "Touch ID requires a working PAM configuration and GUI session."
           switch "--leaves-only",
                  depends_on:  "--upgrade",
                  description: "Upgrade only top-level formulae that are not dependencies."

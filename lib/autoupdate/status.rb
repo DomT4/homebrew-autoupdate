@@ -81,6 +81,7 @@ module Autoupdate
     details << "AC power only: #{script.include?("/usr/bin/pmset -g ps") ? "yes" : "no"}"
     details << "Greedy cask upgrades: yes" if status_script.include?("upgrade --cask -v --greedy")
     details << "GUI sudo prompt: yes" if script.include?("brew_autoupdate_sudo_gui")
+    details << "Sudo authentication: native PAM" if script.lines.any? { |line| line.strip == "unset SUDO_ASKPASS" }
     notification_mode = case script[%r{notifier/notify\.sh "\$status" "\$run_log" (\w+)}, 1]
     when "always" then "yes"
     when "error" then "failures only"

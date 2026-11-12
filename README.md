@@ -58,6 +58,26 @@ Also, it will clean up every old version and left-over files.
 
 Casks that have built-in auto-updates enabled by default will not be upgraded.
 
+### Use native sudo/PAM authentication
+
+Pass `--pam` together with `--sudo` to use your configured macOS PAM
+authentication instead of the pinentry password helper:
+
+```sh
+brew autoupdate start 24h --upgrade --cleanup --sudo --pam
+```
+
+This mode does not require `pinentry-mac` and explicitly unsets `SUDO_ASKPASS`,
+including any inherited value. Touch ID depends on your PAM configuration and
+the background job's access to your logged-in GUI session; enabling this option
+does not guarantee Touch ID availability. Authentication failure is reported
+without automatically retrying through pinentry. `--pam` requires `--sudo`,
+which in turn requires `--upgrade`. Without `--pam`, `--sudo` retains its GUI
+password prompt behavior.
+
+For an existing job, run `brew autoupdate delete` before starting with the new
+options. This also removes its existing logs.
+
 ### Upgrade Only Specific Packages
 
 ```sh
@@ -113,6 +133,7 @@ Common start options:
   --leaves-only upgrades only top-level formulae.
   --greedy includes auto-updating casks.
   --sudo enables a GUI password prompt for cask upgrades.
+  --pam uses native sudo/PAM authentication with --sudo instead of pinentry.
   --ac-only skips runs while the Mac is on battery power.
   --notify-on-error shows notifications only for failed runs.
   --no-notify disables notifications.
@@ -166,7 +187,10 @@ time such as 00:00 to run daily at that specific time.
                                    waiting for the first interval.
       --sudo                       Open a GUI password prompt when a cask
                                    upgrade requires sudo. Requires
-                                   pinentry-mac to be installed.
+                                   pinentry-mac unless --pam is passed.
+      --pam                        Use native sudo/PAM authentication instead of
+                                   the GUI password helper. Touch ID requires a
+                                   working PAM configuration and GUI session.
       --leaves-only                Upgrade only top-level formulae that are not
                                    dependencies.
       --only                       Upgrade only these formulae and/or casks
