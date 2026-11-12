@@ -58,6 +58,31 @@ Also, it will clean up every old version and left-over files.
 
 Casks that have built-in auto-updates enabled by default will not be upgraded.
 
+### Choose which package types to upgrade
+
+With `--upgrade`, both formulae and casks are upgraded by default. Pass
+`--formula` to upgrade only formulae with `brew upgrade --formula`, or `--cask`
+to upgrade only casks with `brew upgrade --cask`:
+
+```sh
+brew autoupdate start 24h --upgrade --formula
+brew autoupdate start 24h --upgrade --cask
+```
+
+`--greedy` targets casks and cannot be combined with `--formula`, including
+when both `--formula` and `--cask` are passed. It remains available with
+`--cask` or the default package selection.
+
+Passing both flags explicitly selects both types. Both flags require
+`--upgrade`; plain `brew autoupdate start` still only runs `brew update`.
+The type selection also restricts `--only` package lists. `--leaves-only` can
+be combined with `--formula`, but cask-only mode rejects `--leaves-only`
+because it selects formulae. With both types selected, `--leaves-only`
+continues to upgrade top-level formulae and casks.
+
+To change an existing job, run `brew autoupdate delete`, then start again
+with the new options. Deleting the job also removes its logs.
+
 ### Upgrade Only Specific Packages
 
 ```sh
@@ -107,6 +132,7 @@ command was run.
 
 Common start options:
   --upgrade upgrades installed formulae and casks.
+  --formula restricts upgrades to formulae; --cask restricts them to casks.
   --cleanup cleans Homebrew's cache and logs after a successful run.
   --immediate runs immediately and whenever the launch agent is loaded.
   --only=wget,node,firefox upgrades only the listed packages.
@@ -159,7 +185,12 @@ time such as 00:00 to run daily at that specific time.
   -h, --help                       Show this message.
       --upgrade                    Automatically upgrade installed formulae and
                                    casks.
+      --formula                    Upgrade formulae only, unless --cask is
+                                   also passed. Defaults to both types.
+      --cask                       Upgrade casks only, unless --formula is
+                                   also passed. Defaults to both types.
       --greedy                     Include auto-updating casks when upgrading.
+                                   Cannot be combined with --formula.
       --cleanup                    Automatically clean Homebrew's cache and
                                    logs.
       --immediate                  Run immediately and on login instead of

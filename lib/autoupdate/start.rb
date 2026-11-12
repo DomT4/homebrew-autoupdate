@@ -36,6 +36,9 @@ module Autoupdate
     auto_args = "update"
     # Spacing at start of lines is deliberate. Don't undo.
     if args.upgrade?
+      upgrade_formulae = args.formula? || !args.cask?
+      upgrade_casks = args.cask? || !args.formula?
+
       if args.leaves_only?
         # For --leaves-only, we need to get the list of leaves and upgrade only those
         # We create a temporary script to handle this safely
@@ -69,12 +72,19 @@ module Autoupdate
       elsif args.only
         greedy = args.greedy? ? " --greedy" : ""
         package_list = args.only.join(" ")
-        auto_args << " && #{Autoupdate::Core.brew} upgrade --no-ask -v#{greedy} #{package_list}"
-      else
+        package_type = if upgrade_formulae && !upgrade_casks
+          " --formula"
+        elsif upgrade_casks && !upgrade_formulae
+          " --cask"
+        else
+          ""
+        end
+        auto_args << " && #{Autoupdate::Core.brew} upgrade --no-ask#{package_type} -v#{greedy} #{package_list}"
+      elsif upgrade_formulae
         auto_args << " && #{Autoupdate::Core.brew} upgrade --no-ask --formula -v"
       end
 
-      if !args.only && (HOMEBREW_PREFIX/"Caskroom").exist?
+      if upgrade_casks && !args.only && (HOMEBREW_PREFIX/"Caskroom").exist?
         if ENV["SUDO_ASKPASS"].nil? && !args.sudo?
           opoo <<~EOS
             Please note if you use Casks that require `sudo` to upgrade,
